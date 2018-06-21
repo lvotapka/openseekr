@@ -7,7 +7,7 @@ Created on May 8, 2018
 '''
 
 import cPickle as pickle
-import dill, os
+import os
 
 class _Project():
   '''An object for generic project-level information of a SEEKR run'''
