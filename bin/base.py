@@ -17,7 +17,7 @@ class _Project():
     self.test_mode = False # reduces the calculation time by restricting input size. Use only for debugging SEEKR
     self.md = True # whether MD is run in this calculation
     self.bd = True # whether BD is run in this calculation
-    self.k_off = False # whether files to prepare k-off calculations are generated
+    #self.k_off = False # whether files to prepare k-off calculations are generated
     self.empty_rootdir = False # if set to True will empty the contents of the rootdir when the new file tree is made
     
     ''' Save these for the umbrella object
@@ -51,14 +51,17 @@ class _Inputgen():
     self.executable = 'inputgen' # the location of the Inputgen executable
     self.fadd = 150 # how many angstroms around the molecule to add as a buffer before reaching the boundary in the fine grid
     self.cfac = 6 # the factor by which to create a boundary in the course grid
+    self.gmemceil = 64000
+    self.resolution = 0.5
+    self.ionic_str = 0.15
 
 class APBS_ion():
   '''An object to represent ions in the APBS calculation.'''
   def __init__(self, name, concentration, charge, radius):
-    self.name = '' # the name of the ion, can be 'Cl-', 'Ca2+', 'tris', etc.
-    self.concentration = 0.0 # in M
-    self.charge = 0.0 # in proton charge units
-    self.radius = 0.0 # in Angstroms
+    self.name = name # the name of the ion, can be 'Cl-', 'Ca2+', 'tris', etc.
+    self.concentration = concentration # in M
+    self.charge = charge # in proton charge units
+    self.radius = radius # in Angstroms
   
 class _APBS():
   '''APBS is an electrostatic Poisson-Boltzmann equation solver used in
@@ -75,11 +78,15 @@ class _Browndye():
     self.rec_dry_pqr_filename = ''
     self.lig_dry_pqr_filename = ''
     # BrownDye parameters
-    self.browndye_bin_dir = ''
+    self.b_surface_path = ''
+    self.starting_lig_config = None
+    self.browndye_bin = ''
     self.num_threads = 1
     self.prods_per_anchor = 1 # how many trajectories to relaunch per anchor
     # APBS parameters
     self.apbs = _APBS()
+    self.ligand_is_protein = False
+    self.fhpd_numtraj = 1000
     
 class _Selections():
   '''An object to represent selections of ligand and receptor objects for simulation purposes.'''
@@ -101,6 +108,7 @@ class _Building():
     self.ligand = None
     self.receptor_wet = None
     self.receptor_dry = None
+    self.lig_resname = ''
     #self.prmtop = None
     #self.inpcrd = None
     # self.watermodel = '' ?
@@ -136,6 +144,7 @@ class _Umbrella():
     self.barostat = True
     self.barostat_coeff = 25
     self.barostat_pressure = 1.0
+    self.traj = []
     
 class _Fwd_rev():
   '''An object to contain all forward-reverse stage parameters.'''
@@ -143,6 +152,10 @@ class _Fwd_rev():
     self.integrator = None # OpenMM integrator object
     self.reporters = [] # OpenMM reporter frequency
     self.launches_per_config = 1 # For each umbrella conformation, this represents the number of times to reinitialize the velocities and relaunch
+    self.reversal_coords_pickle = ''
+    self.reversal_vels_pickle = ''
+    self.success_coords_pickle = ''
+    self.success_vels_pickle = ''
     
     
 class SeekrCalculation():

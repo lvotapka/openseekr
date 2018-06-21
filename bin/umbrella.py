@@ -36,7 +36,6 @@ def create_forces(seekrcalc, milestone, system):
   new_force.addBond([g1, g2], [])
   if verbose: print "new_force.getNumGlobalParameters():", new_force.getNumGlobalParameters()
   if verbose: print "new_force.getNumPerBondParameters():", new_force.getNumPerBondParameters()
-  #system.addForce(new_force)
   return new_force
 
 def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umbrella1.dcd'):
@@ -91,7 +90,7 @@ def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umb
   end_state = simulation.context.getState(getPositions=True)
   ending_box_vectors = end_state.getPeriodicBoxVectors()
   milestone.openmm.simulation = simulation
-  return ending_box_vectors
+  return ending_box_vectors, umbrella_traj
 
 def generate_umbrella_filenames(seekr_calc, milestone):
   umbrella_file_glob = os.path.join(seekr_calc.project.rootdir, milestone.directory, 'md', 'umbrella', 'umbrella*.dcd')

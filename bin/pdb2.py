@@ -24,7 +24,7 @@ atomic_weights = {'H':1.00800, 'C':12.0110, 'N':14.00699, 'O':15.9994, 'F':18.99
 radii = {'C': 1.9080, 'N':1.824, 'H':0.0000, 'O':1.66, 'S':2.000, 'Ca':1.97, 'P':2.00, 'Cu':2.5, 'Zn':2.5, '':0.0, "G":0.0}
 TER_atoms = ['OXT', 'Ca+'] # atom names after which automatically add a TER card if amber mode activated
 TER_cutoff = sys.maxint # the distance at which to assume atoms aren't bonded, and add a TER card
-TER_resnames = ["WAT", "K+", "Cl-", "Na+"] # resnames which represent an entire molecule of their own
+TER_resnames = ['TIP','H2O','HOH',"WAT", "K+", "Cl-", "Na+"] # resnames which represent an entire molecule of their own
 water_resnames = ('TIP','H2O','HOH','WAT')
 
 protein_dict = {"ALA":"A", "ARG":"R", "ASN":"N", "ASP":"D", "ASPP":"D", "CYS":"C", "GLN":"Q", "GLU":"E", "GLY":"G", "HSD":"H", "HSE":"H", "HSP":"H", "ILE":"I", "LEU":"L", "LYS":"K", "MET":"M", "PHE":"F", "PRO":"P", "SER":"S", "THR":"T", "TRP":"W", "TYR":"Y", "VAL":"V", "CYX":"C", "HIE":"H", "HID":"H", "HIP":"H", "HIS":"H", "CTER":"", "CT3":"", "ACE":"", "GLUP":"E", "DISU":"", "LSN":"K"}
@@ -770,7 +770,7 @@ def test2methods(n,MDatomselection):
 def ligmerge(ligand, receptor, remove_water=True, hard_limit=3.0, verbose=True):
   '''given a ligand structure and a receptor structure, will merge the two to create a single structure.
   if remove_water is True, will remove all water molecules clashing with the ligand within the hard_limit'''
-  removing_atoms = ["HOH", "H2O", "WAT", "Cl-", "Na+"]
+  removing_atoms = ["HOH", "H2O", "WAT", "Cl-", "Na+", "K+"]
   new_receptor = deepcopy(receptor)
   lig_com = center_of_mass(ligand)
   if verbose: print "lig_com:", lig_com

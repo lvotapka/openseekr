@@ -126,18 +126,25 @@ def generate_configs(seekrcalc):
       print "Rejecting steric clashes..."
     else:
       print "Ignoring steric clashes..."
-      
+  
+  if seekrcalc.project.bd:
+    seekrcalc.browndye.starting_lig_config = configs[0]
+  
   for i, milestone in enumerate(milestones): # run thru all the configurations of ligands
     lig_config = configs[i]
+    milestone.config = deepcopy(lig_config)
     if seekrcalc.building.reject_clashes:
       if structures_clash(lig_config, receptor_dry, tolerance=0.2): continue # if there's a clash
     if milestone.md:
+      #pdb.TER_resnames.append(seekrcalc.building.lig_resname) # TODO: marked for removal
       holo_config_wet, insert_index, last_ligand_index = pdb.ligmerge(lig_config, receptor_wet, verbose=False)
       holo_config_wet.struct_id = lig_config.struct_id # set the structure description to the same as the ligand
       holo_config_wet.renumber_indeces() # to number the indeces consecutively
       wet_holo_filename = milestone.openmm.wet_holo_pdb_filename
       if verbose: print "writing file:", wet_holo_filename
       holo_config_wet.save(wet_holo_filename, amber=True, standard=False) # write the holo structure into the md directory
+      last_insert_index = insert_index
+      last_last_ligand_index = last_ligand_index
     if milestone.bd:
       holo_config_dry, insert_index, last_ligand_index = pdb.ligmerge(lig_config, receptor_dry, verbose=False)
       holo_config_dry.struct_id = lig_config.struct_id # set the structure description to the same as the ligand
@@ -145,5 +152,5 @@ def generate_configs(seekrcalc):
       dry_holo_filename = milestone.openmm.dry_holo_pdb_filename
       if verbose: print "writing file:", dry_holo_filename
       holo_config_dry.save(dry_holo_filename, amber=True, standard=False) # write the holo structure into the md directory
-  return
+  return holo_config_wet, last_insert_index, last_last_ligand_index
 

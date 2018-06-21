@@ -43,6 +43,7 @@ class Milestone():
     self.bd_adjacent = None # adjacent to a BD milestone
     self.end = False # a sink state milestone
     self.openmm = Milestone_System()
+    self.box_vectors = None
     
 class Concentric_Spherical_Milestone(Milestone):
   '''Concentric spherical milestones centered on an atom selection.'''
@@ -67,6 +68,8 @@ class Concentric_Spherical_Milestone(Milestone):
     self.atom_selection_1 = None
     self.atom_selection_2 = None
     self.openmm = Milestone_System()
+    self.config = None
+    self.box_vectors = None
     
 def quadratic_formula(a,b,c):
   '''calculates the roots of the equation:
@@ -110,7 +113,7 @@ def find_anchor_from_vectors(origin, radius, vectors):
     summed_vectors += cur_vector
   return anchor
     
-def generate_spherical_milestones(atom_indices, origin, radius_list, siteid, vectors, k_off=False, absolute=False):
+def generate_spherical_milestones(seekrcalc, atom_indices, origin, radius_list, siteid, vectors, absolute=False):
   '''Create a list of concentric spherical milestones around an atom selection.
   Input:
    - atom_indices: a list of integers representing the atom indices that this milestone is centered on
@@ -118,7 +121,6 @@ def generate_spherical_milestones(atom_indices, origin, radius_list, siteid, vec
    - radius_list: a list of floats representing the radii of the concentric spheres in the list of milestones
    - siteid: integer representing the index of this list of milestones
    - vectors: a list of lists of floats, or of numpy arrays, that define the pathway out of the active site, and in turn, the locations where the ligand will be placed
-   - k_off: boolean defining whether k-off calculations are being performed in this run
    - absolute: boolean defining whether this milestone will remain stationary in space regardless of how the receptor moves  
   Output:
    - milestones: a list of milestone objects
@@ -133,17 +135,18 @@ def generate_spherical_milestones(atom_indices, origin, radius_list, siteid, vec
     radius = radius_list[i]
     anchor = find_anchor_from_vectors(origin, radius, vectors)# now we need to find the anchor - the location where the ligand will be placed
     anchor_tuple = tuple(anchor)
-    milestone = Concentric_Spherical_Milestone(i, siteid, absolute)
+    milestone = Concentric_Spherical_Milestone(i, siteid, absolute, md=seekrcalc.project.md, bd=seekrcalc.project.bd)
     milestone.center_atom_indices = atom_indices
     milestone.center_vec = origin
     milestone.radius = radius
     milestone.anchor = anchor
     if i > 0:
       milestone.neighbors.append(i-1) # if we are the furthest milestone in either direction, then include no neighbors
-    else:
-      if not k_off: milestone.end = True
+    #else:
+      #if not k_off: milestone.end = True
     if i < spheres_in_site - 1:
       milestone.neighbors.append(i+1)
+      milestone.bd = False
     else: # then this is the outermost one, so set BD to true
       milestone.bd = True
       milestone.bd_adjacent = milestones[-1] # make the adjacent milestone the previously created md milestone

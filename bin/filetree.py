@@ -109,6 +109,12 @@ def generate_filetree(seekrcalc):
     #if bd_dir: bd_file_paths.append(bd_dir) # bd_file_path
     config_counter+=1 # increment the loop counter
   
+  if seekrcalc.project.bd: # make the BD b-surface directory
+    b_surface_path = os.path.join(rootdir, 'b_surface')
+    if not os.path.exists(b_surface_path):
+      os.mkdir(b_surface_path)
+    seekrcalc.browndye.b_surface_path = b_surface_path
+    
   #seekrcalc.building.md_file_paths = md_file_paths
   #seekrcalc.building.bd_file_paths = bd_file_paths
   seekrcalc.building.config_dirlist = config_dirlist
