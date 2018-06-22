@@ -24,9 +24,11 @@ apbs_input_template_location = os.path.join(self_path, 'apbs_input.template')
 if __name__ == "__main__" and 'INPUTGEN' not in os.environ:
   print "In order to run unit tests in apbs.py, please set the INPUTGEN environmental variable"
   exit()
-test_inputgen_location = os.environ['INPUTGEN']
-test_apbs_location = "apbs"
-test_pqr_filename = "../test/1cbj.pqr"
+
+if __name__ == "__main__":
+  test_inputgen_location = os.environ['INPUTGEN']
+  test_apbs_location = "apbs"
+  test_pqr_filename = "../test/1cbj.pqr"
 
 k_B = 1.380649e-23 # m^2 kg per s^2 per K
 coulombs_per_proton = 1.602177e-19 # C
