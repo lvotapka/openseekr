@@ -37,7 +37,7 @@ def make_box_info(box_vectors):
   box_info_string = 'x %f y %f z %f alpha 109.4712190 beta 109.4712190 gamma 109.4712190' % (box_length, box_length, box_length)
   return box_info_string
 
-def autoimage_traj(parm_name, trajin_name, trajout_name, box_info, cpptraj_script_location, cpptraj_exe='cpptraj'):
+def autoimage_traj(parm_name, trajin_name, trajout_name, box_info, cpptraj_script_location, cpptraj_exe='cpptraj', writing_frames=()):
   '''Runs the CPPTRAJ autoimage command for a triclinic box simulation.
   Input:
    - parm_name: a string representing the filename of a .prmtop or .parm7 AMBER
@@ -54,11 +54,20 @@ def autoimage_traj(parm_name, trajin_name, trajout_name, box_info, cpptraj_scrip
 box $BOX_INFO
 trajin $TRAJIN
 autoimage
-trajout $TRAJOUT
+trajout $TRAJOUT $FRAME_STR
 go
 quit
 '''
-  cpptraj_dict = {'PARMFILE':parm_name, 'TRAJIN':trajin_name, 'TRAJOUT':trajout_name, 'BOX_INFO':box_info} # define template dictionary
+  assert len(writing_frames) < 4, 'When writing the autoimaged trajectory, the format of the writing_frames variable must be: (start, stop, offset)'
+  if len(writing_frames) == 0: # then write all frames
+    frame_str = ''
+  elif len(writing_frames) == 1:
+    frame_str = 'start %d' % writing_frames[0] # only include the start
+  elif len(writing_frames) == 2:
+    frame_str = 'start %d stop %d' % (writing_frames[0], writing_frames[1])
+  else: # the length is 3
+    frame_str = 'start %d stop %d offset %d' % (writing_frames[0], writing_frames[1], writing_frames[2])
+  cpptraj_dict = {'PARMFILE':parm_name, 'TRAJIN':trajin_name, 'TRAJOUT':trajout_name, 'BOX_INFO':box_info, 'FRAME_STR':frame_str} # define template dictionary
   cpptraj_script = Adv_template(cpptraj_template, cpptraj_dict) # fill in the values into the template from the dictionary
   extract_file = open(cpptraj_script_location, 'w') # open the script for writing
   extract_file.write(cpptraj_script.get_output()) # write a cpptraj script
