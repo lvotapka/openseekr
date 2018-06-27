@@ -173,7 +173,23 @@ def read_data_file_successes(data_file_name):
   data_file.close()
   return success_list
 
-def launch_fwd_rev_stage(seekrcalc, milestone, traj_base, end_on_middle_crossing, input_coords, input_vels=None, box_vectors=None):
+def read_reversal_data_file_last(data_file_name):
+  '''Open the data file, read the final transition, and return whether the
+  latest reversal was successful.
+  Input:
+   - data_file_name: A string of the file name to read the transitions from
+  Output:
+   - success: A boolean about whether the latest trajectory was successful
+  '''
+  data_file = open(data_file_name, 'r')
+  line = data_file.readlines()[-1]
+  data_file.close()
+  if line[0] != '2':
+    return True
+  else:
+    return False
+
+def launch_fwd_rev_stage(seekrcalc, milestone, traj_base, end_on_middle_crossing, dcd_iterator, input_vels=None, box_vectors=None):
   '''launch a reversal stage SEEKR calculation.
   Input:
    - seekrcalc: The SeekrCalculation object that contains all the settings for 
@@ -208,13 +224,17 @@ def launch_fwd_rev_stage(seekrcalc, milestone, traj_base, end_on_middle_crossing
   simulation = Simulation(prmtop.topology, system, integrator, platform, properties) # create the system object
   
   starttime = time.time()
-  if verbose: print "running a total of", len(input_coords) * seekrcalc.fwd_rev_stage.launches_per_config, "simulations in this stage"
-  starting_velocities = [] # keep track of a list of all starting velocities
-  starting_positions = [] # also keep track of starting positions
+  success_velocities = []
+  success_positions = []
   indices_list = []
-  for i in range(len(input_coords)): # for all coordinates in the list
+  i = 0
+  
+  for dcd_frame in dcd_iterator:
     for j in range(seekrcalc.fwd_rev_stage.launches_per_config): # for however many times the 
-      simulation.context.setPositions(input_coords[i])
+      if hasattr(dcd_frame, 'xyz'):
+        simulation.context.setPositions(dcd_frame.xyz[0])
+      else:
+        simulation.context.setPositions(dcd_frame)
       indices_list.append((i,j))
       simulation.context.setTime(0.0)
       if box_vectors:
@@ -230,8 +250,6 @@ def launch_fwd_rev_stage(seekrcalc, milestone, traj_base, end_on_middle_crossing
       state = simulation.context.getState(getVelocities = True, getPositions = True)
       velocities = state.getVelocities()
       positions = state.getPositions()
-      starting_velocities.append(deepcopy(velocities)) # deepcopy to prevent byref artifacts
-      starting_positions.append(deepcopy(positions))
       traj_name = traj_base+"%d_%d.dcd" % (i, j) #"fwd_rev%d_%d.dcd" % (i, j)
       fwd_rev_traj = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'fwd_rev', traj_name)
       simulation.reporters = [StateDataReporter(stdout, seekrcalc.fwd_rev_stage.energy_freq, step=True, potentialEnergy=True, temperature=True, volume=True)]
@@ -246,8 +264,13 @@ def launch_fwd_rev_stage(seekrcalc, milestone, traj_base, end_on_middle_crossing
         if counter > MAX_REVERSE_ITER: 
           print "maximum iterations exceeded."
           break
+      if read_reversal_data_file_last(data_file_name):
+        success_positions.append(velocities)
+        success_velocities.append(positions)
+    i += 1
+      
   print "Time elapsed:", time.time() - starttime
-  return starting_positions, starting_velocities, data_file_name, indices_list
+  return success_positions, success_velocities, data_file_name, indices_list
 
 def process_reversal_data(reversal_coordinates, reversal_velocities, data_file_name):
   '''Reads the transition data file, then sorts the set of starting positions
@@ -273,8 +296,37 @@ def process_reversal_data(reversal_coordinates, reversal_velocities, data_file_n
     success_velocities.append(vel)
   return success_coordinates, success_velocities
 
-def pickle_coords_vels(seekrcalc, milestone, reversal_coords, reversal_vels, success_coords, success_vels):
+def pickle_coords_vels(seekrcalc, milestone, success_coords, success_vels):
   '''Save the reversal starting positions and velocities in a pickle for easy
+  retrieval.
+  Input:
+   - seekrcalc: The SeekrCalculation object that contains all the settings for 
+       the SEEKR calculation.
+   - milestone: the Milestone() object to run the simulation for
+   - success_positions: a list of all coordinates where reversals succeeded
+   - success_velocities: a list of all coordinates where reversals succeeded
+  Output:
+   - success_coords_pickle: success_coords pickled
+   - success_vels_pickle: success_vels pickled
+  '''
+  success_coords_pickle = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'fwd_rev', 'success_coords.pickle')
+  success_vels_pickle = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'fwd_rev', 'success_vels.pickle')
+  
+  success_coords_pickle_file=open(success_coords_pickle, 'wb')
+  pickle.dump(success_coords, success_coords_pickle_file, protocol=-1)
+  success_coords_pickle_file.close()
+  seekrcalc.fwd_rev_stage.success_coords_pickle = success_coords_pickle
+  
+  success_vels_pickle_file=open(success_vels_pickle, 'wb')
+  pickle.dump(success_vels, success_vels_pickle_file, protocol=-1)
+  success_vels_pickle_file.close()
+  seekrcalc.fwd_rev_stage.success_vels_pickle = success_vels_pickle
+  
+  return success_coords_pickle, success_vels_pickle
+
+''' # TODO: marked for removal
+def pickle_coords_vels(seekrcalc, milestone, reversal_coords, reversal_vels, success_coords, success_vels):
+  ''Save the reversal starting positions and velocities in a pickle for easy
   retrieval.
   Input:
    - seekrcalc: The SeekrCalculation object that contains all the settings for 
@@ -290,7 +342,7 @@ def pickle_coords_vels(seekrcalc, milestone, reversal_coords, reversal_vels, suc
    - reversal_vels_pickle: reversal_vels pickled
    - success_coords_pickle: success_coords pickled
    - success_vels_pickle: success_vels pickled
-  '''
+  ''
   reversal_coords_pickle = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'fwd_rev', 'reversal_coords.pickle')
   reversal_vels_pickle = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'fwd_rev', 'reversal_vels.pickle')
   success_coords_pickle = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'fwd_rev', 'success_coords.pickle')
@@ -317,4 +369,4 @@ def pickle_coords_vels(seekrcalc, milestone, reversal_coords, reversal_vels, suc
   seekrcalc.fwd_rev_stage.success_vels_pickle = success_vels_pickle
   
   return reversal_coords_pickle, reversal_vels_pickle, success_coords_pickle, success_vels_pickle
-  
+  '''

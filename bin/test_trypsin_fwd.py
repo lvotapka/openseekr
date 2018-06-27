@@ -11,7 +11,6 @@ from seekr import amber
 import sys, os
 from simtk.unit import *
 import mdtraj
-import cPickle as pickle
 
 print "Parse arguments"
 which = None
@@ -29,20 +28,18 @@ print "Loading SEEKR calculation."
 ##################################################################
 
 
-rootdir = '/home/lvotapka/tryp_test/seekr_calc.pickle'
+picklename = '/home/lvotapka/tryp_test/seekr_calc.pickle'
 me = seekr.openSeekrCalc(picklename)
 
 lig_selection = [3222, 3223, 3224, 3225, 3226, 3227, 3228, 3229, 3230]
 rec_selection = [2466, 2478, 2489, 2535, 2745, 2769, 2787]
 
-picklename = os.path.join(rootdir, 'seekr_calc.pickle')
-me = seekr.openSeekrCalc(picklename)
 step_chunk_size = 1000
 me.fwd_rev_stage.steps = step_chunk_size # in 2*fs
 me.fwd_rev_stage.energy_freq = 1000
 me.fwd_rev_stage.traj_freq = 1000
 me.fwd_rev_stage.launches_per_config = 1
-me.fwd_rev_stage.barostat = False # turn on barostat, run in NPT
+me.fwd_rev_stage.barostat = False # leave barostat off
 
 ##################################################################
 # DON'T MODIFY THE SECTION BELOW UNLESS YOU KNOW WHAT YOU'RE DOING
@@ -77,9 +74,12 @@ for milestone in all_milestones:
     velocities = pickle.load(success_vels_pickle_file)
     success_vels_pickle_file.close()
     
+    velocities = -1.0 * velocities # REVERSE velocities
+    positions = iter(positions)
+    
     traj_base = "forward"
     print "running forwards"
-    starting_positions, starting_velocities, data_file_name, indices_list = seekr.launch_fwd_rev_stage(me, me.milestones[which], traj_base, False, positions, input_vels=velocities, box_vectors=box_vectors)
+    success_positions, success_velocities, data_file_name, indices_list = seekr.launch_fwd_rev_stage(me, me.milestones[which], traj_base, False, positions, input_vels=velocities, box_vectors=box_vectors)
     
     
     # TODO: parse transition file information
