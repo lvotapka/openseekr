@@ -40,6 +40,7 @@ me.fwd_rev_stage.energy_freq = 1000
 me.fwd_rev_stage.traj_freq = 1000
 me.fwd_rev_stage.launches_per_config = 1
 me.fwd_rev_stage.barostat = False # leave barostat off
+transition_filename = 'transition_fwd.dat'
 
 ##################################################################
 # DON'T MODIFY THE SECTION BELOW UNLESS YOU KNOW WHAT YOU'RE DOING
@@ -79,7 +80,7 @@ for milestone in all_milestones:
     
     traj_base = "forward"
     print "running forwards"
-    success_positions, success_velocities, data_file_name, indices_list = seekr.launch_fwd_rev_stage(me, me.milestones[which], traj_base, False, positions, input_vels=velocities, box_vectors=box_vectors)
+    success_positions, success_velocities, data_file_name, indices_list = seekr.launch_fwd_rev_stage(me, me.milestones[which], traj_base, False, positions, input_vels=velocities, box_vectors=box_vectors, transition_filename=transition_filename)
     
     
     # TODO: parse transition file information

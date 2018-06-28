@@ -124,6 +124,7 @@ private:
     
     bool endSimulation;
     bool endOnMiddleCrossing;
+    bool crossedStartingMilestone;
     std::vector<std::string> dataFileNames;
     
     bool hasInitializedKernel;

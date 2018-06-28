@@ -105,6 +105,7 @@ CudaCalcSeekrForceKernel::CudaCalcSeekrForceKernel(std::string name, const Platf
     
     endSimulation = false;
     endOnMiddleCrossing = false;
+    crossedStartingMilestone = false;
 }
 
 CudaCalcSeekrForceKernel::~CudaCalcSeekrForceKernel() {
@@ -330,7 +331,12 @@ double CudaCalcSeekrForceKernel::execute(ContextImpl& context, bool includeForce
           endSimulation = true;
           ofstream datafile;
           datafile.open(dataFileNames[i], std::ios_base::app);
-          datafile << "1 " << context.getTime() << "\n";
+          if (crossedStartingMilestone == true) {
+            datafile << "1 " << context.getTime() << "\n";
+          } else {
+            datafile << "1* " << context.getTime() << "\n";
+          }
+          crossedStartingMilestone = false;
           datafile.close();
         }
       } else if (h_collectionReturnCode[0] == 2) {
@@ -342,6 +348,11 @@ double CudaCalcSeekrForceKernel::execute(ContextImpl& context, bool includeForce
             datafile.open(dataFileNames[i], std::ios_base::app);
             datafile << "2 " << context.getTime() << "\n";
             datafile.close();
+          } else { // Then its the forward stage, so assert that this milestone is crossed
+            if (crossedStartingMilestone == false) {
+              crossedStartingMilestone = true;
+              context.setTime(0.0);
+            }
           }
         }
       } else if (h_collectionReturnCode[0] == 3) {
@@ -350,7 +361,12 @@ double CudaCalcSeekrForceKernel::execute(ContextImpl& context, bool includeForce
           endSimulation = true;
           ofstream datafile;
           datafile.open(dataFileNames[i], std::ios_base::app);
-          datafile << "3 " << context.getTime() << "\n";
+          if (crossedStartingMilestone == true) {
+            datafile << "3 " << context.getTime() << "\n";
+          } else {
+            datafile << "3* " << context.getTime() << "\n";
+          }
+          crossedStartingMilestone = false;
           datafile.close();
         }
       }

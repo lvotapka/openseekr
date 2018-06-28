@@ -75,7 +75,7 @@ quit
   os.system("%s < %s" % (cpptraj_exe, cpptraj_script_location)) # run cpptraj
   return
 
-def create_spherical_seekr_force(seekrcalc, milestone, system, end_on_middle_crossing):
+def create_spherical_seekr_force(seekrcalc, milestone, system, end_on_middle_crossing, transition_filename='transition.dat'):
   '''create the SEEKR 'force' even though it's more of a monitor than a force.
   Input:
    - seekrcalc: The SeekrCalculation object that contains all the settings for 
@@ -94,7 +94,7 @@ def create_spherical_seekr_force(seekrcalc, milestone, system, end_on_middle_cro
   radius1 = neighbor1.radius / 10.0 # extract neighbor milestone radii
   radius2 = milestone.radius / 10.0 # convert to nm. TODO: better way to deal with these units?
   radius3 = neighbor2.radius / 10.0
-  data_file_name = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'fwd_rev', 'transition.dat') # define the file to write transition information
+  data_file_name = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'fwd_rev', transition_filename) # define the file to write transition information
   # Define all settings and parameters for the SEEKR force object
   force.addSphericalMilestone(len(milestone.atom_selection_1), len(milestone.atom_selection_2), radius1, radius2, radius3, milestone.atom_selection_1, milestone.atom_selection_2, end_on_middle_crossing, data_file_name)
   system.addForce(force) # Add the SEEKR force to the openMM system
@@ -129,7 +129,8 @@ def read_data_file_transitions(data_file_name, seekrcalc, milestone):
    - avg_incubation_time: Float of the average time spent in this milestone.
   '''
   transition_dict = {}
-  incubation_list = []
+  incubation_time_list = []
+  num_failed = 0
   neighbor1 = seekrcalc.milestones[milestone.neighbors[0]] # find the neighbor milestones
   neighbor2 = seekrcalc.milestones[milestone.neighbors[1]]
   data_file = open(data_file_name, 'r')
@@ -148,12 +149,15 @@ def read_data_file_transitions(data_file_name, seekrcalc, milestone):
       transition_dict[key_string1] += 1
     elif trans == '3':
       transition_dict[key_string2] += 1
+    elif trans == '3*' or trans == '1*':
+      num_failed += 1
     else:
       raise AssertionError, "An unexpected value was found in the transition data file: "+str(trans)
     incubation_time_list.append(time)
-  incubation_time_summation = reduce(sum, incubation_time_list)
+  incubation_time_summation = sum(incubation_time_list)
   avg_incubation_time = incubation_time_summation / len(incubation_time_list)
   data_file.close()
+  print "number of failed forward trajectories:", num_failed
   return transition_dict, avg_incubation_time
 
 def read_data_file_successes(data_file_name):
@@ -189,7 +193,8 @@ def read_reversal_data_file_last(data_file_name):
   else:
     return False
 
-def launch_fwd_rev_stage(seekrcalc, milestone, traj_base, end_on_middle_crossing, dcd_iterator, input_vels=None, box_vectors=None):
+def launch_fwd_rev_stage(seekrcalc, milestone, traj_base, end_on_middle_crossing, dcd_iterator, input_vels=None, box_vectors=None, transition_filename='transition.dat'):
+  # TODO: update the docstring to current inputs
   '''launch a reversal stage SEEKR calculation.
   Input:
    - seekrcalc: The SeekrCalculation object that contains all the settings for 
@@ -217,7 +222,7 @@ def launch_fwd_rev_stage(seekrcalc, milestone, traj_base, end_on_middle_crossing
   properties = seekrcalc.openmm.properties
   
   # create and prepare the SEEKR milestones
-  myforce, data_file_name = create_spherical_seekr_force(seekrcalc, milestone, system, end_on_middle_crossing)
+  myforce, data_file_name = create_spherical_seekr_force(seekrcalc, milestone, system, end_on_middle_crossing, transition_filename)
   
   os.system('rm %s' % data_file_name) # delete the existing transition data file if it exists
   
@@ -245,7 +250,6 @@ def launch_fwd_rev_stage(seekrcalc, milestone, traj_base, end_on_middle_crossing
       if input_vels == None: # if no velocities are provided, then assign by Maxwell Boltzmann
         simulation.context.setVelocitiesToTemperature(seekrcalc.master_temperature*kelvin)
       else: # assign provided velocities
-        assert len(input_vels) == len(input_coords), "The lengths of input_coords and input_vels must be equal"
         simulation.context.setVelocities(input_vels[i])
       state = simulation.context.getState(getVelocities = True, getPositions = True)
       velocities = state.getVelocities()
@@ -265,8 +269,8 @@ def launch_fwd_rev_stage(seekrcalc, milestone, traj_base, end_on_middle_crossing
           print "maximum iterations exceeded."
           break
       if read_reversal_data_file_last(data_file_name):
-        success_positions.append(velocities)
-        success_velocities.append(positions)
+        success_positions.append(positions)
+        success_velocities.append(velocities)
     i += 1
       
   print "Time elapsed:", time.time() - starttime
@@ -302,7 +306,7 @@ def pickle_coords_vels(seekrcalc, milestone, success_coords, success_vels):
   Input:
    - seekrcalc: The SeekrCalculation object that contains all the settings for 
        the SEEKR calculation.
-   - milestone: the Milestone() object to run the simulation for
+   - milestone: the Milestone() object to process for
    - success_positions: a list of all coordinates where reversals succeeded
    - success_velocities: a list of all coordinates where reversals succeeded
   Output:
@@ -324,49 +328,26 @@ def pickle_coords_vels(seekrcalc, milestone, success_coords, success_vels):
   
   return success_coords_pickle, success_vels_pickle
 
-''' # TODO: marked for removal
-def pickle_coords_vels(seekrcalc, milestone, reversal_coords, reversal_vels, success_coords, success_vels):
-  ''Save the reversal starting positions and velocities in a pickle for easy
+def pickle_transition_info(seekrcalc, milestone, transition_dict, avg_incubation_time):
+  '''Save the reversal starting positions and velocities in a pickle for easy
   retrieval.
   Input:
    - seekrcalc: The SeekrCalculation object that contains all the settings for 
        the SEEKR calculation.
-   - milestone: the Milestone() object to run the simulation for
-   - reversal_coords: a list of all coordinates where reversals were
-       started from.
-   - reversal_vels: a list of all velocities where reversals were started from
-   - success_coords: a list of all coordinates where reversals succeeded
-   - success_vels: a list of all coordinates where reversals succeeded
+   - milestone: the Milestone() object to process for
+   - transition_dict: a dictionary of milestone transitions, where the keys are 
+       milestone indices and describe counts of transitions to adjacent 
+       milestones
+   - avg_incubation_time: The float representing the average time spent after 
+       crossing this milestone, and before crossing another.
   Output:
-   - reversal_coords_pickle: reversal_coords pickled
-   - reversal_vels_pickle: reversal_vels pickled
-   - success_coords_pickle: success_coords pickled
-   - success_vels_pickle: success_vels pickled
-  ''
-  reversal_coords_pickle = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'fwd_rev', 'reversal_coords.pickle')
-  reversal_vels_pickle = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'fwd_rev', 'reversal_vels.pickle')
-  success_coords_pickle = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'fwd_rev', 'success_coords.pickle')
-  success_vels_pickle = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'fwd_rev', 'success_vels.pickle')
-  
-  reversal_coords_pickle_file=open(reversal_coords_pickle, 'wb')
-  pickle.dump(reversal_coords, reversal_coords_pickle_file, protocol=-1) # protocol=-1 means to use the fastest available protocol method
-  reversal_coords_pickle_file.close()
-  seekrcalc.fwd_rev_stage.reversal_coords_pickle = reversal_coords_pickle
-  
-  reversal_vels_pickle_file=open(reversal_vels_pickle, 'wb')
-  pickle.dump(reversal_vels, reversal_vels_pickle_file, protocol=-1)
-  reversal_vels_pickle_file.close()
-  seekrcalc.fwd_rev_stage.reversal_vels_pickle = reversal_vels_pickle
-  
-  success_coords_pickle_file=open(success_coords_pickle, 'wb')
-  pickle.dump(success_coords, success_coords_pickle_file, protocol=-1)
-  success_coords_pickle_file.close()
-  seekrcalc.fwd_rev_stage.success_coords_pickle = success_coords_pickle
-  
-  success_vels_pickle_file=open(success_vels_pickle, 'wb')
-  pickle.dump(success_vels, success_vels_pickle_file, protocol=-1)
-  success_vels_pickle_file.close()
-  seekrcalc.fwd_rev_stage.success_vels_pickle = success_vels_pickle
-  
-  return reversal_coords_pickle, reversal_vels_pickle, success_coords_pickle, success_vels_pickle
+   - None
   '''
+  transition_info_pickle = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'fwd_rev', 'transition_info.pickle')
+  
+  transition_info_pickle_file=open(transition_info_pickle, 'wb')
+  pickle.dump(transition_dict, transition_info_pickle_file, protocol=-1)
+  pickle.dump(avg_incubation_time, transition_info_pickle_file, protocol=-1) # NOTE: This will require two load calls to remove both objects from this pickle
+  transition_info_pickle_file.close()
+  
+  return

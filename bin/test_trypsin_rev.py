@@ -42,6 +42,7 @@ me.fwd_rev_stage.launches_per_config = 1
 me.fwd_rev_stage.barostat = False # leave barostat off
 umbrella_glob = 'umbrella*.dcd'
 reversal_frames = (1010, 10010, 1)
+transition_filename = 'transition_rev.dat'
 
 ##################################################################
 # DON'T MODIFY THE SECTION BELOW UNLESS YOU KNOW WHAT YOU'RE DOING
@@ -71,7 +72,7 @@ for milestone in all_milestones:
     dcd = mdtraj.iterload(trajout, top=parm_file_name, chunk=1)
     traj_base = "reverse"
     print "running reversals"
-    success_positions, success_velocities, data_file_name, indices_list = seekr.launch_fwd_rev_stage(me, milestone, traj_base, True, dcd, box_vectors=box_vectors)
+    success_positions, success_velocities, data_file_name, indices_list = seekr.launch_fwd_rev_stage(me, milestone, traj_base, True, dcd, box_vectors=box_vectors, transition_filename=transition_filename)
     print "saving coordinates and velocities for the reversal stage. len(success_positions)", len(success_positions), "len(success_velocities):", len(success_velocities)
     seekr.pickle_coords_vels(me, milestone, success_positions, success_velocities)
     me.save()
