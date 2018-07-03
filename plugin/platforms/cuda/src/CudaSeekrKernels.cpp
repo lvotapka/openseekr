@@ -331,7 +331,7 @@ double CudaCalcSeekrForceKernel::execute(ContextImpl& context, bool includeForce
           endSimulation = true;
           ofstream datafile;
           datafile.open(dataFileNames[i], std::ios_base::app);
-          if (crossedStartingMilestone == true) {
+          if (crossedStartingMilestone == true || endOnMiddleCrossing == true) {
             datafile << "1 " << context.getTime() << "\n";
           } else {
             datafile << "1* " << context.getTime() << "\n";
@@ -361,7 +361,7 @@ double CudaCalcSeekrForceKernel::execute(ContextImpl& context, bool includeForce
           endSimulation = true;
           ofstream datafile;
           datafile.open(dataFileNames[i], std::ios_base::app);
-          if (crossedStartingMilestone == true) {
+          if (crossedStartingMilestone == true || endOnMiddleCrossing == true) {
             datafile << "3 " << context.getTime() << "\n";
           } else {
             datafile << "3* " << context.getTime() << "\n";
