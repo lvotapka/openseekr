@@ -73,7 +73,10 @@ for milestone in all_milestones:
     traj_base = "reverse"
     print "running reversals"
     success_positions, success_velocities, data_file_name, indices_list = seekr.launch_fwd_rev_stage(me, milestone, traj_base, True, dcd, box_vectors=box_vectors, transition_filename=transition_filename)
-    print "saving coordinates and velocities for the reversal stage. len(success_positions)", len(success_positions), "len(success_velocities):", len(success_velocities)
-    seekr.pickle_coords_vels(me, milestone, success_positions, success_velocities)
-    me.save()
+    if len(success_positions) == 0:
+      print "Reversal stage failed: No successful reversal trajectories completed."
+    else:
+      print "saving coordinates and velocities for the reversal stage. len(success_positions)", len(success_positions), "len(success_velocities):", len(success_velocities)
+      seekr.pickle_coords_vels(me, milestone, success_positions, success_velocities)
+      me.save()
     
