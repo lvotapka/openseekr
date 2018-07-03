@@ -45,7 +45,7 @@ print "Using", ensemble, "ensemble for", num_steps, "steps."
 
 picklename = '/home/lvotapka/tryp_test/seekr_calc.pickle'
 me = seekr.openSeekrCalc(picklename)
-me.umbrella_stage.force_constant = 9000.0*kilocalories_per_mole/angstroms**2
+me.umbrella_stage.force_constant = 900.0*kilocalories_per_mole/angstroms**2
 me.umbrella_stage.steps = num_steps # in 2*fs
 me.umbrella_stage.energy_freq = 10000
 me.umbrella_stage.traj_freq = 100000

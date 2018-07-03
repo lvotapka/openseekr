@@ -65,23 +65,36 @@ for milestone in all_milestones:
     
     me.fwd_rev_stage.success_coords_pickle = os.path.join(me.project.rootdir, milestone.directory, 'md', 'fwd_rev', 'success_coords.pickle') # TODO: remove line
     success_coords_pickle =  open(me.fwd_rev_stage.success_coords_pickle, 'rb') 
-    success_coords_pickle_file = open(success_coords_pickle, 'rb')
-    positions = pickle.load(success_coords_pickle_file)
-    success_coords_pickle_file.close()
+    #success_coords_pickle_file = open(success_coords_pickle, 'rb')
+    positions = pickle.load(success_coords_pickle)
+    success_coords_pickle.close()
     
     me.fwd_rev_stage.success_vels_pickle = os.path.join(me.project.rootdir, me.milestones[which].directory, 'md', 'fwd_rev', 'success_vels.pickle') # TODO: remove line
     success_vels_pickle =  open(me.fwd_rev_stage.success_vels_pickle, 'rb') 
-    success_vels_pickle_file = open(success_vels_pickle, 'rb')
-    velocities = pickle.load(success_vels_pickle_file)
-    success_vels_pickle_file.close()
+    #success_vels_pickle_file = open(success_vels_pickle, 'rb')
+    velocities = pickle.load(success_vels_pickle)
+    success_vels_pickle.close()
     
-    velocities = -1.0 * velocities # REVERSE velocities
+    reversed_vels = []
+    print "Reversing Velocities"
+    for vel in velocities:
+      reversed_vels.append(-1.0 * vel)
+    
+    assert len(positions) == len(velocities), "The length of provided velocities and positions must be equal."
     positions = iter(positions)
     
     traj_base = "forward"
-    print "running forwards"
-    success_positions, success_velocities, data_file_name, indices_list = seekr.launch_fwd_rev_stage(me, me.milestones[which], traj_base, False, positions, input_vels=velocities, box_vectors=box_vectors, transition_filename=transition_filename)
-    
+    print "Running Forwards"
+    success_positions, success_velocities, data_file_name, indices_list = seekr.launch_fwd_rev_stage(me, me.milestones[which], traj_base, False, positions, input_vels=reversed_vels, box_vectors=box_vectors, transition_filename=transition_filename)
     
     # TODO: parse transition file information
-
+    transition_dict, avg_incubation_time = seekr.read_data_file_transitions(data_file_name, me, milestone)
+    
+    print "Transition Data:"
+    print "transition dictionary:"
+    pprint(transition_dict)
+    print "average incubation time:"
+    pprint(avg_incubation_time)
+    
+    seekr.pickle_transition_info(me, milestone, transition_dict, avg_incubation_time)
+    

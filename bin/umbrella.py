@@ -12,8 +12,24 @@ from simtk.unit import *
 import os, time, glob, re
 from sys import stdout
 from seekr import amber
+import mdtraj
 
 verbose = True
+
+def load_last_mdtraj_frame(dcd_filename, prmtop_filename):
+  '''
+  This function returns the last frame of a DCD file as an MDtraj object.
+  Input:
+   - dcd_filename: string that represents the path to the dcd file to load
+   - prmtop_filename: string that represents the path to the parm7 file to load
+  Output:
+   - lastframe: an mdtraj Trajectory object that contains a single frame: the
+     last one in the dcd.
+  '''
+  mytraj_iter = mdtraj.iterload(dcd_filename, top=prmtop_filename)
+  for frame in mytraj_iter:
+    lastframe = frame
+  return lastframe
 
 def create_forces(seekrcalc, milestone, system):
   '''
@@ -51,11 +67,23 @@ def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umb
   '''
   prmtop_filename = milestone.openmm.prmtop_filename
   pdb_filename = milestone.openmm.umbrella_pdb_filename
+  if os.path.exists(pdb_filename):
+    pdb = PDBFile(pdb_filename)
+    my_positions = pdb.positions
+  else:
+    basename = os.path.basename(pdb_filename)
+    no_ext = os.path.splitext(basename)[0] 
+    dcd_filename = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'umbrella', '%s.dcd' % no_ext)
+    assert os.path.exists(dcd_filename), "Cannot load DCD or PDB file for umbrella stage, none exist:" + dcd_filename
+    print "Restarting failed umbrella stage from last frame of DCD file: ", dcd_filename
+    last_fwd_frame = load_last_mdtraj_frame(dcd_filename, milestone.openmm.prmtop_filename)
+    my_positions = last_fwd_frame.xyz[0]
+    
   inpcrd_filename = milestone.openmm.inpcrd_filename
   if verbose: print "opening files:", prmtop_filename, inpcrd_filename, pdb_filename
   prmtop = AmberPrmtopFile(prmtop_filename)
   inpcrd = AmberInpcrdFile(inpcrd_filename)
-  pdb = PDBFile(pdb_filename)
+  
   
   system = prmtop.createSystem(nonbondedMethod=PME, nonbondedCutoff=1*nanometer, constraints=HBonds) # This is fine because h-bonds are always constrained in water!
   integrator = LangevinIntegrator(seekrcalc.master_temperature*kelvin, 1/picosecond, 0.002*picoseconds) #LangevinIntegrator(300*kelvin, 1/picosecond, 0.002*picoseconds)
@@ -72,7 +100,8 @@ def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umb
     system.addForce(barostat)
   
   simulation = Simulation(prmtop.topology, system, integrator, platform, properties)
-  simulation.context.setPositions(pdb.positions)
+  simulation.context.setPositions(my_positions)
+  simulation.context.setVelocitiesToTemperature(seekrcalc.master_temperature*kelvin)
   if box_vectors:
     simulation.context.setPeriodicBoxVectors(*box_vectors)
   elif inpcrd.boxVectors is not None:
