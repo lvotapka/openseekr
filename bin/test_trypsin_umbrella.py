@@ -55,6 +55,8 @@ if ensemble == 'npt':
   me.umbrella_stage.barostat_pressure = 1.0*bar
 else:
   me.umbrella_stage.barostat = False
+  
+# Make sure you use a VMD selection by index (not serial) to find these numbers
 lig_selection = [3222, 3223, 3224, 3225, 3226, 3227, 3228, 3229, 3230]
 rec_selection = [2467, 2479, 2490, 2536, 2746, 2770, 2788]
 
@@ -84,8 +86,6 @@ for milestone in all_milestones:
     amber.save_restart(me, milestone, pdb_filename)
     milestone.openmm.umbrella_pdb_filename = pdb_filename
     
-    me.save()
-    
   print "ending box vectors for milestone %d:" % milestone.index, me.milestones[which].box_vectors
   
-  
+me.save()

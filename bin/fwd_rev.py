@@ -209,6 +209,9 @@ def launch_fwd_rev_stage(seekrcalc, milestone, traj_base, end_on_middle_crossing
    - indices_list: a list of tuples that have the position and velocity indices
   '''
   # Open Amber input files
+  if input_vels != None and seekrcalc.fwd_rev_stage.launches_per_config != 1: # then it's a forward stage, but there shouldn't be any velocity randomizations
+    raise Exception, "The variable 'fwd_rev_stage.launches_per_config' should be set to 1 for the forward stage. (or velocities should not be provided to this function)."
+  
   prmtop_filename = milestone.openmm.prmtop_filename
   inpcrd_filename = milestone.openmm.inpcrd_filename
   if verbose: print "opening files:", prmtop_filename, inpcrd_filename

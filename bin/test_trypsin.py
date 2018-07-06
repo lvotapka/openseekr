@@ -36,8 +36,8 @@ me.openmm.platform = Platform.getPlatformByName('CUDA')
 me.openmm.properties = {'CudaDeviceIndex':'0', 'CudaPrecision':'mixed'}
 
 # Selection information
-rec_site_atom_indices = [2467, 2479, 2490, 2536, 2746, 2770, 2788] # ATTN: changed
-me.selections.site_com_indices = rec_site_atom_indices  # ATTN: changed
+rec_site_atom_indices = [2467, 2479, 2490, 2536, 2746, 2770, 2788] # Make sure this is selected by "index" in VMD
+me.selections.site_com_indices = rec_site_atom_indices
 
 # Building information
 me.building.ff = 'amber'
@@ -85,7 +85,7 @@ me.milestones = milestones
 # Generate Filetree and Building files
 seekr.generate_filetree(me)
 holo_config_wet, insert_index, last_ligand_index = seekr.generate_configs(me)
-ligand_heavy_indices = seekr.find_heavy_atoms(holo_config_wet, range(insert_index, insert_index+last_ligand_index+1))  # ATTN: changed
+ligand_heavy_indices = seekr.find_heavy_atoms(holo_config_wet, range(insert_index, insert_index+last_ligand_index+1))
 print "Ligand heavy indices:", ligand_heavy_indices  # ATTN: changed
 
 amber_settings = amber.AmberSettings()
@@ -125,12 +125,12 @@ savepdb holo  $LEAP_OUTPUT_PDB
 quit
 '''
 
-me.min_equil.constrained += range(insert_index) # ATTN: changed
-me.min_equil.constrained += ligand_heavy_indices # ATTN: changed
+me.min_equil.constrained += range(insert_index)
+me.min_equil.constrained += ligand_heavy_indices
     
 for milestone in me.milestones:
   milestone.atom_selection_1 = me.selections.site_com_indices
-  milestone.atom_selection_2 = ligand_heavy_indices  # ATTN: changed
+  milestone.atom_selection_2 = ligand_heavy_indices
   if milestone.md:
     amber.amber_building(me, milestone, amber_settings)
     

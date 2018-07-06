@@ -28,7 +28,7 @@ def load_last_mdtraj_frame(dcd_filename, prmtop_filename):
   '''
   mytraj_iter = mdtraj.iterload(dcd_filename, top=prmtop_filename)
   for frame in mytraj_iter:
-    lastframe = frame
+    lastframe = frame[-1]
   return lastframe
 
 def create_forces(seekrcalc, milestone, system):
