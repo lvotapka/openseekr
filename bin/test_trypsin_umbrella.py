@@ -86,6 +86,6 @@ for milestone in all_milestones:
     amber.save_restart(me, milestone, pdb_filename)
     milestone.openmm.umbrella_pdb_filename = pdb_filename
     
-  print "ending box vectors for milestone %d:" % milestone.index, me.milestones[which].box_vectors
+  print "ending box vectors for milestone %d:" % milestone.index, milestone.box_vectors
   
 me.save()

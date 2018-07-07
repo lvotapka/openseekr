@@ -326,22 +326,22 @@ double CudaCalcSeekrForceKernel::execute(ContextImpl& context, bool includeForce
     
     for (int i=0; i<numSphericalMilestones; i++) {
       if (h_collectionReturnCode[0] == 1) {
-        if (endSimulation == false) {
-          cout<<"Inner milestone crossed. Time:" << context.getTime() << " ps\n";
-          endSimulation = true;
-          ofstream datafile;
-          datafile.open(dataFileNames[i], std::ios_base::app);
-          if (crossedStartingMilestone == true || endOnMiddleCrossing == true) {
+        if (endSimulation == false) { // if we haven't already crossed an ending milestone
+          cout<<"Inner milestone crossed. Time:" << context.getTime() << " ps\n"; // output info to user
+          endSimulation = true; // make sure we end after this point
+          ofstream datafile; // open datafile for writing
+          datafile.open(dataFileNames[i], std::ios_base::app); // append to file
+          if (crossedStartingMilestone == true || endOnMiddleCrossing == true) { // if it's the reversal stage or we've crossed the starting milestone
             datafile << "1 " << context.getTime() << "\n";
-          } else {
+          } else { // if its the forward stage and the starting milestone isn't crossed
             datafile << "1* " << context.getTime() << "\n";
           }
-          crossedStartingMilestone = false;
-          datafile.close();
+          crossedStartingMilestone = false; // reset whether we've crossed the starting milestone for the next simulation
+          datafile.close(); // close data file
         }
       } else if (h_collectionReturnCode[0] == 2) {
-        if (endSimulation == false) {
-          if (endOnMiddleCrossing == true) {
+        if (endSimulation == false) { // if we haven't already crossed an ending milestone
+          if (endOnMiddleCrossing == true) { // then it's a reversal stage
             cout<<"Middle milestone crossed. Time:" << context.getTime() << " ps\n";
             endSimulation = true;
             ofstream datafile;
@@ -349,13 +349,13 @@ double CudaCalcSeekrForceKernel::execute(ContextImpl& context, bool includeForce
             datafile << "2 " << context.getTime() << "\n";
             datafile.close();
           } else { // Then its the forward stage, so assert that this milestone is crossed
-            if (crossedStartingMilestone == false) {
-              crossedStartingMilestone = true;
-              context.setTime(0.0);
+            if (crossedStartingMilestone == false) { // as long as we haven't crossed once already
+              crossedStartingMilestone = true; // we've crossed it once
+              context.setTime(0.0); // reset the timer
             }
           }
         }
-      } else if (h_collectionReturnCode[0] == 3) {
+      } else if (h_collectionReturnCode[0] == 3) { // This should be a fairly identical procedure to inner milestone crossing above
         if (endSimulation == false) {
           cout<<"Outer milestone crossed. Time:" << context.getTime() << " ps\n";
           endSimulation = true;
