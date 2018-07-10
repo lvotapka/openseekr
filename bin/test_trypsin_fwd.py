@@ -57,7 +57,7 @@ for milestone in all_milestones:
       print "prmtop file not found for milestone %d. Skipping..." % milestone.index
       continue
       
-    print "launching constant energy forward stage for milestone %d:" % which
+    print "launching constant energy forward stage for milestone:", which
     box_vectors = milestone.box_vectors
     milestone.atom_selection_1 = rec_selection
     milestone.atom_selection_2 = lig_selection
