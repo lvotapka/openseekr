@@ -64,9 +64,9 @@ for milestone in all_milestones:
     milestone.atom_selection_2 = lig_selection
     fwd_rev_path = os.path.join(me.project.rootdir, milestone.directory, 'md', 'fwd_rev')
     umbrella_traj = os.path.join(me.project.rootdir, milestone.directory, 'md', 'umbrella', umbrella_glob)
-    parm_file_name = os.path.join(me.project.rootdir, me.milestones[which].directory, 'md', 'building', 'holo.parm7')
-    trajout = os.path.join(me.project.rootdir, me.milestones[which].directory, 'md', 'umbrella', 'imaged.dcd')
-    cpptraj_script_location = os.path.join(me.project.rootdir, me.milestones[which].directory, 'md', 'umbrella', 'image_umbrella.cpptraj')
+    parm_file_name = os.path.join(me.project.rootdir, milestone.directory, 'md', 'building', 'holo.parm7')
+    trajout = os.path.join(me.project.rootdir, milestone.directory, 'md', 'umbrella', 'imaged.dcd')
+    cpptraj_script_location = os.path.join(me.project.rootdir, milestone.directory, 'md', 'umbrella', 'image_umbrella.cpptraj')
     box_info = seekr.make_box_info(box_vectors)
     seekr.autoimage_traj(parm_file_name, umbrella_traj, trajout, box_info, cpptraj_script_location=cpptraj_script_location, writing_frames=reversal_frames)
     dcd = mdtraj.iterload(trajout, top=parm_file_name, chunk=1)

@@ -69,7 +69,7 @@ for milestone in all_milestones:
     positions = pickle.load(success_coords_pickle)
     success_coords_pickle.close()
     
-    me.fwd_rev_stage.success_vels_pickle = os.path.join(me.project.rootdir, me.milestones[which].directory, 'md', 'fwd_rev', 'success_vels.pickle') # TODO: remove line
+    me.fwd_rev_stage.success_vels_pickle = os.path.join(me.project.rootdir, milestone.directory, 'md', 'fwd_rev', 'success_vels.pickle') # TODO: remove line
     success_vels_pickle =  open(me.fwd_rev_stage.success_vels_pickle, 'rb') 
     #success_vels_pickle_file = open(success_vels_pickle, 'rb')
     velocities = pickle.load(success_vels_pickle)
@@ -85,7 +85,7 @@ for milestone in all_milestones:
     
     traj_base = "forward"
     print "Running Forwards"
-    success_positions, success_velocities, data_file_name, indices_list = seekr.launch_fwd_rev_stage(me, me.milestones[which], traj_base, False, positions, input_vels=reversed_vels, box_vectors=box_vectors, transition_filename=transition_filename)
+    success_positions, success_velocities, data_file_name, indices_list = seekr.launch_fwd_rev_stage(me, milestone, traj_base, False, positions, input_vels=reversed_vels, box_vectors=box_vectors, transition_filename=transition_filename)
     
     # TODO: parse transition file information
     transition_dict, avg_incubation_time = seekr.read_data_file_transitions(data_file_name, me, milestone)
