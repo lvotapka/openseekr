@@ -17,7 +17,7 @@ which = None
 if len(sys.argv) < 2: # then assume all
   which = 'all'
 elif sys.argv[1] == 'all':
-  which == 'all'
+  which = 'all'
 else:
   which = int(sys.argv[1])
 
