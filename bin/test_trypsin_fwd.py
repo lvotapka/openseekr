@@ -10,6 +10,7 @@ import seekr
 from seekr import amber
 import sys, os
 from simtk.unit import *
+import cPickle as pickle
 import mdtraj
 
 print "Parse arguments"
