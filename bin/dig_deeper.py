@@ -13,7 +13,7 @@ import seekr
 import sys, os
 from shutil import copyfile
 
-def read_data_file_transition_down(data_file_name, destination='1'):
+def read_data_file_transition_down(data_file_name, destination='1', last_frame=True):
   '''Read transition data file, return the first instance of a transition to a
   lower milestone. Return the file index of the forward trajectory to this lower
   milestone.
@@ -32,7 +32,8 @@ def read_data_file_transition_down(data_file_name, destination='1'):
     line = line.split()
     if line[0] == destination:
       downward_index = i
-      break
+      if not last_frame: # then read the first frame
+        break 
   data_file.close()
   assert downward_index != None, "FAILURE: no downward forward trajectories detected. Please run additional umbrella sampling and rev/fwd trajectories."
   return downward_index

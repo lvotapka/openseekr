@@ -236,6 +236,7 @@ def launch_fwd_rev_stage(seekrcalc, milestone, traj_base, end_on_middle_crossing
   success_positions = []
   indices_list = []
   i = 0
+  num_errors = 0
   
   for dcd_frame in dcd_iterator:
     for j in range(seekrcalc.fwd_rev_stage.launches_per_config): # for however many times the 
@@ -251,8 +252,10 @@ def launch_fwd_rev_stage(seekrcalc, milestone, traj_base, end_on_middle_crossing
         simulation.context.setPeriodicBoxVectors(*inpcrd.boxVectors)
         
       if input_vels == None: # if no velocities are provided, then assign by Maxwell Boltzmann
+        print "assigning random velocities"
         simulation.context.setVelocitiesToTemperature(seekrcalc.master_temperature*kelvin)
       else: # assign provided velocities
+        print "assigning provided velocities"
         simulation.context.setVelocities(input_vels[i])
       state = simulation.context.getState(getVelocities = True, getPositions = True)
       velocities = state.getVelocities()
@@ -266,7 +269,13 @@ def launch_fwd_rev_stage(seekrcalc, milestone, traj_base, end_on_middle_crossing
       counter = 0
       while get_data_file_length(data_file_name) == data_file_length:
         data_file_length = get_data_file_length(data_file_name)
-        simulation.step(seekrcalc.fwd_rev_stage.steps)
+        try:
+          simulation.step(seekrcalc.fwd_rev_stage.steps)
+        except Exception: # if there was a NAN error
+          print "Error encountered. Continuing with the next frame."
+          num_errors += 1
+          continue # don't want to log this as a success
+          
         counter += 1
         if counter > MAX_REVERSE_ITER: 
           print "maximum iterations exceeded."
@@ -277,6 +286,7 @@ def launch_fwd_rev_stage(seekrcalc, milestone, traj_base, end_on_middle_crossing
     i += 1
       
   print "Time elapsed:", time.time() - starttime
+  print "Number of errors:", num_errors
   return success_positions, success_velocities, data_file_name, indices_list
 
 def process_reversal_data(reversal_coordinates, reversal_velocities, data_file_name):
