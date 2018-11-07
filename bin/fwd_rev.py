@@ -240,6 +240,7 @@ def launch_fwd_rev_stage(seekrcalc, milestone, traj_base, end_on_middle_crossing
   
   for dcd_frame in dcd_iterator:
     for j in range(seekrcalc.fwd_rev_stage.launches_per_config): # for however many times the 
+      had_error = False
       if hasattr(dcd_frame, 'xyz'):
         simulation.context.setPositions(dcd_frame.xyz[0])
       else:
@@ -274,12 +275,15 @@ def launch_fwd_rev_stage(seekrcalc, milestone, traj_base, end_on_middle_crossing
         except Exception: # if there was a NAN error
           print "Error encountered. Continuing with the next frame."
           num_errors += 1
-          continue # don't want to log this as a success
+          had_error = True
+          break # don't want to log this as a success
           
         counter += 1
         if counter > MAX_REVERSE_ITER: 
           print "maximum iterations exceeded."
           break
+      if had_error == True:
+        break # move on to the next frame
       if read_reversal_data_file_last(data_file_name):
         success_positions.append(positions)
         success_velocities.append(velocities)

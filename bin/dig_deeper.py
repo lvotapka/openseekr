@@ -10,8 +10,120 @@ Created on June 28, 2018
 
 import mdtraj
 import seekr
-import sys, os
+import sys, os, glob
 from shutil import copyfile
+import numpy as np
+from math import sqrt, pi, exp, log, sin, cos
+
+def get_com_offset(coords0, coords1):
+  '''
+  TODO: add docstring
+  '''
+  assert len(coords0[0]) == len(coords1[0]), "there needs to be an equal number of atoms selected in coords0 and coords1."
+  com0 = np.zeros([1,1,3])
+  com1 = np.zeros([1,1,3])
+  n = len(coords0[0])
+  for i in range(n):
+    coord0 = coords0[0,i,:]
+    com0 += coord0
+    coord1 = coords1[0,i,:]
+    com1 += coord1
+  com0 = com0 / n
+  com1 = com1 / n
+  offset = com1 - com0
+  return offset
+
+def compute_rmsd(coords0, coords1, offset):
+  '''
+  #TODO: add docstring
+  '''
+  assert len(coords0[0]) == len(coords1[0]), "there needs to be an equal number of atoms selected in coords0 and coords1."
+  sd = 0.0 # square deviation
+  n = len(coords0[0])
+  for i in range(n):
+    coord0 = coords0[0,i,:] + offset
+    coord1 = coords1[0,i,:]
+    diff_vec = coord1 - coord0
+    diff_vec_sq = float(diff_vec[0,0,0]**2 + diff_vec[0,0,1]**2 + diff_vec[0,0,2]**2)
+    sd += diff_vec_sq
+    
+  msd = sd / n
+  rmsd = sqrt(msd)
+  return rmsd
+
+def find_closest_ligand_orientation(prmtop, dcd_list, reference_top, reference_crd, ligname):
+  '''Reads in the dcd_list files one by one, extracting their final frames, then
+  compare them to a reference structure. The protein structures are aligned,
+  then the center of masses of the dcd last frame and the reference are
+  superimposed. Then the RMSD is measured. The frame with the smallest RMSD is
+  extracted.
+  Input:
+   - prmtop: the prmtop file name
+   - dcd_list: a list of string representing the locations of the dcd files
+   - reference: the reference PDB file for this system
+   - ligname: the RESNAME field in the PDB for the ligand
+  Output:
+   - best_last_frame: the last frame whose RMSD is closest to the reference
+     structure
+  '''
+  best_last_frame = None
+  best_rmsd = 9e9
+  print "running..."
+  ref_struct_all = mdtraj.load(reference_crd, top=reference_top)
+  ref_top_all = ref_struct_all.topology
+  query = "name CA or (resname '%s')" % ligname
+  ref_alpha_carbons_and_lig = ref_top_all.select(query) # select protein alpha carbons
+  
+  last_frame_all = seekr.load_last_mdtraj_frame(dcd_list[0], prmtop)
+  last_frame_top_all = last_frame_all.topology
+  query2 = "(name CA or resname '%s')" % ligname
+  last_frame_alpha_carbons_and_lig = last_frame_top_all.select(query2)
+  
+  ref_struct = mdtraj.load(reference_crd, top=reference_top, atom_indices=ref_alpha_carbons_and_lig)
+  ref_top = ref_struct.topology
+  ref_alpha_carbons = ref_top.select("name CA") # select protein alpha carbons
+  ref_lig = ref_top.select("resname '%s'" % ligname)
+  ref_coords = ref_struct.xyz[:,ref_lig]
+  assert len(ref_lig) > 0, "no reference atoms selected for ligand with ligname %s" % ligname
+  
+  counter = 0
+  for dcd_file in dcd_list:
+    last_frame = seekr.load_last_mdtraj_frame(dcd_file, prmtop, atom_indices=last_frame_alpha_carbons_and_lig)
+    last_frame_top = last_frame.topology
+    last_frame_alpha_carbons = last_frame_top.select('name CA')
+    last_frame_lig = last_frame_top.select("resname '%s'" % ligname)
+    assert len(ref_lig) > 0, "no last_frame atoms selected for ligand with ligname %s" % ligname
+    assert len(ref_alpha_carbons) == len(last_frame_alpha_carbons), 'The reference and the dcd must have the same number of alpha carbons'
+    assert len(ref_lig) == len(last_frame_lig), 'The reference and the dcd must have the same number of ligand atoms'
+    last_frame.superpose(reference=ref_struct, frame=0, atom_indices=last_frame_alpha_carbons, ref_atom_indices=ref_alpha_carbons)
+    #rmsd=mdtraj.rmsd(target=last_frame, reference=ref_struct, frame=0, atom_indices=last_frame_lig, ref_atom_indices=ref_lig)
+    last_frame_coords = last_frame.xyz[:,last_frame_lig]
+    
+    offset = get_com_offset(last_frame_coords, ref_coords)
+    rmsd = compute_rmsd(last_frame_coords, ref_coords, offset)
+    
+    #print "len(ref_coords):", len(ref_coords[0])
+    #print "ref_coords:", ref_coords
+    #print "len(last_frame_coords):", len(last_frame_coords[0])
+    #print "last_frame_coords:", last_frame_coords
+    
+    print "rmsd of frame %i" % counter, rmsd
+    if rmsd < best_rmsd:
+      best_rmsd = rmsd
+      best_counter = counter
+      best_last_frame_alphas = last_frame
+      
+    counter += 1
+    
+    #if counter%100==0:
+    #  print "still running..."
+        
+  best_last_frame = ref_struct_all = mdtraj.load(dcd_list[best_counter], top=prmtop)
+  
+  print "best_rmsd:", best_rmsd
+  
+  return best_last_frame
+    
 
 def read_data_file_transition_down(data_file_name, destination='1', last_frame=True):
   '''Read transition data file, return the first instance of a transition to a
@@ -39,12 +151,23 @@ def read_data_file_transition_down(data_file_name, destination='1', last_frame=T
   return downward_index
 
 print "Parse arguments"
-if len(sys.argv) != 3:
-  print "Usage:\npython dig_deeper.py milestone pickle"
+if len(sys.argv) not in [4, 7]:
+  print "Usage:\npython dig_deeper.py milestone pickle method [ref_pdb] [lig_resname]"
+  print "Available arguments for 'method': first, last, similar"
+  print "be sure to provide reference PDB and ligand resname if using 'similar' method argument."
   exit()
 
 which = int(sys.argv[1])
 picklename = sys.argv[2]
+method = sys.argv[3]
+ref_pdb = None
+lig_resname = None
+
+if method == 'similar':
+  #ref_pdb = sys.argv[4]
+  ref_parm7 = sys.argv[4]
+  ref_rst7 = sys.argv[5]
+  lig_resname = sys.argv[6]
 
 print "Loading SEEKR calculation."
 me = seekr.openSeekrCalc(picklename)
@@ -63,6 +186,8 @@ prmtop = os.path.join(me.project.rootdir, milestone.directory, 'md', 'building',
 new_prmtop = os.path.join(lower_milestone_building, 'holo.parm7')
 new_inpcrd = os.path.join(lower_milestone_building, 'holo.rst7')
 
+# NEXT TIME: find the downward forward dcd filenames for 'similar' method
+
 # figure out which forward to pull out from
 print "Attempting to extract the last frame of a successful downward trajectory."
 downward_index = read_data_file_transition_down(data_file_name)
@@ -71,7 +196,13 @@ print "Extracting frame from file:", downward_fwd_dcd
 
 print "Writing new structures and files needed to run umbrella simulation on the lower milestone (milestone %d)" % lower_milestone.index
 #last_fwd_frame = mdtraj.load(downward_fwd_dcd, top=prmtop)[-1]
-last_fwd_frame = seekr.load_last_mdtraj_frame(downward_fwd_dcd, prmtop)
+if method=='first':
+  raise Exception, 'not yet implemented.'
+elif method=='last':
+  last_fwd_frame = seekr.load_last_mdtraj_frame(downward_fwd_dcd, prmtop)
+elif method=='similar':
+  dcd_list = glob.glob(os.path.join(fwd_rev_dir, 'forward*_0.dcd'))
+  last_fwd_frame = find_closest_ligand_orientation(prmtop, dcd_list, ref_parm7, ref_rst7, lig_resname)
 last_fwd_frame.save_pdb(lower_temp_equil_filename)
 last_fwd_frame.save_pdb(lower_milestone_holo)
 last_fwd_frame.save_amberrst7(new_inpcrd)

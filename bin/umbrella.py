@@ -16,7 +16,7 @@ import mdtraj
 
 verbose = True
 
-def load_last_mdtraj_frame(dcd_filename, prmtop_filename):
+def load_last_mdtraj_frame(dcd_filename, prmtop_filename, atom_indices=None):
   '''
   This function returns the last frame of a DCD file as an MDtraj object.
   Input:
@@ -26,7 +26,11 @@ def load_last_mdtraj_frame(dcd_filename, prmtop_filename):
    - lastframe: an mdtraj Trajectory object that contains a single frame: the
      last one in the dcd.
   '''
-  mytraj_iter = mdtraj.iterload(dcd_filename, top=prmtop_filename)
+  if atom_indices is not None:
+    mytraj_iter = mdtraj.iterload(dcd_filename, top=prmtop_filename, atom_indices=atom_indices)
+  else:
+    mytraj_iter = mdtraj.iterload(dcd_filename, top=prmtop_filename) # Trajectory object
+  
   for frame in mytraj_iter:
     lastframe = frame[-1]
   return lastframe
