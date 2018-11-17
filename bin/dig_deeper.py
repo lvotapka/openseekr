@@ -118,14 +118,14 @@ def find_closest_ligand_orientation(prmtop, dcd_list, reference_top, reference_c
     #if counter%100==0:
     #  print "still running..."
         
-  best_last_frame = ref_struct_all = mdtraj.load(dcd_list[best_counter], top=prmtop)
+  best_last_frame = seekr.load_last_mdtraj_frame(dcd_list[best_counter], prmtop)
   
   print "best_rmsd:", best_rmsd
   
   return best_last_frame
     
 
-def read_data_file_transition_down(data_file_name, destination='1', last_frame=True):
+def read_data_file_transitions_down(data_file_name, destination='1', last_frame=True):
   '''Read transition data file, return the first instance of a transition to a
   lower milestone. Return the file index of the forward trajectory to this lower
   milestone.
@@ -138,17 +138,15 @@ def read_data_file_transition_down(data_file_name, destination='1', last_frame=T
    - downward_index: integer of the forward trajectory that ends on the lower
    milestone
   '''
-  downward_index = None
+  downward_indices = []
   data_file = open(data_file_name, 'r')
   for i, line in enumerate(data_file.readlines()):
     line = line.split()
     if line[0] == destination:
-      downward_index = i
-      if not last_frame: # then read the first frame
-        break 
+      downward_indices.append(i)
   data_file.close()
-  assert downward_index != None, "FAILURE: no downward forward trajectories detected. Please run additional umbrella sampling and rev/fwd trajectories."
-  return downward_index
+  assert len(downward_indices) != 0, "FAILURE: no downward forward trajectories detected. Please run additional umbrella sampling and rev/fwd trajectories."
+  return downward_indices
 
 print "Parse arguments"
 if len(sys.argv) not in [4, 7]:
@@ -190,18 +188,23 @@ new_inpcrd = os.path.join(lower_milestone_building, 'holo.rst7')
 
 # figure out which forward to pull out from
 print "Attempting to extract the last frame of a successful downward trajectory."
-downward_index = read_data_file_transition_down(data_file_name)
-downward_fwd_dcd = os.path.join(fwd_rev_dir, 'forward%i_0.dcd' % downward_index)
-print "Extracting frame from file:", downward_fwd_dcd
+downward_indices = read_data_file_transitions_down(data_file_name)
+
 
 print "Writing new structures and files needed to run umbrella simulation on the lower milestone (milestone %d)" % lower_milestone.index
 #last_fwd_frame = mdtraj.load(downward_fwd_dcd, top=prmtop)[-1]
 if method=='first':
-  raise Exception, 'not yet implemented.'
+  downward_fwd_dcd = os.path.join(fwd_rev_dir, 'forward%i_0.dcd' % downward_indices[0])
+  print "Extracting frame from file:", downward_fwd_dcd
+  last_fwd_frame = seekr.load_last_mdtraj_frame(downward_fwd_dcd, prmtop)
 elif method=='last':
+  downward_fwd_dcd = os.path.join(fwd_rev_dir, 'forward%i_0.dcd' % downward_indices[-1])
+  print "Extracting frame from file:", downward_fwd_dcd
   last_fwd_frame = seekr.load_last_mdtraj_frame(downward_fwd_dcd, prmtop)
 elif method=='similar':
-  dcd_list = glob.glob(os.path.join(fwd_rev_dir, 'forward*_0.dcd'))
+  dcd_list = []
+  for dcd_index in downward_indices:
+    dcd_list.append(os.path.join(fwd_rev_dir, 'forward%i_0.dcd' % dcd_index))
   last_fwd_frame = find_closest_ligand_orientation(prmtop, dcd_list, ref_parm7, ref_rst7, lig_resname)
 last_fwd_frame.save_pdb(lower_temp_equil_filename)
 last_fwd_frame.save_pdb(lower_milestone_holo)
