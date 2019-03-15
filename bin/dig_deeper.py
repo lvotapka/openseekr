@@ -10,7 +10,7 @@ Created on June 28, 2018
 
 import mdtraj
 import seekr
-import sys, os, glob
+import sys, os, glob, pprint
 from shutil import copyfile
 import numpy as np
 from math import sqrt, pi, exp, log, sin, cos
@@ -142,15 +142,17 @@ def read_data_file_transitions_down(data_file_name, destination='1', last_frame=
   data_file = open(data_file_name, 'r')
   for i, line in enumerate(data_file.readlines()):
     line = line.split()
+    #print "line:", line, "destination:", destination
     if line[0] == destination:
       downward_indices.append(i)
   data_file.close()
   assert len(downward_indices) != 0, "FAILURE: no downward forward trajectories detected. Please run additional umbrella sampling and rev/fwd trajectories."
   return downward_indices
+  
 
 print "Parse arguments"
 if len(sys.argv) not in [4, 7]:
-  print "Usage:\npython dig_deeper.py milestone pickle method [ref_pdb] [lig_resname]"
+  print "Usage:\npython dig_deeper.py milestone pickle method [ref_parm7] [ref_rst7] [lig_resname]"
   print "Available arguments for 'method': first, last, similar"
   print "be sure to provide reference PDB and ligand resname if using 'similar' method argument."
   exit()
@@ -190,22 +192,26 @@ new_inpcrd = os.path.join(lower_milestone_building, 'holo.rst7')
 print "Attempting to extract the last frame of a successful downward trajectory."
 downward_indices = read_data_file_transitions_down(data_file_name)
 
+dcd_list = sorted(glob.glob(os.path.join(fwd_rev_dir, 'forward*.dcd')), key=seekr.sort_forward_dcd_key)
 
 print "Writing new structures and files needed to run umbrella simulation on the lower milestone (milestone %d)" % lower_milestone.index
 #last_fwd_frame = mdtraj.load(downward_fwd_dcd, top=prmtop)[-1]
 if method=='first':
-  downward_fwd_dcd = os.path.join(fwd_rev_dir, 'forward%i_0.dcd' % downward_indices[0])
+  #downward_fwd_dcd = os.path.join(fwd_rev_dir, 'forward%i_0.dcd' % downward_indices[0])
+  downward_dcd = dcd_list[downward_indices[0]]
   print "Extracting frame from file:", downward_fwd_dcd
   last_fwd_frame = seekr.load_last_mdtraj_frame(downward_fwd_dcd, prmtop)
 elif method=='last':
-  downward_fwd_dcd = os.path.join(fwd_rev_dir, 'forward%i_0.dcd' % downward_indices[-1])
+  #downward_fwd_dcd = os.path.join(fwd_rev_dir, 'forward%i_0.dcd' % downward_indices[-1])
+  downward_dcd = dcd_list[downward_indices[-1]]
   print "Extracting frame from file:", downward_fwd_dcd
   last_fwd_frame = seekr.load_last_mdtraj_frame(downward_fwd_dcd, prmtop)
 elif method=='similar':
-  dcd_list = []
+  dcd_downward_list = []
   for dcd_index in downward_indices:
-    dcd_list.append(os.path.join(fwd_rev_dir, 'forward%i_0.dcd' % dcd_index))
-  last_fwd_frame = find_closest_ligand_orientation(prmtop, dcd_list, ref_parm7, ref_rst7, lig_resname)
+    #dcd_list.append(os.path.join(fwd_rev_dir, 'forward%i_0.dcd' % dcd_index))
+    dcd_downward_list.append(dcd_list[dcd_index])
+  last_fwd_frame = find_closest_ligand_orientation(prmtop, dcd_downward_list, ref_parm7, ref_rst7, lig_resname)
 last_fwd_frame.save_pdb(lower_temp_equil_filename)
 last_fwd_frame.save_pdb(lower_milestone_holo)
 last_fwd_frame.save_amberrst7(new_inpcrd)

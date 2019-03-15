@@ -158,7 +158,7 @@ def read_data_file_transitions(data_file_name, seekrcalc, milestone):
   avg_incubation_time = incubation_time_summation / len(incubation_time_list)
   data_file.close()
   print "number of failed forward trajectories:", num_failed
-  return transition_dict, avg_incubation_time
+  return transition_dict, avg_incubation_time, incubation_time_list
 
 def read_data_file_successes(data_file_name):
   '''Open the data file, read the transitions, and populate a list of successful
@@ -192,8 +192,24 @@ def read_reversal_data_file_last(data_file_name):
     return True
   else:
     return False
+  
+def sort_pickle_key(pickle_filename):
+  '''A function used by the 'key' argument of the sorted() function to sort
+  the forward dcd files.'''
+  basenum = os.path.basename(pickle_filename).split('.')[0][14:] # TODO: this is hacky...
+  sorting_number = int(basenum)
+  return sorting_number
 
-def launch_fwd_rev_stage(seekrcalc, milestone, traj_base, end_on_middle_crossing, dcd_iterator, input_vels=None, box_vectors=None, transition_filename='transition.dat'):
+def sort_forward_dcd_key(forward_dcd):
+  '''A function used by the 'key' argument of the sorted() function to sort
+  the forward dcd files.'''
+  basename = os.path.basename(forward_dcd).split('.')[0][7:] # TODO: this is hacky...
+  index_list = basename.split('_')
+  sorting_list = [int(index_list[2]), int(index_list[0]), int(index_list[1])]
+  return sorting_list
+
+def launch_fwd_rev_stage(seekrcalc, milestone, traj_base, end_on_middle_crossing, dcd_iterator, dcd_iterator_chunk=9e9, input_vels=None, 
+                         box_vectors=None, transition_filename='transition.dat', suffix='', save_fwd_rev=False):
   # TODO: update the docstring to current inputs
   '''launch a reversal stage SEEKR calculation.
   Input:
@@ -227,7 +243,9 @@ def launch_fwd_rev_stage(seekrcalc, milestone, traj_base, end_on_middle_crossing
   # create and prepare the SEEKR milestones
   myforce, data_file_name = create_spherical_seekr_force(seekrcalc, milestone, system, end_on_middle_crossing, transition_filename)
   
-  os.system('rm %s' % data_file_name) # delete the existing transition data file if it exists
+  if save_fwd_rev == False:
+    print "Deleting transition file:", data_file_name
+    os.system('rm %s' % data_file_name) # delete the existing transition data file if it exists
   
   simulation = Simulation(prmtop.topology, system, integrator, platform, properties) # create the system object
   
@@ -237,6 +255,7 @@ def launch_fwd_rev_stage(seekrcalc, milestone, traj_base, end_on_middle_crossing
   indices_list = []
   i = 0
   num_errors = 0
+  complete = True
   
   for dcd_frame in dcd_iterator:
     for j in range(seekrcalc.fwd_rev_stage.launches_per_config): # for however many times the 
@@ -261,7 +280,7 @@ def launch_fwd_rev_stage(seekrcalc, milestone, traj_base, end_on_middle_crossing
       state = simulation.context.getState(getVelocities = True, getPositions = True)
       velocities = state.getVelocities()
       positions = state.getPositions()
-      traj_name = traj_base+"%d_%d.dcd" % (i, j) #"fwd_rev%d_%d.dcd" % (i, j)
+      traj_name = traj_base+"%d_%d%s.dcd" % (i, j, suffix) #"fwd_rev%d_%d.dcd" % (i, j)
       fwd_rev_traj = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'fwd_rev', traj_name)
       simulation.reporters = [StateDataReporter(stdout, seekrcalc.fwd_rev_stage.energy_freq, step=True, potentialEnergy=True, temperature=True, volume=True)]
       simulation.reporters.append(DCDReporter(fwd_rev_traj, seekrcalc.fwd_rev_stage.traj_freq))
@@ -287,11 +306,19 @@ def launch_fwd_rev_stage(seekrcalc, milestone, traj_base, end_on_middle_crossing
       if read_reversal_data_file_last(data_file_name):
         success_positions.append(positions)
         success_velocities.append(velocities)
+        
     i += 1
+    
+    if len(success_positions) >= dcd_iterator_chunk:
+      complete = False
+      break
+    #if i*seekrcalc.fwd_rev_stage.launches_per_config >= dcd_iterator_chunk:
+    #  break
       
   print "Time elapsed:", time.time() - starttime
   print "Number of errors:", num_errors
-  return success_positions, success_velocities, data_file_name, indices_list
+  
+  return success_positions, success_velocities, data_file_name, indices_list, complete
 
 def process_reversal_data(reversal_coordinates, reversal_velocities, data_file_name):
   '''Reads the transition data file, then sorts the set of starting positions
@@ -317,7 +344,7 @@ def process_reversal_data(reversal_coordinates, reversal_velocities, data_file_n
     success_velocities.append(vel)
   return success_coordinates, success_velocities
 
-def pickle_coords_vels(seekrcalc, milestone, success_coords, success_vels):
+def pickle_coords_vels(seekrcalc, milestone, success_coords, success_vels, index=None):
   '''Save the reversal starting positions and velocities in a pickle for easy
   retrieval.
   Input:
@@ -330,8 +357,12 @@ def pickle_coords_vels(seekrcalc, milestone, success_coords, success_vels):
    - success_coords_pickle: success_coords pickled
    - success_vels_pickle: success_vels pickled
   '''
-  success_coords_pickle = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'fwd_rev', 'success_coords.pickle')
-  success_vels_pickle = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'fwd_rev', 'success_vels.pickle')
+  if index == None:
+    suffix = ''
+  else:
+    suffix = str(index)
+  success_coords_pickle = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'fwd_rev', 'success_coords%s.pickle' % suffix)
+  success_vels_pickle = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'fwd_rev', 'success_vels%s.pickle' % suffix)
   
   success_coords_pickle_file=open(success_coords_pickle, 'wb')
   pickle.dump(success_coords, success_coords_pickle_file, protocol=-1)
