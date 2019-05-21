@@ -89,11 +89,20 @@ def create_spherical_seekr_force(seekrcalc, milestone, system, end_on_middle_cro
    - data_file_name: the data file that will be monitored for crossing events.
    '''
   force = SeekrForce() # create the SEEKR force object
-  neighbor1 = seekrcalc.milestones[milestone.neighbors[0]] # find the neighbor milestones
-  neighbor2 = seekrcalc.milestones[milestone.neighbors[1]]
-  radius1 = neighbor1.radius / 10.0 # extract neighbor milestone radii
-  radius2 = milestone.radius / 10.0 # convert to nm. TODO: better way to deal with these units?
-  radius3 = neighbor2.radius / 10.0
+  if len(milestone.neighbors) == 2:
+    neighbor1 = seekrcalc.milestones[milestone.neighbors[0]] # find the neighbor milestones
+    neighbor2 = seekrcalc.milestones[milestone.neighbors[1]]
+    radius1 = neighbor1.radius / 10.0 # extract neighbor milestone radii
+    radius2 = milestone.radius / 10.0 # convert to nm. TODO: better way to deal with these units?
+    radius3 = neighbor2.radius / 10.0
+  elif len(milestone.neighbors) == 1: # this is an endpoint milestone HACKY...
+    neighbor1 = seekrcalc.milestones[milestone.neighbors[0]] # find the neighbor milestones
+    neighbor2 = seekrcalc.milestones[milestone.neighbors[0]]
+    radius1 = 0.0 # extract neighbor milestone radii
+    radius2 = milestone.radius / 10.0 # convert to nm. TODO: better way to deal with these units?
+    radius3 = neighbor2.radius / 10.0
+  else:
+    raise Exception, "Only one or two milestone neighbors allowed at present. Number of neighbors: %d" % milestone.neighbors
   data_file_name = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'fwd_rev', transition_filename) # define the file to write transition information
   # Define all settings and parameters for the SEEKR force object
   force.addSphericalMilestone(len(milestone.atom_selection_1), len(milestone.atom_selection_2), radius1, radius2, radius3, milestone.atom_selection_1, milestone.atom_selection_2, end_on_middle_crossing, data_file_name)
@@ -131,11 +140,16 @@ def read_data_file_transitions(data_file_name, seekrcalc, milestone):
   transition_dict = {}
   incubation_time_list = []
   num_failed = 0
-  neighbor1 = seekrcalc.milestones[milestone.neighbors[0]] # find the neighbor milestones
-  neighbor2 = seekrcalc.milestones[milestone.neighbors[1]]
   data_file = open(data_file_name, 'r')
-  dest1 = neighbor1.index
-  dest2 = neighbor2.index
+  if len(milestone.neighbors) == 2:
+    neighbor1 = seekrcalc.milestones[milestone.neighbors[0]] # find the neighbor milestones
+    neighbor2 = seekrcalc.milestones[milestone.neighbors[1]]
+    dest1 = neighbor1.index
+    dest2 = neighbor2.index
+  else:
+    neighbor2 = seekrcalc.milestones[milestone.neighbors[0]]
+    dest2 = neighbor2.index
+    dest1 = -1
   src = milestone.index
   key_string1 = '%d_%d' % (src, dest1)
   key_string2 = '%d_%d' % (src, dest2)

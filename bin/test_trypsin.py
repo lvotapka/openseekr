@@ -22,7 +22,7 @@ if 'remove' in sys.argv[1:]:
 
 # Define settings object for all simulations
 me = seekr.SeekrCalculation() # create a new SEEKR calculation object
-me.master_temperature = 300. #*kelvin # temperature of (most) all calculations
+me.master_temperature = 298. #*kelvin # temperature of (most) all calculations
 
 # project information
 me.project.name = 'test_tryp'
@@ -36,21 +36,22 @@ me.openmm.platform = Platform.getPlatformByName('CUDA')
 me.openmm.properties = {'CudaDeviceIndex':'0', 'CudaPrecision':'mixed'}
 
 # Selection information
-rec_site_atom_indices = [2467, 2479, 2490, 2536, 2746, 2770, 2788] # Make sure this is selected by "index" in VMD
+rec_site_atom_indices = [2478, 2489, 2499, 2535, 2718, 2745, 2769, 2787, 2794, 2867, 2926] # Make sure this is selected by "index" in VMD
+#2478 2489 2499 2535 2718 2745 2769 2787 2794 2867 2926
 me.selections.site_com_indices = rec_site_atom_indices
 
 # Building information
 me.building.ff = 'amber'
 me.building.lig_dry_pqr_filename = '/home/lvotapka/tryp_files/benzamidine_moved.pqr'
-me.building.rec_wet_pdb_filename = '/home/lvotapka/openseekr/openmm_examples/leaptest/apo_postleap2.pdb'
-me.building.rec_dry_pqr_filename = '/home/lvotapka/tryp_files/tryp_dry.pqr'
+me.building.rec_wet_pdb_filename = '/home/lvotapka/torq/lvotapka/Documents/trypsin_files/apo_redo/tryp_wet_1946.pdb'
+me.building.rec_dry_pqr_filename = '/home/lvotapka/torq/lvotapka/Documents/trypsin_files/apo_redo/tryp_dry_1946.pqr'
 me.building.reject_clashes = True
 
 # Minimization / Temperature Equilibration info
-me.min_equil.constrained += range(3238)
+me.min_equil.constrained += range(3220)
 me.min_equil.min_num_steps = 5000
 me.min_equil.min_reporter_freq = 500 #[PDBReporter('dummy', 500)] # SEEKR will automatically change the filename
-me.min_equil.temp_equil_integrator = LangevinIntegrator(me.master_temperature*kelvin, 1/picosecond, 0.002*picoseconds)
+me.min_equil.temp_equil_integrator = LangevinIntegrator(me.master_temperature*kelvin, 5/picosecond, 0.002*picoseconds)
 me.min_equil.temp_equil_reporters = [PDBReporter('dummy', 100)] # SEEKR will automatically change the filename
 me.min_equil.temp_equil_steps = 1000 # number of simulation steps per temperature
 me.min_equil.temp_equil_temperatures = [300., 310., 320., 330., 340., 350., 340., 330., 320., 310., 300.] # progression of the temperature equilibration
@@ -65,7 +66,7 @@ me.browndye.apbs.executable = '/home/lvotapka/Downloads/APBS-1.5-linux64/bin/apb
 me.browndye.fhpd_numtraj = 1000
 
 ion1 = seekr.APBS_ion('Cl-', 0.10, -1.0, 1.67)
-ion2 = seekr.APBS_ion('Ca2+', 0.02, 2.0, 2.1) # define ions in the system
+ion2 = seekr.APBS_ion('Ca2+', 0.02, 2.0, 1.14) # define ions in the system
 ion3 = seekr.APBS_ion('tris', 0.06, 1.0, 4.0)
 
 
@@ -74,9 +75,10 @@ me.browndye.apbs.linear_pbe = False
 me.browndye.apbs.inputgen.executable = '/home/lvotapka/Downloads/APBS-1.5-linux64/share/apbs/tools/manip/inputgen.py'
 
 # Generate Milestones
-origin = np.array([-2.777, 11.117, 0.397])
-radius_list = np.arange(2.0, 14.1, 2.0)
-vectors = [np.array([1.0, 1.0, 1.0]), np.array([-3.0, 0.0, 4.0,])]
+origin = np.array([-1.536, 13.859, 16.539])
+#radius_list = np.arange(2.0, 14.1, 2.0)
+radius_list = [1.0, 1.5, 2.0, 3.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0]
+vectors = [np.array([9.019, 72.142, 15.943]),]
 milestones = seekr.generate_spherical_milestones(me, rec_site_atom_indices, origin, radius_list, 0, vectors, absolute=False)
 print "The following milestones were created:"
 seekr.print_spherical_milestone_info(milestones)

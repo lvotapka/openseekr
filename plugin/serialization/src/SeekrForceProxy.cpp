@@ -89,7 +89,9 @@ void* SeekrForceProxy::deserialize(const SerializationNode& node) const {
           const SerializationNode& atomIndexNode1 = sphericalMilestone.getChildNode("atomIndex1");
           const SerializationNode& atomIndexNode2 = sphericalMilestone.getChildNode("atomIndex2");
           bool endOnMiddleCrossing = sphericalMilestone.getBoolProperty("endOnMiddleCrossing");
-          std::string dataFileName = "/tmp/test.txt"; //sphericalMilestone.getStringProperty("dataFileName");
+          //TODO: this is a problem
+          //std::string dataFileName = "/tmp/test.txt";
+          const std::string dataFileName = sphericalMilestone.getStringProperty("dataFileName"); // This might not work, resort to above if necessary
           
           for (int j = 0; j < numIndices1; j++) {
             atomIndices1.push_back(atomIndexNode1.getChildren()[j].getIntProperty("index"));

@@ -15,6 +15,18 @@ from shutil import copyfile
 import numpy as np
 from math import sqrt, pi, exp, log, sin, cos
 
+def get_com(coords):
+  '''
+  TODO: add docstring
+  '''
+  com = np.zeros([1, 1, 3])
+  n = len(coords[0])
+  for i in range(n):
+    coord = coords[0, i, :]
+    com += coord
+  com = com / n
+  return com
+
 def get_com_offset(coords0, coords1):
   '''
   TODO: add docstring
@@ -51,7 +63,7 @@ def compute_rmsd(coords0, coords1, offset):
   rmsd = sqrt(msd)
   return rmsd
 
-def find_closest_ligand_orientation(prmtop, dcd_list, reference_top, reference_crd, ligname):
+def find_closest_ligand_orientation(prmtop, dcd_list, reference_top, reference_crd, ligname, center_atom_indices):
   '''Reads in the dcd_list files one by one, extracting their final frames, then
   compare them to a reference structure. The protein structures are aligned,
   then the center of masses of the dcd last frame and the reference are
@@ -89,16 +101,27 @@ def find_closest_ligand_orientation(prmtop, dcd_list, reference_top, reference_c
   counter = 0
   for dcd_file in dcd_list:
     last_frame = seekr.load_last_mdtraj_frame(dcd_file, prmtop, atom_indices=last_frame_alpha_carbons_and_lig)
+    last_frame_site = seekr.load_last_mdtraj_frame(dcd_file, prmtop, atom_indices=map(lambda x: x-1, center_atom_indices))
     last_frame_top = last_frame.topology
+    last_frame_site_top = last_frame_site.topology
+    
     last_frame_alpha_carbons = last_frame_top.select('name CA')
     last_frame_lig = last_frame_top.select("resname '%s'" % ligname)
+    last_frame_coords = last_frame.xyz[:,last_frame_lig]
+    #print "last_frame_coords:", last_frame_coords
     assert len(ref_lig) > 0, "no last_frame atoms selected for ligand with ligname %s" % ligname
     assert len(ref_alpha_carbons) == len(last_frame_alpha_carbons), 'The reference and the dcd must have the same number of alpha carbons'
     assert len(ref_lig) == len(last_frame_lig), 'The reference and the dcd must have the same number of ligand atoms'
+    
+    last_frame_site_coords = last_frame_site.xyz[:]
+    site_com = get_com(last_frame_site_coords)
+    lig_com = get_com(last_frame_coords)
+    dist_from_origin = np.sqrt((lig_com[0, 0, 0]-site_com[0, 0, 0])**2 + (lig_com[0, 0, 1]-site_com[0, 0, 1])**2 + (lig_com[0, 0, 2]-site_com[0, 0, 2])**2)
+    
     last_frame.superpose(reference=ref_struct, frame=0, atom_indices=last_frame_alpha_carbons, ref_atom_indices=ref_alpha_carbons)
     #rmsd=mdtraj.rmsd(target=last_frame, reference=ref_struct, frame=0, atom_indices=last_frame_lig, ref_atom_indices=ref_lig)
     last_frame_coords = last_frame.xyz[:,last_frame_lig]
-    
+        
     offset = get_com_offset(last_frame_coords, ref_coords)
     rmsd = compute_rmsd(last_frame_coords, ref_coords, offset)
     
@@ -107,7 +130,7 @@ def find_closest_ligand_orientation(prmtop, dcd_list, reference_top, reference_c
     #print "len(last_frame_coords):", len(last_frame_coords[0])
     #print "last_frame_coords:", last_frame_coords
     
-    print "rmsd of frame %i" % counter, rmsd
+    print "rmsd of frame %i" % counter, rmsd, "distance from milestone origin:", dist_from_origin, "nm"
     if rmsd < best_rmsd:
       best_rmsd = rmsd
       best_counter = counter
@@ -115,8 +138,8 @@ def find_closest_ligand_orientation(prmtop, dcd_list, reference_top, reference_c
       
     counter += 1
     
-    #if counter%100==0:
-    #  print "still running..."
+    #ref_struct.save_pdb('/tmp/refframe.pdb') # DEBUG lines
+    #last_frame.save_pdb('/tmp/lastframe.pdb') # DEBUG lines
         
   best_last_frame = seekr.load_last_mdtraj_frame(dcd_list[best_counter], prmtop)
   
@@ -199,19 +222,19 @@ print "Writing new structures and files needed to run umbrella simulation on the
 if method=='first':
   #downward_fwd_dcd = os.path.join(fwd_rev_dir, 'forward%i_0.dcd' % downward_indices[0])
   downward_dcd = dcd_list[downward_indices[0]]
-  print "Extracting frame from file:", downward_fwd_dcd
-  last_fwd_frame = seekr.load_last_mdtraj_frame(downward_fwd_dcd, prmtop)
+  print "Extracting frame from file:", downward_dcd
+  last_fwd_frame = seekr.load_last_mdtraj_frame(downward_dcd, prmtop)
 elif method=='last':
   #downward_fwd_dcd = os.path.join(fwd_rev_dir, 'forward%i_0.dcd' % downward_indices[-1])
   downward_dcd = dcd_list[downward_indices[-1]]
-  print "Extracting frame from file:", downward_fwd_dcd
-  last_fwd_frame = seekr.load_last_mdtraj_frame(downward_fwd_dcd, prmtop)
+  print "Extracting frame from file:", downward_dcd
+  last_fwd_frame = seekr.load_last_mdtraj_frame(downward_dcd, prmtop)
 elif method=='similar':
   dcd_downward_list = []
   for dcd_index in downward_indices:
     #dcd_list.append(os.path.join(fwd_rev_dir, 'forward%i_0.dcd' % dcd_index))
     dcd_downward_list.append(dcd_list[dcd_index])
-  last_fwd_frame = find_closest_ligand_orientation(prmtop, dcd_downward_list, ref_parm7, ref_rst7, lig_resname)
+  last_fwd_frame = find_closest_ligand_orientation(prmtop, dcd_downward_list, ref_parm7, ref_rst7, lig_resname, lower_milestone.center_atom_indices)
 last_fwd_frame.save_pdb(lower_temp_equil_filename)
 last_fwd_frame.save_pdb(lower_milestone_holo)
 last_fwd_frame.save_amberrst7(new_inpcrd)
@@ -220,5 +243,6 @@ last_fwd_frame.save_amberrst7(new_inpcrd)
 copyfile(prmtop, new_prmtop)
 lower_milestone.openmm.prmtop_filename = new_prmtop
 lower_milestone.openmm.inpcrd_filename = new_inpcrd
+
 
 me.save()
