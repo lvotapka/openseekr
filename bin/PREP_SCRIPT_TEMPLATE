@@ -1,0 +1,173 @@
+'''
+TEMPLATE SCRIPT FOR SEEKR PREPARATION RUN
+
+@author: Lane Votapka
+
+Created on May 31, 2019
+
+'''
+
+import seekr
+from seekr import amber, bd
+from simtk.openmm.app import *
+from simtk.openmm import *
+from simtk.unit import *
+import numpy as np
+import parmed as pmd
+import sys
+
+# If 'remove' is in arguments, delete entire filetree
+remove_old_filetree = False
+if 'remove' in sys.argv[1:]:
+  remove_old_filetree = True
+
+# Define settings object for all simulations
+me = seekr.SeekrCalculation() # create a new SEEKR calculation object named 'me'
+me.master_temperature = 298.15 #*kelvin # temperature of (most) all calculations
+
+# project information
+me.project.name = ##### PROJECT NAME STRING HERE example: 'hsp90_gdm'
+me.project.rootdir = ##### PATH TO SEEKR PROJECT example: '/home/lvotapka/hsp90_gdm'
+me.project.empty_rootdir = remove_old_filetree
+me.md = ##### BOOLEAN ABOUT WHETHER TO RUN MD STAGE example: True
+me.bd = ##### BOOLEAN ABOUT WHETHER TO RUN BD STAGE example: True
+
+# OpenMM information
+me.openmm.platform = Platform.getPlatformByName('CUDA')
+me.openmm.properties = {'CudaDeviceIndex':'0', 'CudaPrecision':'mixed'} # CHANGE DEVICE INDEX IF NECESSARY
+
+# Selection information
+rec_site_atom_indices = ##### LIST OF ATOM INDICES THAT DEFINE RECEPTOR CENTER OF MASS example: [660, 674, 696]
+# NOTE: in VMD, use 'index' selection to choose these numbers
+me.selections.site_com_indices = rec_site_atom_indices
+
+# Building information
+me.building.ff = ##### FORCEFIELD TO USE example: 'amber'
+me.building.lig_dry_pqr_filename = ##### LOCATION OF DRY LIGAND PDB STRUCTURE example: '/home/lvotapka/hsp90/ligand/gdm.pqr'
+me.building.rec_wet_pdb_filename = ##### LOCATION OF WET RECEPTOR PDB STRUCTURE example '/home/lvotapka/hsp90/apo_prod/apo_wet.pdb'
+me.building.rec_dry_pqr_filename = ##### LOCATION OF DRY RECEPTOR PDB STRUCTURE example '/home/lvotapka/hsp90/apo_prod/apo_dry.pqr'
+me.building.reject_clashes = True
+
+# Minimization / Temperature Equilibration info
+me.min_equil.min_num_steps = 5000
+me.min_equil.min_reporter_freq = 500 #[PDBReporter('dummy', 500)]
+me.min_equil.temp_equil_integrator = LangevinIntegrator(me.master_temperature*kelvin, 1/picosecond, 0.002*picoseconds)
+me.min_equil.temp_equil_reporters = [PDBReporter('dummy', 100)] # SEEKR will automatically change the filename
+me.min_equil.temp_equil_steps = 1000 # number of simulation steps per temperature
+me.min_equil.temp_equil_temperatures = [300., 310., 320., 330., 340., 350., 340., 330., 320., 310., 300.] # progression of the temperature equilibration
+
+# BrownDye information
+me.browndye.browndye_bin_dir = ##### DIRECTORY CONTAINING BROWNDYE EXECUTABLE example: '/home/lvotapka/Downloads/browndye/bin'
+me.browndye.num_threads = ##### NUMBER OF DESIRED THREADS TO USE FOR BROWNDYE example: 10
+me.browndye.lig_dry_pqr_filename = ##### LOCATION OF DRY LIGAND PQR STRUCTURE example: '/home/lvotapka/hsp90/ligand/gdm.pqr'
+me.browndye.rec_dry_pqr_filename = ##### LOCATION OF DRY RECEPTOR PQR STRUCTURE example: '/home/lvotapka/hsp90/apo_prod/apo_dry.pqr'
+me.browndye.prods_per_anchor = ##### NUMBER OF PRODUCTION BD SIMULATIONS TO RUN FOR THE BD MILESTONES example: 1000000
+me.browndye.apbs.executable = ##### LOCATION OF APBS EXECUTABLE example: '/home/lvotapka/Downloads/APBS-1.5-linux64/bin/apbs'
+me.browndye.fhpd_numtraj = ##### NUMBER OF FHPD RESTARTS PER ENCOUNTER COMPLEX IN BD example: 1000
+
+# APBS_ion object takes four arguments: 1. Ion name string, 2. Ion concentration in mol/L, 3. Ion charge (in units of proton charge), 4. Ion radius (in units of Angstroms)
+ion1 = # ION OBJECT FOR APBS CALCULATION example: seekr.APBS_ion('Cl-', 0.05, -1.0, 1.67)
+ion2 = # ION OBJECT FOR APBS CALCULATION example: seekr.APBS_ion('K+', 0.05, 1.0, 1.52) # define ions in the system
+
+
+me.browndye.apbs.ions = [ion1, ion2]
+me.browndye.apbs.linear_pbe = False
+me.browndye.apbs.inputgen.executable = ##### LOCATION OF APBS TOOL INPUTGET example: '/home/lvotapka/Downloads/APBS-1.5-linux64/share/apbs/tools/manip/inputgen.py'
+
+# Generate Milestones
+origin = ##### LOCATION OF ACTIVE SITE IN WET RECEPTOR STRUCTURE example: np.array([38.18770980834961, 30.511234283447266, 33.473995208740234])
+radius_list = ##### LIST OF RADII OF SPHERICAL MILESTONES example: [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0]
+vectors = ##### LIST OF SEQUENTIAL VECTORS POINTING FROM CENTER OF SITE OUTWARDS example: [np.array([28.831523895263672, 0.5780467987060547, 1.5677108764648438]), ]
+milestones = seekr.generate_spherical_milestones(me, me.selections.site_com_indices, origin, radius_list, 0, vectors, absolute=False)
+print("The following milestones were created:")
+seekr.print_spherical_milestone_info(milestones)
+me.milestones = milestones
+
+# Generate Filetree and Building files
+seekr.generate_filetree(me)
+holo_config_wet, insert_index, last_ligand_index = seekr.generate_configs(me)
+ligand_heavy_indices = seekr.find_heavy_atoms(holo_config_wet, range(insert_index, insert_index+last_ligand_index+1))
+print("Ligand heavy indices:", ligand_heavy_indices)
+
+amber_settings = amber.AmberSettings()
+amber_settings.leap_program = 'tleap'
+
+##### A LEAP TEMPLATE FILE MUST BE DEFINED HERE
+# example: amber_settings.leap_template = 
+'''
+source leaprc.protein.ff14SB
+source leaprc.gaff
+source leaprc.water.tip4pew
+set default FlexibleWater on
+set default PBRadii mbondi2
+loadoff /home/lvotapka/hsp90/ligand/gdm.lib
+loadamberparams /home/lvotapka/hsp90/ligand/gdm.frcmod
+WAT = T4E
+HOH = T4E
+loadAmberParams frcmod.ionsjc_tip4pew
+loadAmberParams frcmod.tip4pew
+
+holo = loadpdb $HOLO_WET_PDB
+
+addions2 holo Cl- 0
+addions2 holo K+ 0
+
+check holo
+charge holo
+
+saveamberparm holo $PRMTOP $INPCRD
+
+savepdb holo  $LEAP_OUTPUT_PDB
+
+quit
+'''
+
+me.min_equil.constrained += range(insert_index)
+me.min_equil.constrained += ligand_heavy_indices
+    
+for milestone in me.milestones:
+  milestone.atom_selection_1 = me.selections.site_com_indices
+  milestone.atom_selection_2 = ligand_heavy_indices
+  if milestone.md:
+    amber.amber_building(me, milestone, amber_settings)
+    
+    if not milestone.openmm.prmtop_filename: continue
+    # modify the file to have the correct solvent octahedron box
+    #print "modifying prmtop/inpcrd pair to have the correct solvent box"
+    parm = pmd.load_file(milestone.openmm.prmtop_filename, xyz=milestone.openmm.inpcrd_filename)
+    
+    #TODO: straighten out these units
+    parm.box = ##### A 6D NUMPY ARRAY OF SOLVATED BOX VECTORS IN ANGSTROMS example: np.array([64.477940, 64.477940, 64.477940,109.471219, 109.471219,109.471219]) # These can be obtained from the .inpcrd or .rst7 file from, say, an apo simulation.
+    box_vector = ##### THE SOLVATION BOX VECTORS IN NANOMETERS example: Quantity(((6.447794052669349, 0.0, 0.0), (-2.149264510804903, 6.07903859242832, 0.0), (-2.149264510804903, -3.039518928338579, 5.264602064021963)), unit=nanometer) # See the wiki for how to calculate
+    parm.box_vectors = box_vector
+    print("parm.box:", parm.box)
+    print("parm.box_vectors:", parm.box_vectors)
+    print("saving prmtop for milestone:", milestone.index)
+    parm.save(milestone.openmm.prmtop_filename, overwrite = True)
+    print("saving inpcrd for milestone:", milestone.index)
+    parm.save(milestone.openmm.inpcrd_filename, overwrite = True)
+    
+    amber.create_simulation(me, milestone)
+    milestone.openmm.simulation.context.setPeriodicBoxVectors(*box_vector)
+    
+    if not me.openmm.simulation: # create a sample of a simulation file for future use
+      me.openmm.simulation = milestone.openmm.simulation
+
+seekr.run_min_equil(me)
+
+# save equilibration output
+for milestone in me.milestones:
+  if milestone.md:
+    filename = amber.save_restart(me, milestone)
+    milestone.openmm.umbrella_pdb_filename = filename
+
+print("Saving all system settings for Umbrella stage and later stages.")
+me.save()
+
+if me.bd:
+  print("Preparing Brownian dynamics stages...")
+  bd.build_bd(me)
+
+# TODO: print ligand and receptor indices?
+print("Ligand heavy indices:", seekr.find_heavy_atoms(holo_config_wet, range(insert_index, insert_index+last_ligand_index+1)))
+
