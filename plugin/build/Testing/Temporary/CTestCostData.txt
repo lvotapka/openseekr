@@ -1,0 +1,6 @@
+TestSerializationSeekrForce 0 0
+TestCudaSeekrForceSingle 15 0.000609814
+TestCudaSeekrForceMixed 15 0.000402905
+TestCudaSeekrForceDouble 15 0.000322379
+---
+TestSerializationSeekrForce
