@@ -29,7 +29,7 @@ def structures_clash(structure1, structure2, tolerance=0.0):
      - clashing: a boolean representing whether the structures are clashing or 
          not.
   '''
-  if verbose: print "searching for clashes between structures", structure1.struct_id, "and", structure2.struct_id
+  if verbose: print "searching for clashes between structures", structure1.struct_id, "and", structure2.struct_id #If true execute the print statement.
   struct1_com = pdb.center_of_mass(structure1) # find center of mass of structure1
   struct1_rad = pdb.molecular_radius(structure1) # find molecular radius
   clashing = False
@@ -134,7 +134,7 @@ def generate_configs(seekrcalc):
     lig_config = configs[i]
     milestone.config = deepcopy(lig_config)
     if seekrcalc.building.reject_clashes:
-      if structures_clash(lig_config, receptor_dry, tolerance=0.2): continue # if there's a clash
+      if structures_clash(lig_config, receptor_dry, tolerance=.00000000001): continue # if there's a clash
     if milestone.md:
       #pdb.TER_resnames.append(seekrcalc.building.lig_resname) # TODO: marked for removal
       holo_config_wet, insert_index, last_ligand_index = pdb.ligmerge(lig_config, receptor_wet, verbose=False)

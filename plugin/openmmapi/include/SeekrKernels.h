@@ -79,6 +79,6 @@ public:
     virtual void copyParametersToContext(OpenMM::ContextImpl& context, const SeekrForce& force) = 0;
 };
 
-} // namespace SeekrPlugin
+} // namespace SeekrPluginf
 
 #endif /*SEEKR_KERNELS_H_*/

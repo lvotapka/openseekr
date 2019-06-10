@@ -7,6 +7,8 @@ Created on June 15, 2018
 @author: lvotapka
 '''
 
+#Changed "spherical" varibles to planar ones...should be good to go (6/7/2019)
+
 from simtk.openmm.app import *
 from simtk.openmm import *
 from simtk.unit import *
@@ -75,7 +77,7 @@ quit
   os.system("%s < %s" % (cpptraj_exe, cpptraj_script_location)) # run cpptraj
   return
 
-def create_spherical_seekr_force(seekrcalc, milestone, system, end_on_middle_crossing, transition_filename='transition.dat'):
+def create_planar_seekr_force(seekrcalc, milestone, system, end_on_middle_crossing, transition_filename='transition.dat'):
   '''create the SEEKR 'force' even though it's more of a monitor than a force.
   Input:
    - seekrcalc: The SeekrCalculation object that contains all the settings for 
@@ -92,20 +94,20 @@ def create_spherical_seekr_force(seekrcalc, milestone, system, end_on_middle_cro
   if len(milestone.neighbors) == 2:
     neighbor1 = seekrcalc.milestones[milestone.neighbors[0]] # find the neighbor milestones
     neighbor2 = seekrcalc.milestones[milestone.neighbors[1]]
-    radius1 = neighbor1.radius / 10.0 # extract neighbor milestone radii
-    radius2 = milestone.radius / 10.0 # convert to nm. TODO: better way to deal with these units?
-    radius3 = neighbor2.radius / 10.0
+    length1 = neighbor1.length / 10.0 # extract neighbor milestone lengths
+    length2 = milestone.length / 10.0 # convert to nm. TODO: better way to deal with these units?
+    length3 = neighbor2.length / 10.0
   elif len(milestone.neighbors) == 1: # this is an endpoint milestone HACKY...
     neighbor1 = seekrcalc.milestones[milestone.neighbors[0]] # find the neighbor milestones
     neighbor2 = seekrcalc.milestones[milestone.neighbors[0]]
-    radius1 = 0.0 # extract neighbor milestone radii
-    radius2 = milestone.radius / 10.0 # convert to nm. TODO: better way to deal with these units?
-    radius3 = neighbor2.radius / 10.0
+    length1 = 0.0 # extract neighbor milestone lengths
+    length2 = milestone.length / 10.0 # convert to nm. TODO: better way to deal with these units?
+    length3 = neighbor2.length / 10.0
   else:
     raise Exception, "Only one or two milestone neighbors allowed at present. Number of neighbors: %d" % milestone.neighbors
   data_file_name = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'fwd_rev', transition_filename) # define the file to write transition information
   # Define all settings and parameters for the SEEKR force object
-  force.addSphericalMilestone(len(milestone.atom_selection_1), len(milestone.atom_selection_2), radius1, radius2, radius3, milestone.atom_selection_1, milestone.atom_selection_2, end_on_middle_crossing, data_file_name)
+  force.addPlanarMilestone(len(milestone.atom_selection_1), len(milestone.atom_selection_2), length1, length2, length3, milestone.atom_selection_1, milestone.atom_selection_2, end_on_middle_crossing, data_file_name)
   system.addForce(force) # Add the SEEKR force to the openMM system
   if verbose: print "SEEKR force added to system."
   return force, data_file_name
@@ -255,7 +257,7 @@ def launch_fwd_rev_stage(seekrcalc, milestone, traj_base, end_on_middle_crossing
   properties = seekrcalc.openmm.properties
   
   # create and prepare the SEEKR milestones
-  myforce, data_file_name = create_spherical_seekr_force(seekrcalc, milestone, system, end_on_middle_crossing, transition_filename)
+  myforce, data_file_name = create_planar_seekr_force(seekrcalc, milestone, system, end_on_middle_crossing, transition_filename)
   
   if save_fwd_rev == False:
     print "Deleting transition file:", data_file_name

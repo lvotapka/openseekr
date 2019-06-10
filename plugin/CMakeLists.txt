@@ -81,7 +81,7 @@ ADD_SUBDIRECTORY(serialization/tests)
 
 # Build the implementations for different platforms
 
-ADD_SUBDIRECTORY(platforms/reference)
+#ADD_SUBDIRECTORY(platforms/reference)
 
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}")
 FIND_PACKAGE(OpenCL QUIET)

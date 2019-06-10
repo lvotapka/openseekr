@@ -764,8 +764,7 @@ class Test_bd_functions(unittest.TestCase):
 
   #def test_anchor_touching_starting_surface(self):
   #  pass # I don't think this function is used anywhere
-
-
+	
   def test_shape_intersects_sphere_stupid(self):
     sphere = {'x':0.0,'y':0.0,'z':0.0,'radius':10.0}
     shape_in = [(1.0,1.0,1.0),(-1.0,1.0,1.0),(1.0,-1.0,1.0),(1.0,1.0,-1.0)]

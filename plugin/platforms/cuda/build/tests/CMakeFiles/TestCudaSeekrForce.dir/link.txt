@@ -1,0 +1,1 @@
+/usr/bin/c++    -rdynamic CMakeFiles/TestCudaSeekrForce.dir/TestCudaSeekrForce.o  -o TestCudaSeekrForce  -L/home/astokely/planar/openseekr/plugin/platforms/cuda/build -Wl,-rpath,/home/astokely/planar/openseekr/plugin/platforms/cuda/build ../libSeekrPluginCUDA.so -lOpenMM -lOpenMMCUDA 

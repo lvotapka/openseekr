@@ -1,0 +1,14 @@
+/home/astokely/planar/openseekr/plugin/platforms/cuda/build/CMakeFiles/install/strip.dir
+/home/astokely/planar/openseekr/plugin/platforms/cuda/build/CMakeFiles/install/local.dir
+/home/astokely/planar/openseekr/plugin/platforms/cuda/build/CMakeFiles/edit_cache.dir
+/home/astokely/planar/openseekr/plugin/platforms/cuda/build/CMakeFiles/rebuild_cache.dir
+/home/astokely/planar/openseekr/plugin/platforms/cuda/build/CMakeFiles/install.dir
+/home/astokely/planar/openseekr/plugin/platforms/cuda/build/CMakeFiles/SeekrPluginCUDA.dir
+/home/astokely/planar/openseekr/plugin/platforms/cuda/build/CMakeFiles/list_install_components.dir
+/home/astokely/planar/openseekr/plugin/platforms/cuda/build/tests/CMakeFiles/install/strip.dir
+/home/astokely/planar/openseekr/plugin/platforms/cuda/build/tests/CMakeFiles/install/local.dir
+/home/astokely/planar/openseekr/plugin/platforms/cuda/build/tests/CMakeFiles/TestCudaSeekrForce.dir
+/home/astokely/planar/openseekr/plugin/platforms/cuda/build/tests/CMakeFiles/edit_cache.dir
+/home/astokely/planar/openseekr/plugin/platforms/cuda/build/tests/CMakeFiles/rebuild_cache.dir
+/home/astokely/planar/openseekr/plugin/platforms/cuda/build/tests/CMakeFiles/install.dir
+/home/astokely/planar/openseekr/plugin/platforms/cuda/build/tests/CMakeFiles/list_install_components.dir

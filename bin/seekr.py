@@ -14,7 +14,7 @@ import amber
 import bd
 from min_equil import *
 from umbrella import *
-from fwd_rev import *
+#from fwd_rev import *
 
 def find_heavy_atoms(pdb_obj, index_range):
   '''Finds the heavy atoms within a subset of a PDB object.

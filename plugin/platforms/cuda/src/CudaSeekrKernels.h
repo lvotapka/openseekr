@@ -2,8 +2,12 @@
 #define CUDA_SEEKR_KERNELS_H_
 
 /*
-   Copyright 2018 by Lane Votapka
-   All rights reserved
+   Copyright 2019 by Andy Stokely
+	All rights reserved
+   Header File for the C++ CudaSeekrForce.cpp file. See CudaSeekrForce.cpp for more info
+
+
+//path = /plugin/platforms/cuda/src/
  * -------------------------------------------------------------------------- *
  *                                   OpenMM                                   *
  * -------------------------------------------------------------------------- *
@@ -34,6 +38,8 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE  *
  * USE OR OTHER DEALINGS IN THE SOFTWARE.                                     *
  * -------------------------------------------------------------------------- */
+
+//TODO: I just updated the spherical(associated variables) to the ones that I am using for the planar code.
 
 #include "SeekrKernels.h"
 #include "openmm/kernels.h"
@@ -80,47 +86,51 @@ public:
 private:
     //int numBonds;
     
-    CUfunction computeSphericalMilestonesKernel;
+    // ANDY: start to copy/paste
+
+    CUfunction computePlanarMilestonesKernel;
     
-    int numSphericalMilestones;
-    int numSphericalAtomIndices;
+    int numPlanarMilestones;
+    int numPlanarAtomIndices;
     
-    OpenMM::CudaArray* sphericalNumIndices1;
-    std::vector<int> h_sphericalNumIndices1;
+    OpenMM::CudaArray* planarNumIndices1; // The CPU's 'object' representing the variable in the GPU
+    std::vector<int> h_planarNumIndices1; // 'h' for 'host' which is the CPU's copy of what exists in the GPU
     
-    OpenMM::CudaArray* sphericalNumIndices2;
-    std::vector<int> h_sphericalNumIndices2;
+    OpenMM::CudaArray* planarNumIndices2;
+    std::vector<int> h_planarNumIndices2;
     
-    OpenMM::CudaArray* sphericalRadii1;
-    std::vector<float> h_sphericalRadii1;
+    OpenMM::CudaArray* planarLengths1;
+    std::vector<float> h_planarLengths1;
     
-    OpenMM::CudaArray* sphericalRadii2;
-    std::vector<float> h_sphericalRadii2;
+    OpenMM::CudaArray* planarLengths2;
+    std::vector<float> h_planarLengths2;
     
-    OpenMM::CudaArray* sphericalRadii3;
-    std::vector<float> h_sphericalRadii3;
+    OpenMM::CudaArray* planarLengths3;
+    std::vector<float> h_planarLengths3;
     
-    OpenMM::CudaArray* sphericalAtomIndices1;
-    std::vector<int> h_sphericalAtomIndices1;
+    OpenMM::CudaArray* planarAtomIndices1;
+    std::vector<int> h_planarAtomIndices1;
     
-    OpenMM::CudaArray* sphericalAtomIndices2;
-    std::vector<int> h_sphericalAtomIndices2;
+    OpenMM::CudaArray* planarAtomIndices2;
+    std::vector<int> h_planarAtomIndices2;
     
-    OpenMM::CudaArray* sphericalAtomBounds1;
-    std::vector<int2> h_sphericalAtomBounds1;
+    OpenMM::CudaArray* planarAtomBounds1;
+    std::vector<int2> h_planarAtomBounds1;
     
-    OpenMM::CudaArray* sphericalAtomBounds2;
-    std::vector<int2> h_sphericalAtomBounds2;
+    OpenMM::CudaArray* planarAtomBounds2;
+    std::vector<int2> h_planarAtomBounds2;
     
-    OpenMM::CudaArray* sphericalOldCom1;
-    std::vector<float4> h_sphericalOldCom1;
+    OpenMM::CudaArray* planarOldCom1;
+    std::vector<float4> h_planarOldCom1;
     
-    OpenMM::CudaArray* sphericalOldCom2;
-    std::vector<float4> h_sphericalOldCom2;
+    OpenMM::CudaArray* planarOldCom2;
+    std::vector<float4> h_planarOldCom2;
     
-    OpenMM::CudaArray* collectionReturnCode;
-    std::vector<float> h_collectionReturnCode;
-    //std::vector<int> h_collectionReturnCode;
+    // ANDY end copy/paste
+
+    OpenMM::CudaArray* planarCollectionReturnCode;
+    std::vector<float> h_planarCollectionReturnCode;
+    //std::vector<int> h_planarCollectionReturnCode;
     
     bool endSimulation;
     bool endOnMiddleCrossing;
@@ -133,7 +143,7 @@ private:
     OpenMM::CudaArray* params;
     
     void allocateMemory(const SeekrForce& force);
-    void setupSphericalMilestones(const SeekrForce& force);
+    void setupPlanarMilestones(const SeekrForce& force);
     void validateAndUpload();
 };
 
