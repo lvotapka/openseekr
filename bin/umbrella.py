@@ -47,8 +47,10 @@ def create_forces(seekrcalc, milestone, system):
   Output:
    - None
   '''
+  #new_force = CustomCentroidBondForce(2, '0.5*k*(z2-z1-length)^2')
   new_force = CustomCentroidBondForce(2, '0.5*k*(distance(g1,g2)-radius)^2')
   k = new_force.addGlobalParameter('k', seekrcalc.umbrella_stage.force_constant)
+  #r0 = new_force.addGlobalParameter('length', milestone.radius*angstrom)
   r0 = new_force.addGlobalParameter('radius', milestone.radius*angstrom)
   g1 = new_force.addGroup(milestone.atom_selection_1)
   g2 = new_force.addGroup(milestone.atom_selection_2)
