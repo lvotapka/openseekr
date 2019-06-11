@@ -71,6 +71,31 @@ class Concentric_Spherical_Milestone(Milestone):
     self.config = None
     self.box_vectors = None
     
+class Planar_Z_Milestone(Milestone):
+  '''Planar milestones perpendicular to Z-axis and centered on an atom selection.'''
+  def __init__(self, index, siteid, absolute='False', md=True, bd=False):
+    self.fullname = ''
+    self.directory = ''
+    self.anchor = None # the location where the ligand was started
+    self.neighbors = []
+    self.index = index
+    self.siteid = siteid
+    self.absolute = absolute
+    self.md = md
+    self.bd = bd
+    self.bd_adjacent = None
+    self.end = False
+    # dimensions
+    self.center_atom_indices = [] # the indices of the atoms in the system that define the center of this spherical milestone
+    self.center_vec = None # the x,y,z location of the center of this spherical milestone
+    self.offset = 0.0
+    self.wet_holo_filename = ''
+    self.atom_selection_1 = None
+    self.atom_selection_2 = None
+    self.openmm = Milestone_System()
+    self.config = None
+    self.box_vectors = None
+    
 def quadratic_formula(a,b,c):
   '''calculates the roots of the equation:
        a*x**2 + b*x + c = 0
@@ -86,7 +111,7 @@ def quadratic_formula(a,b,c):
     results.append(root)
   return results
 
-def find_anchor_from_vectors(origin, radius, vectors):
+def find_spherical_anchor_from_vectors(origin, radius, vectors):
   '''Given an origin and radius of the milestone, will follow the vectors list
   by summing them until they cross the radius. Then, the ligand will be placed
   at that location - the anchor.
@@ -99,7 +124,7 @@ def find_anchor_from_vectors(origin, radius, vectors):
   Output:
    - anchor: 3-array representing the location of the anchor.
   '''
-  summed_vectors = np.array([0.0,0.0,0.0]) # starting from the very beginning of the 
+  summed_vectors = np.array([0.0,0.0,0.0]) # starting from the very beginning of the origin 
   for i in range(len(vectors)):
     cur_vector = vectors[i]
     cur_vector_prime = cur_vector / np.linalg.norm(cur_vector)
@@ -109,6 +134,37 @@ def find_anchor_from_vectors(origin, radius, vectors):
       c = np.dot(summed_vectors,summed_vectors) - radius**2 # 'c' for the quadratic formula
       roots = quadratic_formula(a,b,c)
       anchor = origin + summed_vectors + cur_vector_prime * min(map(abs,roots)) # get the root with the smallest absolute value from the quadratic formula
+      return anchor
+    summed_vectors += cur_vector
+  return anchor
+
+def find_planar_z_anchor_from_vectors(origin, offset, vectors):
+  '''Given an origin and radius of the milestone, will follow the vectors list
+  by summing them until they cross the radius. Then, the ligand will be placed
+  at that location - the anchor.
+  Input:
+   - origin: 3-membered numpy array representing the center of the spherical 
+  milestone
+   - offset: float representing the offset of the milestone
+   - vectors: a list of 3-membered arrays representing vectors that define the
+   'pathway' out of the receptor's active site
+  Output:
+   - anchor: 3-array representing the location of the anchor.
+  '''
+  summed_vectors = np.array([0.0,0.0,0.0]) # starting from the very beginning of the origin
+  for i in range(len(vectors)):
+    cur_vector = vectors[i]
+    #cur_vector_prime = cur_vector / np.linalg.norm(cur_vector) # TODO: remove
+    if i == len(vectors)-1 or np.linalg.norm(summed_vectors + cur_vector) > offset: # then this is the last vector, so the anchor has to be placed in line with this one
+      '''# TODO: remove
+      a = np.dot(cur_vector_prime,cur_vector_prime) # 'a' for the quadratic formula
+      b = 2.0 * np.dot(summed_vectors,cur_vector_prime) # 'b' for the quadratic formula
+      c = np.dot(summed_vectors,summed_vectors) - radius**2 # 'c' for the quadratic formula
+      roots = quadratic_formula(a,b,c)
+      '''
+      a = offset - summed_vectors[2] - origin[2]
+      cur_vector_znorm = cur_vector / cur_vector[2]
+      anchor = origin + summed_vectors + cur_vector_znorm * a # get the root with the smallest absolute value from the quadratic formula
       return anchor
     summed_vectors += cur_vector
   return anchor
@@ -133,8 +189,8 @@ def generate_spherical_milestones(seekrcalc, atom_indices, origin, radius_list, 
   #cur_vector = vectors[0] # TODO: remove
   for i in range(spheres_in_site): # loop through all the milestone radii
     radius = radius_list[i]
-    anchor = find_anchor_from_vectors(origin, radius, vectors)# now we need to find the anchor - the location where the ligand will be placed
-    anchor_tuple = tuple(anchor)
+    anchor = find_spherical_anchor_from_vectors(origin, radius, vectors)# now we need to find the anchor - the location where the ligand will be placed
+    anchor_tuple = tuple(anchor) # TODO: remove?
     milestone = Concentric_Spherical_Milestone(i, siteid, absolute, md=seekrcalc.project.md, bd=seekrcalc.project.bd)
     milestone.center_atom_indices = atom_indices
     milestone.center_vec = origin
@@ -164,9 +220,77 @@ def print_spherical_milestone_info(milestones):
    - None
    '''
   for milestone in milestones:
-    print "Milestone index:", milestone.index, "siteid:", milestone.siteid, "origin:", milestone.center_vec, "center_atoms:", milestone.center_atom_indices, 
-    print "  num neighbors:", len(milestone.neighbors), "anchor:", milestone.anchor, "md:", milestone.md, "bd:", milestone.bd, "bd_adjacent:", milestone.bd_adjacent
+    print "Milestone index:", milestone.index, "siteid:", milestone.siteid, "origin:", milestone.center_vec, "center_atoms:", milestone.center_atom_indices
+    print "  num neighbors:", len(milestone.neighbors), "anchor:", milestone.anchor, "md:", milestone.md, "bd:", milestonespherical.bd, "bd_adjacent:", milestone.bd_adjacent
     print "  end:", milestone.end, "fullname:", milestone.fullname, "radius:", milestone.radius
+  return
+
+def generate_planar_z_milestones(seekrcalc, atom_indices, origin, offset_list, 
+                                 siteid, vectors=[[0.0, 0.0, 1.0]], 
+                                 absolute=False):
+  '''Create a list of stacked planar milestones around an atom selection.
+  Input:
+   - atom_indices: a list of integers representing the atom indices that this 
+     milestone is centered on
+   - origin: 3-array that should be equal (or approximately equal) to the 
+     coordinates of the center of mass of the atom indices in the input 
+     structure
+   - offset_list: a list of floats representing the offsets of the planes in 
+     the list of milestones
+   - siteid: integer representing the index of this list of milestones
+   - vectors: a list of lists of floats, or of numpy arrays, that define the 
+     pathway out of the active site, and in turn, the locations where the 
+     ligand will be placed
+   - absolute: boolean defining whether this milestone will remain stationary 
+     in space regardless of how the receptor moves  
+  Output:
+   - milestones: a list of milestone objects
+  '''
+    
+  milestones = []
+  #lowest_radius = radius_list[0] # the lowest radius #TODO: remove
+  #total_spherical_milestones = 0 #TODO: remove
+  num_planes = len(offset_list)
+  #cur_vector = vectors[0] # TODO: remove
+  for i in range(num_planes): # loop through all the planar milestones
+    offset = offset_list[i]
+    #anchor = find_spherical_anchor_from_vectors(origin, radius, vectors)# now we need to find the anchor - the location where the ligand will be placed # TODO: marked for removal
+    anchor = find_planar_z_anchor_from_vectors(origin, offset, vectors)
+    #anchor_tuple = tuple(anchor) # TODO: remove?
+    milestone = Planar_Z_Milestone(i, siteid, absolute, md=seekrcalc.project.md, bd=seekrcalc.project.bd)
+    milestone.center_atom_indices = atom_indices
+    milestone.center_vec = origin
+    milestone.offset = offset
+    milestone.anchor = anchor
+    milestone.bd = False
+    milestone.md = True
+    
+    if i > 0:
+      milestone.neighbors.append(i-1) # if we are the furthest milestone in either direction, then include no neighbors
+    
+    if i < num_planes - 1:
+      milestone.neighbors.append(i+1)
+    
+    milestone.fullname = "%d_%d_%s_%.1f_%.1f_%.1f" % (i+(num_planes*int(siteid)), i, siteid, anchor[0], anchor[1], anchor[2])
+    milestones.append(milestone)
+  return milestones
+
+def print_planar_z_milestone_info(milestones):
+  '''Print the information in all milestones for debug and verbosity purposes.
+  Input:
+   - milestones: a list of milestone objects to print information about.
+  Output:
+   - None
+   '''
+  for milestone in milestones:
+    print "Milestone index:", milestone.index, "siteid:", milestone.siteid, \
+        "origin:", milestone.center_vec, "center_atoms:", \
+        milestone.center_atom_indices
+    print "  num neighbors:", len(milestone.neighbors), "anchor:", \
+        milestone.anchor, "md:", milestone.md, "bd:", milestone.bd, \
+        "bd_adjacent:", milestone.bd_adjacent
+    print "  end:", milestone.end, "fullname:", milestone.fullname, "offset:", \
+        milestone.offset
   return
 
 class Test_milestones(unittest.TestCase):
@@ -188,9 +312,9 @@ class Test_milestones(unittest.TestCase):
     B2 = np.array([1.0,1.0,0.0])
     origin = np.array([0,0,0])
     ''' # TODO: complete this later
-    self.assertEqual(find_anchor_from_vectors(origin, A, 2.0), 1.0) # check a vector against itself
-    self.assertEqual(find_anchor_from_vectors(A, B, 2.0), sqrt(3.0)) # check a vector against right angle
-    self.assertEqual(find_anchor_from_vectors(2.0*A, B*2.5, 3.0), sqrt(5.0)) # check a vector against right angle
-    self.assertEqual(find_anchor_from_vectors(B2, A, 2.0), sqrt(3.0)-1.0) # check a vector against 45 degree angle
+    self.assertEqual(find_spherical_anchor_from_vectors(origin, A, 2.0), 1.0) # check a vector against itself
+    self.assertEqual(find_spherical_anchor_from_vectors(A, B, 2.0), sqrt(3.0)) # check a vector against right angle
+    self.assertEqual(find_spherical_anchor_from_vectors(2.0*A, B*2.5, 3.0), sqrt(5.0)) # check a vector against right angle
+    self.assertEqual(find_spherical_anchor_from_vectors(B2, A, 2.0), sqrt(3.0)-1.0) # check a vector against 45 degree angle
     '''
     return
