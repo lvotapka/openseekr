@@ -1,9 +1,9 @@
 '''
-Created on May 9, 2018
+Created on June 11, 2019
 
-@author: lvotapka
+@author: lvotapka and astokely
 
-Procedures for creating milestone objects
+Procedures for creating spherical and planar milestone objects
 '''
 
 import numpy as np
