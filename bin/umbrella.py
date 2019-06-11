@@ -35,7 +35,7 @@ def load_last_mdtraj_frame(dcd_filename, prmtop_filename, atom_indices=None):
     lastframe = frame[-1]
   return lastframe
 
-def create_forces(seekrcalc, milestone, system):
+def create_spherical_forces(seekrcalc, milestone, system):
   '''
   Add the umbrella force: which maintains the ligand on the surface of the 
   spherical milestone.
@@ -53,6 +53,37 @@ def create_forces(seekrcalc, milestone, system):
   g1 = new_force.addGroup(milestone.atom_selection_1)
   g2 = new_force.addGroup(milestone.atom_selection_2)
   if verbose: print "k:", seekrcalc.umbrella_stage.force_constant, "radius:", milestone.radius*angstrom, "g1:", milestone.atom_selection_1, "g2:", milestone.atom_selection_2
+  new_force.addBond([g1, g2], [])
+  if verbose: print "new_force.getNumGlobalParameters():", new_force.getNumGlobalParameters()
+  if verbose: print "new_force.getNumPerBondParameters():", new_force.getNumPerBondParameters()
+  return new_force
+
+def create_forces(seekrcalc, milestone, system):
+  '''Temporary function to allow backwards compatibility with previous versions
+  of openseekr. TO BE REMOVED EVENTUALLY.'''
+  return create_spherical_forces(seekrcalc, milestone, system)
+
+def create_planar_forces(seekrcalc, milestone, system):
+  '''
+  Add the umbrella force: which maintains the ligand on the surface of the 
+  planar milestone.
+  Input:
+   - seekrcalc: The SeekrCalculation object that contains all the settings for 
+       the SEEKR calculation.
+   - milestone: the Milestone() object to run the simulation for
+   - system: the OpenMM system object to add the force to
+  Output:
+   - None
+  '''
+  new_force = CustomCentroidBondForce(2, '0.5*k*(z2-z1-offset)^2')
+  k = new_force.addGlobalParameter('k', seekrcalc.umbrella_stage.force_constant)
+  r0 = new_force.addGlobalParameter('offset', milestone.offset*angstrom)
+  g1 = new_force.addGroup(milestone.atom_selection_1)
+  g2 = new_force.addGroup(milestone.atom_selection_2)
+  if verbose: print("k:", seekrcalc.umbrella_stage.force_constant, "offset:", 
+                    milestone.offset*angstrom, "g1:", 
+                    milestone.atom_selection_1, "g2:", 
+                    milestone.atom_selection_2)
   new_force.addBond([g1, g2], [])
   if verbose: print "new_force.getNumGlobalParameters():", new_force.getNumGlobalParameters()
   if verbose: print "new_force.getNumPerBondParameters():", new_force.getNumPerBondParameters()

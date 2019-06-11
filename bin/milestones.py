@@ -155,7 +155,7 @@ def find_planar_z_anchor_from_vectors(origin, offset, vectors):
   for i in range(len(vectors)):
     cur_vector = vectors[i]
     #cur_vector_prime = cur_vector / np.linalg.norm(cur_vector) # TODO: remove
-    if i == len(vectors)-1 or np.linalg.norm(summed_vectors + cur_vector) > offset: # then this is the last vector, so the anchor has to be placed in line with this one
+    if i == len(vectors)-1 or summed_vectors[2] + cur_vector[2] > offset: # then this is the last vector, so the anchor has to be placed in line with this one
       '''# TODO: remove
       a = np.dot(cur_vector_prime,cur_vector_prime) # 'a' for the quadratic formula
       b = 2.0 * np.dot(summed_vectors,cur_vector_prime) # 'b' for the quadratic formula
@@ -163,6 +163,7 @@ def find_planar_z_anchor_from_vectors(origin, offset, vectors):
       roots = quadratic_formula(a,b,c)
       '''
       a = offset - summed_vectors[2] - origin[2]
+      assert cur_vector[2] != 0.0, "Must not have a placement vector parallel to the milestones."
       cur_vector_znorm = cur_vector / cur_vector[2]
       anchor = origin + summed_vectors + cur_vector_znorm * a # get the root with the smallest absolute value from the quadratic formula
       return anchor
