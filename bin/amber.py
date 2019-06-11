@@ -130,6 +130,9 @@ def create_simulation(seekrcalc, milestone):
   milestone.openmm.simulation = simulation
   return
   
+# TODO: revisit this function:
+# TODO: name seems inappropriate
+# TODO: equilibrated.pdb line is hard-coded
 def save_restart(seekrcalc, milestone, pdb_save_filename=None):
   '''Save an AMBER inpcrd file for easy restart.
   Input:
