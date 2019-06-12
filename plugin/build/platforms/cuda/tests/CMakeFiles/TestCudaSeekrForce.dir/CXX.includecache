@@ -18,6 +18,26 @@ internal/windowsExportSeekr.h
 
 ../openmmapi/include/internal/windowsExportSeekr.h
 
+/home/astokely/SEEKR/openseekr/plugin/platforms/cuda/tests/TestCudaSeekrForce.cpp
+SeekrForce.h
+/home/astokely/SEEKR/openseekr/plugin/platforms/cuda/tests/SeekrForce.h
+openmm/internal/AssertionUtilities.h
+/home/astokely/SEEKR/openseekr/plugin/platforms/cuda/tests/openmm/internal/AssertionUtilities.h
+openmm/Context.h
+/home/astokely/SEEKR/openseekr/plugin/platforms/cuda/tests/openmm/Context.h
+openmm/Platform.h
+/home/astokely/SEEKR/openseekr/plugin/platforms/cuda/tests/openmm/Platform.h
+openmm/System.h
+/home/astokely/SEEKR/openseekr/plugin/platforms/cuda/tests/openmm/System.h
+openmm/VerletIntegrator.h
+/home/astokely/SEEKR/openseekr/plugin/platforms/cuda/tests/openmm/VerletIntegrator.h
+cmath
+-
+iostream
+-
+vector
+-
+
 /home/astokely/bin/openmm/include/openmm/Context.h
 Integrator.h
 /home/astokely/bin/openmm/include/openmm/Integrator.h
@@ -127,24 +147,4 @@ windowsExport.h
 /home/astokely/bin/openmm/include/openmm/internal/windowsExport.h
 
 /home/astokely/bin/openmm/include/openmm/internal/windowsExport.h
-
-/home/astokely/planar/openseekr/plugin/platforms/cuda/tests/TestCudaSeekrForce.cpp
-SeekrForce.h
-/home/astokely/planar/openseekr/plugin/platforms/cuda/tests/SeekrForce.h
-openmm/internal/AssertionUtilities.h
-/home/astokely/planar/openseekr/plugin/platforms/cuda/tests/openmm/internal/AssertionUtilities.h
-openmm/Context.h
-/home/astokely/planar/openseekr/plugin/platforms/cuda/tests/openmm/Context.h
-openmm/Platform.h
-/home/astokely/planar/openseekr/plugin/platforms/cuda/tests/openmm/Platform.h
-openmm/System.h
-/home/astokely/planar/openseekr/plugin/platforms/cuda/tests/openmm/System.h
-openmm/VerletIntegrator.h
-/home/astokely/planar/openseekr/plugin/platforms/cuda/tests/openmm/VerletIntegrator.h
-cmath
--
-iostream
--
-vector
--
 

@@ -10,15 +10,15 @@
 
 // TODO: these arguments might need to be arranged with arrays first, scalars last...
 
-extern "C" __global__ void monitorPlanarMilestones(
+extern "C" __global__ void monitorPlanarZMilestones(
                             const real4* __restrict__ posq,             // positions and charges
                             const mixed4* __restrict__ velm,             // velocities and masses
                             //const float* __restrict__ masses,           // the masses of all of the atoms
                             const int* __restrict__ numIndices1,         // number of atoms in receptor
                             const int* __restrict__ numIndices2,         // number of atoms in ligand
-                            const float* __restrict__ length1,           // length of inner planar milestone
-                            const float* __restrict__ length2,           // length of middle planar milestone ANDY
-                            const float* __restrict__ length3,           // length of outer planar milestone
+                            const float* __restrict__ offset1,           // offset of inner planar z milestone
+                            const float* __restrict__ offset2,           // offset of middle planar z milestone ANDY
+                            const float* __restrict__ offset3,           // offset of outer planar z milestone
                             const int* __restrict__ atomIndices1,       // atom indices of receptor
                             const int* __restrict__ atomIndices2,       // atom indices of ligand
                             const int2* __restrict__ atomBounds1,
@@ -26,16 +26,17 @@ extern "C" __global__ void monitorPlanarMilestones(
                             float* __restrict__ returncode,              // whether the milestone was crossed: 0 = uncrossed, 1 = crossed inner, 2 = crossed outer
                             float4* __restrict__ old_com1,              // Keeps track of the previous timestep's receptor COM to determine if the middle milestone was crossed
                             float4* __restrict__ old_com2,              // old ligand COM
-                            const int numPlanarMilestones) {           // length of outer planar milestone
+                            const int numSphericalMilestones) {           // radius of outer spherical milestone
+                            const int numPlanarZMilestones) {           // offset of outer planar z milestone
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    //													DIDN'T CHANGE ANY OF THIS CODE
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    for (int index=blockIdx.x*blockDim.x+threadIdx.x; index<numPlanarMilestones; index+=blockDim.x*gridDim.x) { // Dedicate a given GPU to the milestone object
+    for (int index=blockIdx.x*blockDim.x+threadIdx.x; index<numPlanarZMilestones; index+=blockDim.x*gridDim.x) { // Dedicate a given GPU to the milestone object
         //int atomid;
         returncode[index] = 0; // Initialize a nominal message to return to the CPU regarding milestone crossing
-        
+       
         real4 com1; // center of mass of the 'receptor'
         real4 com2; // center of mass of the 'ligand'
         float totalmass1 = 0.0; // total mass of the 'receptor' selection
@@ -81,18 +82,18 @@ extern "C" __global__ void monitorPlanarMilestones(
         old_com1[index].x = com1.x; old_com1[index].y = com1.y; old_com1[index].z = com1.z; // save current COM to be the next timestep's old_COM TODO **NO CHANGE**
         old_com2[index].x = com2.x; old_com2[index].y = com2.y; old_com2[index].z = com2.z; // TODO **NO CHANGE***
         
-        if (delta < length1) { // crossed inner milestone ANDY: change length1 to z1 TODO **DONE**
+        if (delta < offset1) { // crossed inner milestone ANDY: change offset1 to z1 TODO **DONE**
             returncode[index] = 1;			
         } 
-        else if ((delta - length2[index]*(old_delta - length2[index]) < 0) { // This will return true if the particle has crossed the middle milestone since the last timestep ANDY TODO **DONE**
+        else if ((delta - offset2[index]*(old_delta - offset2[index]) < 0) { // This will return true if the particle has crossed the middle milestone since the last timestep ANDY TODO **DONE**
             returncode[index] = 2;
         }
-        else if (DELTA > length3[index]) { // crossed outer milestone ANDY TODO **DONE**
+        else if (delta > offset3[index]) { // crossed outer milestone ANDY TODO **DONE**
             returncode[index] = 3;
         
         }
         
-        //returncode[index] = length2[index]*length2[index];
+        //returncode[index] = offset2[index]*offset2[index];
     }
 }
 0

@@ -43,10 +43,10 @@ RM = /usr/local/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/astokely/planar/openseekr/plugin
+CMAKE_SOURCE_DIR = /home/astokely/SEEKR/openseekr/plugin
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/astokely/planar/openseekr/plugin/build
+CMAKE_BINARY_DIR = /home/astokely/SEEKR/openseekr/plugin/build
 
 # Include any dependencies generated for this target.
 include CMakeFiles/SeekrPlugin.dir/depend.make
@@ -59,55 +59,55 @@ include CMakeFiles/SeekrPlugin.dir/flags.make
 
 CMakeFiles/SeekrPlugin.dir/openmmapi/src/SeekrForce.cpp.o: CMakeFiles/SeekrPlugin.dir/flags.make
 CMakeFiles/SeekrPlugin.dir/openmmapi/src/SeekrForce.cpp.o: ../openmmapi/src/SeekrForce.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/astokely/planar/openseekr/plugin/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/SeekrPlugin.dir/openmmapi/src/SeekrForce.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/SeekrPlugin.dir/openmmapi/src/SeekrForce.cpp.o -c /home/astokely/planar/openseekr/plugin/openmmapi/src/SeekrForce.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/astokely/SEEKR/openseekr/plugin/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/SeekrPlugin.dir/openmmapi/src/SeekrForce.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/SeekrPlugin.dir/openmmapi/src/SeekrForce.cpp.o -c /home/astokely/SEEKR/openseekr/plugin/openmmapi/src/SeekrForce.cpp
 
 CMakeFiles/SeekrPlugin.dir/openmmapi/src/SeekrForce.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/SeekrPlugin.dir/openmmapi/src/SeekrForce.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/astokely/planar/openseekr/plugin/openmmapi/src/SeekrForce.cpp > CMakeFiles/SeekrPlugin.dir/openmmapi/src/SeekrForce.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/astokely/SEEKR/openseekr/plugin/openmmapi/src/SeekrForce.cpp > CMakeFiles/SeekrPlugin.dir/openmmapi/src/SeekrForce.cpp.i
 
 CMakeFiles/SeekrPlugin.dir/openmmapi/src/SeekrForce.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/SeekrPlugin.dir/openmmapi/src/SeekrForce.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/astokely/planar/openseekr/plugin/openmmapi/src/SeekrForce.cpp -o CMakeFiles/SeekrPlugin.dir/openmmapi/src/SeekrForce.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/astokely/SEEKR/openseekr/plugin/openmmapi/src/SeekrForce.cpp -o CMakeFiles/SeekrPlugin.dir/openmmapi/src/SeekrForce.cpp.s
 
 CMakeFiles/SeekrPlugin.dir/openmmapi/src/SeekrForceImpl.cpp.o: CMakeFiles/SeekrPlugin.dir/flags.make
 CMakeFiles/SeekrPlugin.dir/openmmapi/src/SeekrForceImpl.cpp.o: ../openmmapi/src/SeekrForceImpl.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/astokely/planar/openseekr/plugin/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/SeekrPlugin.dir/openmmapi/src/SeekrForceImpl.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/SeekrPlugin.dir/openmmapi/src/SeekrForceImpl.cpp.o -c /home/astokely/planar/openseekr/plugin/openmmapi/src/SeekrForceImpl.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/astokely/SEEKR/openseekr/plugin/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/SeekrPlugin.dir/openmmapi/src/SeekrForceImpl.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/SeekrPlugin.dir/openmmapi/src/SeekrForceImpl.cpp.o -c /home/astokely/SEEKR/openseekr/plugin/openmmapi/src/SeekrForceImpl.cpp
 
 CMakeFiles/SeekrPlugin.dir/openmmapi/src/SeekrForceImpl.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/SeekrPlugin.dir/openmmapi/src/SeekrForceImpl.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/astokely/planar/openseekr/plugin/openmmapi/src/SeekrForceImpl.cpp > CMakeFiles/SeekrPlugin.dir/openmmapi/src/SeekrForceImpl.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/astokely/SEEKR/openseekr/plugin/openmmapi/src/SeekrForceImpl.cpp > CMakeFiles/SeekrPlugin.dir/openmmapi/src/SeekrForceImpl.cpp.i
 
 CMakeFiles/SeekrPlugin.dir/openmmapi/src/SeekrForceImpl.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/SeekrPlugin.dir/openmmapi/src/SeekrForceImpl.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/astokely/planar/openseekr/plugin/openmmapi/src/SeekrForceImpl.cpp -o CMakeFiles/SeekrPlugin.dir/openmmapi/src/SeekrForceImpl.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/astokely/SEEKR/openseekr/plugin/openmmapi/src/SeekrForceImpl.cpp -o CMakeFiles/SeekrPlugin.dir/openmmapi/src/SeekrForceImpl.cpp.s
 
 CMakeFiles/SeekrPlugin.dir/serialization/src/SeekrForceProxy.cpp.o: CMakeFiles/SeekrPlugin.dir/flags.make
 CMakeFiles/SeekrPlugin.dir/serialization/src/SeekrForceProxy.cpp.o: ../serialization/src/SeekrForceProxy.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/astokely/planar/openseekr/plugin/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/SeekrPlugin.dir/serialization/src/SeekrForceProxy.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/SeekrPlugin.dir/serialization/src/SeekrForceProxy.cpp.o -c /home/astokely/planar/openseekr/plugin/serialization/src/SeekrForceProxy.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/astokely/SEEKR/openseekr/plugin/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/SeekrPlugin.dir/serialization/src/SeekrForceProxy.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/SeekrPlugin.dir/serialization/src/SeekrForceProxy.cpp.o -c /home/astokely/SEEKR/openseekr/plugin/serialization/src/SeekrForceProxy.cpp
 
 CMakeFiles/SeekrPlugin.dir/serialization/src/SeekrForceProxy.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/SeekrPlugin.dir/serialization/src/SeekrForceProxy.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/astokely/planar/openseekr/plugin/serialization/src/SeekrForceProxy.cpp > CMakeFiles/SeekrPlugin.dir/serialization/src/SeekrForceProxy.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/astokely/SEEKR/openseekr/plugin/serialization/src/SeekrForceProxy.cpp > CMakeFiles/SeekrPlugin.dir/serialization/src/SeekrForceProxy.cpp.i
 
 CMakeFiles/SeekrPlugin.dir/serialization/src/SeekrForceProxy.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/SeekrPlugin.dir/serialization/src/SeekrForceProxy.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/astokely/planar/openseekr/plugin/serialization/src/SeekrForceProxy.cpp -o CMakeFiles/SeekrPlugin.dir/serialization/src/SeekrForceProxy.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/astokely/SEEKR/openseekr/plugin/serialization/src/SeekrForceProxy.cpp -o CMakeFiles/SeekrPlugin.dir/serialization/src/SeekrForceProxy.cpp.s
 
 CMakeFiles/SeekrPlugin.dir/serialization/src/SeekrSerializationProxyRegistration.cpp.o: CMakeFiles/SeekrPlugin.dir/flags.make
 CMakeFiles/SeekrPlugin.dir/serialization/src/SeekrSerializationProxyRegistration.cpp.o: ../serialization/src/SeekrSerializationProxyRegistration.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/astokely/planar/openseekr/plugin/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/SeekrPlugin.dir/serialization/src/SeekrSerializationProxyRegistration.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/SeekrPlugin.dir/serialization/src/SeekrSerializationProxyRegistration.cpp.o -c /home/astokely/planar/openseekr/plugin/serialization/src/SeekrSerializationProxyRegistration.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/astokely/SEEKR/openseekr/plugin/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/SeekrPlugin.dir/serialization/src/SeekrSerializationProxyRegistration.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/SeekrPlugin.dir/serialization/src/SeekrSerializationProxyRegistration.cpp.o -c /home/astokely/SEEKR/openseekr/plugin/serialization/src/SeekrSerializationProxyRegistration.cpp
 
 CMakeFiles/SeekrPlugin.dir/serialization/src/SeekrSerializationProxyRegistration.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/SeekrPlugin.dir/serialization/src/SeekrSerializationProxyRegistration.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/astokely/planar/openseekr/plugin/serialization/src/SeekrSerializationProxyRegistration.cpp > CMakeFiles/SeekrPlugin.dir/serialization/src/SeekrSerializationProxyRegistration.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/astokely/SEEKR/openseekr/plugin/serialization/src/SeekrSerializationProxyRegistration.cpp > CMakeFiles/SeekrPlugin.dir/serialization/src/SeekrSerializationProxyRegistration.cpp.i
 
 CMakeFiles/SeekrPlugin.dir/serialization/src/SeekrSerializationProxyRegistration.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/SeekrPlugin.dir/serialization/src/SeekrSerializationProxyRegistration.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/astokely/planar/openseekr/plugin/serialization/src/SeekrSerializationProxyRegistration.cpp -o CMakeFiles/SeekrPlugin.dir/serialization/src/SeekrSerializationProxyRegistration.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/astokely/SEEKR/openseekr/plugin/serialization/src/SeekrSerializationProxyRegistration.cpp -o CMakeFiles/SeekrPlugin.dir/serialization/src/SeekrSerializationProxyRegistration.cpp.s
 
 # Object files for target SeekrPlugin
 SeekrPlugin_OBJECTS = \
@@ -125,7 +125,7 @@ libSeekrPlugin.so: CMakeFiles/SeekrPlugin.dir/serialization/src/SeekrForceProxy.
 libSeekrPlugin.so: CMakeFiles/SeekrPlugin.dir/serialization/src/SeekrSerializationProxyRegistration.cpp.o
 libSeekrPlugin.so: CMakeFiles/SeekrPlugin.dir/build.make
 libSeekrPlugin.so: CMakeFiles/SeekrPlugin.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/astokely/planar/openseekr/plugin/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX shared library libSeekrPlugin.so"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/astokely/SEEKR/openseekr/plugin/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX shared library libSeekrPlugin.so"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/SeekrPlugin.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -138,6 +138,6 @@ CMakeFiles/SeekrPlugin.dir/clean:
 .PHONY : CMakeFiles/SeekrPlugin.dir/clean
 
 CMakeFiles/SeekrPlugin.dir/depend:
-	cd /home/astokely/planar/openseekr/plugin/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/astokely/planar/openseekr/plugin /home/astokely/planar/openseekr/plugin /home/astokely/planar/openseekr/plugin/build /home/astokely/planar/openseekr/plugin/build /home/astokely/planar/openseekr/plugin/build/CMakeFiles/SeekrPlugin.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/astokely/SEEKR/openseekr/plugin/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/astokely/SEEKR/openseekr/plugin /home/astokely/SEEKR/openseekr/plugin /home/astokely/SEEKR/openseekr/plugin/build /home/astokely/SEEKR/openseekr/plugin/build /home/astokely/SEEKR/openseekr/plugin/build/CMakeFiles/SeekrPlugin.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/SeekrPlugin.dir/depend
 

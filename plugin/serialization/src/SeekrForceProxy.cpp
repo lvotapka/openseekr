@@ -54,34 +54,34 @@ void SeekrForceProxy::serialize(const void* object, SerializationNode& node) con
     cout << "mark10\n";
     node.setIntProperty("version", 1);
     const SeekrForce& force = *reinterpret_cast<const SeekrForce*>(object);
-    SerializationNode& planarMilestones = node.createChildNode("PlanarMilestones");
+    SerializationNode& planarZMilestones = node.createChildNode("PlanarZMilestones");
     
-	cout << "getNumPlanarMilestones: " << force.getNumPlanarMilestones() << endl; 
+	cout << "getNumPlanarZMilestones: " << force.getNumPlanarZMilestones() << endl; 
 
-    for (int i = 0; i < force.getNumPlanarMilestones(); i++) {
+    for (int i = 0; i < force.getNumPlanarZMilestones(); i++) {
       //std::vector<int> atomIndices1;
       int atomIndex1;
       //std::vector<int> atomIndices2;
       int atomIndex2;
-      SerializationNode& planarMilestone = planarMilestones.createChildNode("PlanarMilestone");
-      SerializationNode& atomIndicesNode = planarMilestone.setIntProperty("numIndices1", force.getPlanarNumIndices(i,1)).setIntProperty("numIndices2", force.getPlanarNumIndices(i,2)).setDoubleProperty("length1", force.getPlanarLength(i,1)).setDoubleProperty("length2", force.getPlanarLength(i,2)).setDoubleProperty("length3", force.getPlanarLength(i,3)).setDoubleProperty("endOnMiddleCrossing", force.getEndOnMiddleCrossing()); //
-      planarMilestone.setStringProperty("dataFileName", force.getDataFileName(i));
+      SerializationNode& planarZMilestone = planarZMilestones.createChildNode("PlanarZMilestone");
+      SerializationNode& atomIndicesNode = planarZMilestone.setIntProperty("numIndices1", force.getPlanarZNumIndices(i,1)).setIntProperty("numIndices2", force.getPlanarZNumIndices(i,2)).setDoubleProperty("offset1", force.getPlanarZOffset(i,1)).setDoubleProperty("offset2", force.getPlanarZOffset(i,2)).setDoubleProperty("offset3", force.getPlanarZOffset(i,3)).setDoubleProperty("endOnMiddleCrossing", force.getEndOnMiddleCrossing()); //
+      planarZMilestone.setStringProperty("dataFileName", force.getDataFileName(i));
       cout << "mark50\n";
       SerializationNode& atomIndicesNode1 = atomIndicesNode.createChildNode("atomIndex1");
       cout << "mark60\n";
-      for (int j = 0; j < force.getPlanarNumIndices(i,1); j++) {
+      for (int j = 0; j < force.getPlanarZNumIndices(i,1); j++) {
 		cout << "mark65" << endl;
-        //force.getPlanarMilestoneAtoms(i, j, atomIndices1[j], 1);
-        force.getPlanarMilestoneAtoms(i, j, atomIndex1, 1);
+        //force.getPlanarZMilestoneAtoms(i, j, atomIndices1[j], 1);
+        force.getPlanarZMilestoneAtoms(i, j, atomIndex1, 1);
         cout << "mark70\n";
         //atomIndicesNode1.setIntProperty("index", atomIndices1[j]);
         atomIndicesNode1.setIntProperty("index", atomIndex1);
       }
       cout << "mark75\n";
       SerializationNode& atomIndicesNode2 = atomIndicesNode.createChildNode("atomIndex2");
-      for (int j = 0; j < force.getPlanarNumIndices(i,2); j++) {
-        //force.getPlanarMilestoneAtoms(i, j, atomIndices2[j], 2);
-        force.getPlanarMilestoneAtoms(i, j, atomIndex2, 2);
+      for (int j = 0; j < force.getPlanarZNumIndices(i,2); j++) {
+        //force.getPlanarZMilestoneAtoms(i, j, atomIndices2[j], 2);
+        force.getPlanarZMilestoneAtoms(i, j, atomIndex2, 2);
         //atomIndicesNode2.setIntProperty("index", atomIndices2[j]);
         atomIndicesNode2.setIntProperty("index", atomIndex2);
       }
@@ -95,24 +95,24 @@ void* SeekrForceProxy::deserialize(const SerializationNode& node) const {
     cout << "mark101\n";
     SeekrForce* force = new SeekrForce();
     try {
-        const SerializationNode& planarMilestones = node.getChildNode("PlanarMilestones");
+        const SerializationNode& planarZMilestones = node.getChildNode("PlanarZMilestones");
         
-        for (int i = 0; i < planarMilestones.getChildren().size(); i++) {
-          const SerializationNode& planarMilestone = planarMilestones.getChildNode("PlanarMilestone");
+        for (int i = 0; i < planarZMilestones.getChildren().size(); i++) {
+          const SerializationNode& planarZMilestone = planarZMilestones.getChildNode("PlanarZMilestone");
           std::vector<int> atomIndices1;
           std::vector<int> atomIndices2;
-          int numIndices1 = planarMilestone.getIntProperty("numIndices1");
-          int numIndices2 = planarMilestone.getIntProperty("numIndices2");
-          float length1 = planarMilestone.getDoubleProperty("length1");
-          float length2 = planarMilestone.getDoubleProperty("length2");
-          float length3 = planarMilestone.getDoubleProperty("length3");
-          const SerializationNode& atomIndexNode1 = planarMilestone.getChildNode("atomIndex1");
-          const SerializationNode& atomIndexNode2 = planarMilestone.getChildNode("atomIndex2");
-          bool endOnMiddleCrossing = planarMilestone.getBoolProperty("endOnMiddleCrossing");
+          int numIndices1 = planarZMilestone.getIntProperty("numIndices1");
+          int numIndices2 = planarZMilestone.getIntProperty("numIndices2");
+          float offset1 = planarZMilestone.getDoubleProperty("offset1");
+          float offset2 = planarZMilestone.getDoubleProperty("offset2");
+          float offset3 = planarZMilestone.getDoubleProperty("offset3");
+          const SerializationNode& atomIndexNode1 = planarZMilestone.getChildNode("atomIndex1");
+          const SerializationNode& atomIndexNode2 = planarZMilestone.getChildNode("atomIndex2");
+          bool endOnMiddleCrossing = planarZMilestone.getBoolProperty("endOnMiddleCrossing");
           cout << "mark150\n";
           //TODO: this is a problem
           //std::string dataFileName = "/tmp/test.txt";
-          const std::string dataFileName = planarMilestone.getStringProperty("dataFileName"); // This might not work, resort to above if necessary
+          const std::string dataFileName = planarZMilestone.getStringProperty("dataFileName"); // This might not work, resort to above if necessary
           cout << "mark160\n";
           for (int j = 0; j < numIndices1; j++) {
             cout << "long command: " << atomIndexNode1.getChildren()[j].getIntProperty("index");
@@ -123,7 +123,7 @@ void* SeekrForceProxy::deserialize(const SerializationNode& node) const {
             atomIndices2.push_back(atomIndexNode2.getChildren()[j].getIntProperty("index"));
           }
 
-          force->addPlanarMilestone(numIndices1, numIndices2, length1, length2, length3, atomIndices1, atomIndices2, endOnMiddleCrossing, dataFileName);
+          force->addPlanarZMilestone(numIndices1, numIndices2, offset1, offset2, offset3, atomIndices1, atomIndices2, endOnMiddleCrossing, dataFileName);
           
         }
     }

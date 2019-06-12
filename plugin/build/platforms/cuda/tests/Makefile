@@ -48,10 +48,10 @@ RM = /usr/local/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/astokely/planar/openseekr/plugin
+CMAKE_SOURCE_DIR = /home/astokely/SEEKR/openseekr/plugin
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/astokely/planar/openseekr/plugin/build
+CMAKE_BINARY_DIR = /home/astokely/SEEKR/openseekr/plugin/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -137,14 +137,14 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	cd /home/astokely/planar/openseekr/plugin/build && $(CMAKE_COMMAND) -E cmake_progress_start /home/astokely/planar/openseekr/plugin/build/CMakeFiles /home/astokely/planar/openseekr/plugin/build/platforms/cuda/tests/CMakeFiles/progress.marks
-	cd /home/astokely/planar/openseekr/plugin/build && $(MAKE) -f CMakeFiles/Makefile2 platforms/cuda/tests/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/astokely/planar/openseekr/plugin/build/CMakeFiles 0
+	cd /home/astokely/SEEKR/openseekr/plugin/build && $(CMAKE_COMMAND) -E cmake_progress_start /home/astokely/SEEKR/openseekr/plugin/build/CMakeFiles /home/astokely/SEEKR/openseekr/plugin/build/platforms/cuda/tests/CMakeFiles/progress.marks
+	cd /home/astokely/SEEKR/openseekr/plugin/build && $(MAKE) -f CMakeFiles/Makefile2 platforms/cuda/tests/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/astokely/SEEKR/openseekr/plugin/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /home/astokely/planar/openseekr/plugin/build && $(MAKE) -f CMakeFiles/Makefile2 platforms/cuda/tests/clean
+	cd /home/astokely/SEEKR/openseekr/plugin/build && $(MAKE) -f CMakeFiles/Makefile2 platforms/cuda/tests/clean
 .PHONY : clean
 
 # The main clean target
@@ -154,22 +154,22 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /home/astokely/planar/openseekr/plugin/build && $(MAKE) -f CMakeFiles/Makefile2 platforms/cuda/tests/preinstall
+	cd /home/astokely/SEEKR/openseekr/plugin/build && $(MAKE) -f CMakeFiles/Makefile2 platforms/cuda/tests/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /home/astokely/planar/openseekr/plugin/build && $(MAKE) -f CMakeFiles/Makefile2 platforms/cuda/tests/preinstall
+	cd /home/astokely/SEEKR/openseekr/plugin/build && $(MAKE) -f CMakeFiles/Makefile2 platforms/cuda/tests/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	cd /home/astokely/planar/openseekr/plugin/build && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /home/astokely/SEEKR/openseekr/plugin/build && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
 # Convenience name for target.
 platforms/cuda/tests/CMakeFiles/TestCudaSeekrForce.dir/rule:
-	cd /home/astokely/planar/openseekr/plugin/build && $(MAKE) -f CMakeFiles/Makefile2 platforms/cuda/tests/CMakeFiles/TestCudaSeekrForce.dir/rule
+	cd /home/astokely/SEEKR/openseekr/plugin/build && $(MAKE) -f CMakeFiles/Makefile2 platforms/cuda/tests/CMakeFiles/TestCudaSeekrForce.dir/rule
 .PHONY : platforms/cuda/tests/CMakeFiles/TestCudaSeekrForce.dir/rule
 
 # Convenience name for target.
@@ -179,7 +179,7 @@ TestCudaSeekrForce: platforms/cuda/tests/CMakeFiles/TestCudaSeekrForce.dir/rule
 
 # fast build rule for target.
 TestCudaSeekrForce/fast:
-	cd /home/astokely/planar/openseekr/plugin/build && $(MAKE) -f platforms/cuda/tests/CMakeFiles/TestCudaSeekrForce.dir/build.make platforms/cuda/tests/CMakeFiles/TestCudaSeekrForce.dir/build
+	cd /home/astokely/SEEKR/openseekr/plugin/build && $(MAKE) -f platforms/cuda/tests/CMakeFiles/TestCudaSeekrForce.dir/build.make platforms/cuda/tests/CMakeFiles/TestCudaSeekrForce.dir/build
 .PHONY : TestCudaSeekrForce/fast
 
 TestCudaSeekrForce.o: TestCudaSeekrForce.cpp.o
@@ -188,7 +188,7 @@ TestCudaSeekrForce.o: TestCudaSeekrForce.cpp.o
 
 # target to build an object file
 TestCudaSeekrForce.cpp.o:
-	cd /home/astokely/planar/openseekr/plugin/build && $(MAKE) -f platforms/cuda/tests/CMakeFiles/TestCudaSeekrForce.dir/build.make platforms/cuda/tests/CMakeFiles/TestCudaSeekrForce.dir/TestCudaSeekrForce.cpp.o
+	cd /home/astokely/SEEKR/openseekr/plugin/build && $(MAKE) -f platforms/cuda/tests/CMakeFiles/TestCudaSeekrForce.dir/build.make platforms/cuda/tests/CMakeFiles/TestCudaSeekrForce.dir/TestCudaSeekrForce.cpp.o
 .PHONY : TestCudaSeekrForce.cpp.o
 
 TestCudaSeekrForce.i: TestCudaSeekrForce.cpp.i
@@ -197,7 +197,7 @@ TestCudaSeekrForce.i: TestCudaSeekrForce.cpp.i
 
 # target to preprocess a source file
 TestCudaSeekrForce.cpp.i:
-	cd /home/astokely/planar/openseekr/plugin/build && $(MAKE) -f platforms/cuda/tests/CMakeFiles/TestCudaSeekrForce.dir/build.make platforms/cuda/tests/CMakeFiles/TestCudaSeekrForce.dir/TestCudaSeekrForce.cpp.i
+	cd /home/astokely/SEEKR/openseekr/plugin/build && $(MAKE) -f platforms/cuda/tests/CMakeFiles/TestCudaSeekrForce.dir/build.make platforms/cuda/tests/CMakeFiles/TestCudaSeekrForce.dir/TestCudaSeekrForce.cpp.i
 .PHONY : TestCudaSeekrForce.cpp.i
 
 TestCudaSeekrForce.s: TestCudaSeekrForce.cpp.s
@@ -206,7 +206,7 @@ TestCudaSeekrForce.s: TestCudaSeekrForce.cpp.s
 
 # target to generate assembly for a file
 TestCudaSeekrForce.cpp.s:
-	cd /home/astokely/planar/openseekr/plugin/build && $(MAKE) -f platforms/cuda/tests/CMakeFiles/TestCudaSeekrForce.dir/build.make platforms/cuda/tests/CMakeFiles/TestCudaSeekrForce.dir/TestCudaSeekrForce.cpp.s
+	cd /home/astokely/SEEKR/openseekr/plugin/build && $(MAKE) -f platforms/cuda/tests/CMakeFiles/TestCudaSeekrForce.dir/build.make platforms/cuda/tests/CMakeFiles/TestCudaSeekrForce.dir/TestCudaSeekrForce.cpp.s
 .PHONY : TestCudaSeekrForce.cpp.s
 
 # Help Target
@@ -237,6 +237,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	cd /home/astokely/planar/openseekr/plugin/build && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /home/astokely/SEEKR/openseekr/plugin/build && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

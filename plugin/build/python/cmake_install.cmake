@@ -1,4 +1,4 @@
-# Install script for directory: /home/astokely/planar/openseekr/plugin/python
+# Install script for directory: /home/astokely/SEEKR/openseekr/plugin/python
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

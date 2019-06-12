@@ -71,7 +71,7 @@ cout << "mark 3" << endl;
 
 	cout << "mark 7" << endl;
 
-    force.addPlanarMilestone(2, 3, 2.71, 3.01, 3.14, atomIndices1, atomIndices2, false, testDataFileName);
+    force.addPlanarZMilestone(2, 3, 2.71, 3.01, 3.14, atomIndices1, atomIndices2, false, testDataFileName);
 
 cout << "mark 8" << endl;
 
@@ -98,21 +98,21 @@ cout << "mark 100" << endl;
 	
     SeekrForce& force2 = *copy;
 
-    ASSERT_EQUAL(force.getPlanarNumIndices(0,1), force2.getPlanarNumIndices(0,1));
-    ASSERT_EQUAL(force.getPlanarNumIndices(0,2), force2.getPlanarNumIndices(0,2));
-    ASSERT_EQUAL(force.getPlanarLength(0,1), force2.getPlanarLength(0,1));
-    ASSERT_EQUAL(force.getPlanarLength(0,2), force2.getPlanarLength(0,2));
-    ASSERT_EQUAL(force.getPlanarLength(0,3), force2.getPlanarLength(0,3))
-    for (int i = 0; i < force.getPlanarNumIndices(0,1); i++) {
+    ASSERT_EQUAL(force.getPlanarZNumIndices(0,1), force2.getPlanarZNumIndices(0,1));
+    ASSERT_EQUAL(force.getPlanarZNumIndices(0,2), force2.getPlanarZNumIndices(0,2));
+    ASSERT_EQUAL(force.getPlanarZOffset(0,1), force2.getPlanarZOffset(0,1));
+    ASSERT_EQUAL(force.getPlanarZOffset(0,2), force2.getPlanarZOffset(0,2));
+    ASSERT_EQUAL(force.getPlanarZOffset(0,3), force2.getPlanarZOffset(0,3))
+    for (int i = 0; i < force.getPlanarZNumIndices(0,1); i++) {
         int atomIndex, atomIndexCopy;
-        force.getPlanarMilestoneAtoms(0, i, atomIndex, 1);
-        force2.getPlanarMilestoneAtoms(0, i, atomIndexCopy, 1);
+        force.getPlanarZMilestoneAtoms(0, i, atomIndex, 1);
+        force2.getPlanarZMilestoneAtoms(0, i, atomIndexCopy, 1);
         ASSERT_EQUAL(atomIndex, atomIndexCopy);
     }
-    for (int i = 0; i < force.getPlanarNumIndices(0,2); i++) {
+    for (int i = 0; i < force.getPlanarZNumIndices(0,2); i++) {
         int atomIndex, atomIndexCopy;
-        force.getPlanarMilestoneAtoms(0, i, atomIndex, 2);
-        force2.getPlanarMilestoneAtoms(0, i, atomIndexCopy, 2);
+        force.getPlanarZMilestoneAtoms(0, i, atomIndex, 2);
+        force2.getPlanarZMilestoneAtoms(0, i, atomIndexCopy, 2);
         ASSERT_EQUAL(atomIndex, atomIndexCopy);
     }
 }

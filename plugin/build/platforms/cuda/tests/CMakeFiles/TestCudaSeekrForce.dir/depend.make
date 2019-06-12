@@ -3,6 +3,7 @@
 
 platforms/cuda/tests/CMakeFiles/TestCudaSeekrForce.dir/TestCudaSeekrForce.cpp.o: ../openmmapi/include/SeekrForce.h
 platforms/cuda/tests/CMakeFiles/TestCudaSeekrForce.dir/TestCudaSeekrForce.cpp.o: ../openmmapi/include/internal/windowsExportSeekr.h
+platforms/cuda/tests/CMakeFiles/TestCudaSeekrForce.dir/TestCudaSeekrForce.cpp.o: ../platforms/cuda/tests/TestCudaSeekrForce.cpp
 platforms/cuda/tests/CMakeFiles/TestCudaSeekrForce.dir/TestCudaSeekrForce.cpp.o: /home/astokely/bin/openmm/include/openmm/Context.h
 platforms/cuda/tests/CMakeFiles/TestCudaSeekrForce.dir/TestCudaSeekrForce.cpp.o: /home/astokely/bin/openmm/include/openmm/Force.h
 platforms/cuda/tests/CMakeFiles/TestCudaSeekrForce.dir/TestCudaSeekrForce.cpp.o: /home/astokely/bin/openmm/include/openmm/Integrator.h
@@ -16,5 +17,4 @@ platforms/cuda/tests/CMakeFiles/TestCudaSeekrForce.dir/TestCudaSeekrForce.cpp.o:
 platforms/cuda/tests/CMakeFiles/TestCudaSeekrForce.dir/TestCudaSeekrForce.cpp.o: /home/astokely/bin/openmm/include/openmm/internal/AssertionUtilities.h
 platforms/cuda/tests/CMakeFiles/TestCudaSeekrForce.dir/TestCudaSeekrForce.cpp.o: /home/astokely/bin/openmm/include/openmm/internal/OSRngSeed.h
 platforms/cuda/tests/CMakeFiles/TestCudaSeekrForce.dir/TestCudaSeekrForce.cpp.o: /home/astokely/bin/openmm/include/openmm/internal/windowsExport.h
-platforms/cuda/tests/CMakeFiles/TestCudaSeekrForce.dir/TestCudaSeekrForce.cpp.o: ../platforms/cuda/tests/TestCudaSeekrForce.cpp
 

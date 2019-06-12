@@ -1,4 +1,4 @@
-# Install script for directory: /home/astokely/planar/openseekr/plugin/platforms/cuda
+# Install script for directory: /home/astokely/SEEKR/openseekr/plugin/platforms/cuda
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -52,12 +52,12 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
   if(CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
-file(INSTALL DESTINATION "/home/astokely/bin/openmm/lib/plugins" TYPE SHARED_LIBRARY FILES "/home/astokely/planar/openseekr/plugin/build/platforms/cuda/libSeekrPluginCUDA.so")
+file(INSTALL DESTINATION "/home/astokely/bin/openmm/lib/plugins" TYPE SHARED_LIBRARY FILES "/home/astokely/SEEKR/openseekr/plugin/build/platforms/cuda/libSeekrPluginCUDA.so")
   if(EXISTS "$ENV{DESTDIR}/home/astokely/bin/openmm/lib/plugins/libSeekrPluginCUDA.so" AND
      NOT IS_SYMLINK "$ENV{DESTDIR}/home/astokely/bin/openmm/lib/plugins/libSeekrPluginCUDA.so")
     file(RPATH_CHANGE
          FILE "$ENV{DESTDIR}/home/astokely/bin/openmm/lib/plugins/libSeekrPluginCUDA.so"
-         OLD_RPATH "/home/astokely/planar/openseekr/plugin/build:/home/astokely/bin/openmm/lib:/home/astokely/bin/openmm/lib/plugins:"
+         OLD_RPATH "/home/astokely/SEEKR/openseekr/plugin/build:/home/astokely/bin/openmm/lib:/home/astokely/bin/openmm/lib/plugins:"
          NEW_RPATH "")
     if(CMAKE_INSTALL_DO_STRIP)
       execute_process(COMMAND "/usr/bin/strip" "$ENV{DESTDIR}/home/astokely/bin/openmm/lib/plugins/libSeekrPluginCUDA.so")
@@ -67,7 +67,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/home/astokely/planar/openseekr/plugin/build/platforms/cuda/tests/cmake_install.cmake")
+  include("/home/astokely/SEEKR/openseekr/plugin/build/platforms/cuda/tests/cmake_install.cmake")
 
 endif()
 

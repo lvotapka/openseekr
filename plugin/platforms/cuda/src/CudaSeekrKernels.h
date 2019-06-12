@@ -39,7 +39,7 @@
  * USE OR OTHER DEALINGS IN THE SOFTWARE.                                     *
  * -------------------------------------------------------------------------- */
 
-//TODO: I just updated the spherical(associated variables) to the ones that I am using for the planar code.
+//TODO: I just updated the spherical(associated variables) to the ones that I am using for the planarZ code.
 
 #include "SeekrKernels.h"
 #include "openmm/kernels.h"
@@ -88,49 +88,49 @@ private:
     
     // ANDY: start to copy/paste
 
-    CUfunction computePlanarMilestonesKernel;
+    CUfunction computePlanarZMilestonesKernel;
     
-    int numPlanarMilestones;
-    int numPlanarAtomIndices;
+    int numPlanarZMilestones;
+    int numPlanarZAtomIndices;
     
-    OpenMM::CudaArray* planarNumIndices1; // The CPU's 'object' representing the variable in the GPU
-    std::vector<int> h_planarNumIndices1; // 'h' for 'host' which is the CPU's copy of what exists in the GPU
+    OpenMM::CudaArray* planarZNumIndices1; // The CPU's 'object' representing the variable in the GPU
+    std::vector<int> h_planarZNumIndices1; // 'h' for 'host' which is the CPU's copy of what exists in the GPU
     
-    OpenMM::CudaArray* planarNumIndices2;
-    std::vector<int> h_planarNumIndices2;
+    OpenMM::CudaArray* planarZNumIndices2;
+    std::vector<int> h_planarZNumIndices2;
     
-    OpenMM::CudaArray* planarLengths1;
-    std::vector<float> h_planarLengths1;
+    OpenMM::CudaArray* planarZOffsets1;
+    std::vector<float> h_planarZOffsets1;
     
-    OpenMM::CudaArray* planarLengths2;
-    std::vector<float> h_planarLengths2;
+    OpenMM::CudaArray* planarZOffsets2;
+    std::vector<float> h_planarZOffsets2;
     
-    OpenMM::CudaArray* planarLengths3;
-    std::vector<float> h_planarLengths3;
+    OpenMM::CudaArray* planarZOffsets3;
+    std::vector<float> h_planarZOffsets3;
     
-    OpenMM::CudaArray* planarAtomIndices1;
-    std::vector<int> h_planarAtomIndices1;
+    OpenMM::CudaArray* planarZAtomIndices1;
+    std::vector<int> h_planarZAtomIndices1;
     
-    OpenMM::CudaArray* planarAtomIndices2;
-    std::vector<int> h_planarAtomIndices2;
+    OpenMM::CudaArray* planarZAtomIndices2;
+    std::vector<int> h_planarZAtomIndices2;
     
-    OpenMM::CudaArray* planarAtomBounds1;
-    std::vector<int2> h_planarAtomBounds1;
+    OpenMM::CudaArray* planarZAtomBounds1;
+    std::vector<int2> h_planarZAtomBounds1;
     
-    OpenMM::CudaArray* planarAtomBounds2;
-    std::vector<int2> h_planarAtomBounds2;
+    OpenMM::CudaArray* planarZAtomBounds2;
+    std::vector<int2> h_planarZAtomBounds2;
     
-    OpenMM::CudaArray* planarOldCom1;
-    std::vector<float4> h_planarOldCom1;
+    OpenMM::CudaArray* planarZOldCom1;
+    std::vector<float4> h_planarZOldCom1;
     
-    OpenMM::CudaArray* planarOldCom2;
-    std::vector<float4> h_planarOldCom2;
+    OpenMM::CudaArray* planarZOldCom2;
+    std::vector<float4> h_planarZOldCom2;
     
     // ANDY end copy/paste
 
-    OpenMM::CudaArray* planarCollectionReturnCode;
-    std::vector<float> h_planarCollectionReturnCode;
-    //std::vector<int> h_planarCollectionReturnCode;
+    OpenMM::CudaArray* planarZCollectionReturnCode;
+    std::vector<float> h_planarZCollectionReturnCode;
+    //std::vector<int> h_planarZCollectionReturnCode;
     
     bool endSimulation;
     bool endOnMiddleCrossing;
@@ -143,7 +143,7 @@ private:
     OpenMM::CudaArray* params;
     
     void allocateMemory(const SeekrForce& force);
-    void setupPlanarMilestones(const SeekrForce& force);
+    void setupPlanarZMilestones(const SeekrForce& force);
     void validateAndUpload();
 };
 
