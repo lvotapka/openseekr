@@ -2,6 +2,7 @@
 Created on May 9, 2018
 
 @author: lvotapka
+@author: astokely
 
 Procedures for creating milestone objects
 '''
@@ -19,8 +20,11 @@ class Milestone_System():
   def __init__(self):
     self.wet_holo_pdb_filename = ''
     self.dry_holo_pdb_filename = ''
-    self.prmtop_filename = ''
+    self.prmtop_filename = '' # AMBER inputs
     self.inpcrd_filename = ''
+    self.psf_filename = ''
+    self.rtf_filename = '' # CHARMM inputs
+    self.par_filename = ''
     self.umbrella_pdb_filename = ''
     self.system = None
     self.simulation = None
@@ -28,6 +32,7 @@ class Milestone_System():
 class Milestone():
   '''Milestone superclass. It represents a surface in phase space that is monitored for crossings'''
   def __init__(self, anchor, dimensions, index, siteid):
+    self.type = ""
     self.fullname = ""
     self.directory = ""
     self.anchor = anchor # the location of this milestone's anchor
@@ -48,6 +53,7 @@ class Milestone():
 class Concentric_Spherical_Milestone(Milestone):
   '''Concentric spherical milestones centered on an atom selection.'''
   def __init__(self, index, siteid, absolute='False', md=True, bd=False):
+    self.type = 'spherical'
     self.fullname = ''
     self.directory = ''
     self.anchor = None # the location where the ligand was started
@@ -74,6 +80,7 @@ class Concentric_Spherical_Milestone(Milestone):
 class Planar_Z_Milestone(Milestone):
   '''Planar milestones perpendicular to Z-axis and centered on an atom selection.'''
   def __init__(self, index, siteid, absolute='False', md=True, bd=False):
+    self.type = 'planar_z'
     self.fullname = ''
     self.directory = ''
     self.anchor = None # the location where the ligand was started
