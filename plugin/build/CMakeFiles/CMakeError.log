@@ -1,22 +1,22 @@
 Determining if the pthread_create exist failed with the following output:
 Change Dir: /home/astokely/SEEKR/openseekr/plugin/build/CMakeFiles/CMakeTmp
 
-Run Build Command:"/usr/bin/make" "cmTC_a047a/fast"
-/usr/bin/make -f CMakeFiles/cmTC_a047a.dir/build.make CMakeFiles/cmTC_a047a.dir/build
+Run Build Command:"/usr/bin/make" "cmTC_92c5c/fast"
+/usr/bin/make -f CMakeFiles/cmTC_92c5c.dir/build.make CMakeFiles/cmTC_92c5c.dir/build
 make[1]: Entering directory '/home/astokely/SEEKR/openseekr/plugin/build/CMakeFiles/CMakeTmp'
-Building C object CMakeFiles/cmTC_a047a.dir/CheckSymbolExists.c.o
-/usr/bin/cc   -fPIC    -o CMakeFiles/cmTC_a047a.dir/CheckSymbolExists.c.o   -c /home/astokely/SEEKR/openseekr/plugin/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c
-Linking C executable cmTC_a047a
-/usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_a047a.dir/link.txt --verbose=1
-/usr/bin/cc -fPIC     -rdynamic CMakeFiles/cmTC_a047a.dir/CheckSymbolExists.c.o  -o cmTC_a047a 
-CMakeFiles/cmTC_a047a.dir/CheckSymbolExists.c.o: In function `main':
+Building C object CMakeFiles/cmTC_92c5c.dir/CheckSymbolExists.c.o
+/usr/bin/cc   -fPIC    -o CMakeFiles/cmTC_92c5c.dir/CheckSymbolExists.c.o   -c /home/astokely/SEEKR/openseekr/plugin/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_92c5c
+/usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_92c5c.dir/link.txt --verbose=1
+/usr/bin/cc -fPIC     -rdynamic CMakeFiles/cmTC_92c5c.dir/CheckSymbolExists.c.o  -o cmTC_92c5c 
+CMakeFiles/cmTC_92c5c.dir/CheckSymbolExists.c.o: In function `main':
 CheckSymbolExists.c:(.text+0x1b): undefined reference to `pthread_create'
 collect2: error: ld returned 1 exit status
-CMakeFiles/cmTC_a047a.dir/build.make:86: recipe for target 'cmTC_a047a' failed
-make[1]: *** [cmTC_a047a] Error 1
+CMakeFiles/cmTC_92c5c.dir/build.make:86: recipe for target 'cmTC_92c5c' failed
+make[1]: *** [cmTC_92c5c] Error 1
 make[1]: Leaving directory '/home/astokely/SEEKR/openseekr/plugin/build/CMakeFiles/CMakeTmp'
-Makefile:126: recipe for target 'cmTC_a047a/fast' failed
-make: *** [cmTC_a047a/fast] Error 2
+Makefile:126: recipe for target 'cmTC_92c5c/fast' failed
+make: *** [cmTC_92c5c/fast] Error 2
 
 File /home/astokely/SEEKR/openseekr/plugin/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
 /* */
@@ -36,20 +36,20 @@ int main(int argc, char** argv)
 Determining if the function pthread_create exists in the pthreads failed with the following output:
 Change Dir: /home/astokely/SEEKR/openseekr/plugin/build/CMakeFiles/CMakeTmp
 
-Run Build Command:"/usr/bin/make" "cmTC_11143/fast"
-/usr/bin/make -f CMakeFiles/cmTC_11143.dir/build.make CMakeFiles/cmTC_11143.dir/build
+Run Build Command:"/usr/bin/make" "cmTC_bf6df/fast"
+/usr/bin/make -f CMakeFiles/cmTC_bf6df.dir/build.make CMakeFiles/cmTC_bf6df.dir/build
 make[1]: Entering directory '/home/astokely/SEEKR/openseekr/plugin/build/CMakeFiles/CMakeTmp'
-Building C object CMakeFiles/cmTC_11143.dir/CheckFunctionExists.c.o
-/usr/bin/cc   -fPIC -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_11143.dir/CheckFunctionExists.c.o   -c /usr/local/share/cmake-3.11/Modules/CheckFunctionExists.c
-Linking C executable cmTC_11143
-/usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_11143.dir/link.txt --verbose=1
-/usr/bin/cc -fPIC -DCHECK_FUNCTION_EXISTS=pthread_create    -rdynamic CMakeFiles/cmTC_11143.dir/CheckFunctionExists.c.o  -o cmTC_11143 -lpthreads 
+Building C object CMakeFiles/cmTC_bf6df.dir/CheckFunctionExists.c.o
+/usr/bin/cc   -fPIC -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_bf6df.dir/CheckFunctionExists.c.o   -c /usr/local/share/cmake-3.11/Modules/CheckFunctionExists.c
+Linking C executable cmTC_bf6df
+/usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_bf6df.dir/link.txt --verbose=1
+/usr/bin/cc -fPIC -DCHECK_FUNCTION_EXISTS=pthread_create    -rdynamic CMakeFiles/cmTC_bf6df.dir/CheckFunctionExists.c.o  -o cmTC_bf6df -lpthreads 
 /usr/bin/ld: cannot find -lpthreads
 collect2: error: ld returned 1 exit status
-CMakeFiles/cmTC_11143.dir/build.make:86: recipe for target 'cmTC_11143' failed
-make[1]: *** [cmTC_11143] Error 1
+CMakeFiles/cmTC_bf6df.dir/build.make:86: recipe for target 'cmTC_bf6df' failed
+make[1]: *** [cmTC_bf6df] Error 1
 make[1]: Leaving directory '/home/astokely/SEEKR/openseekr/plugin/build/CMakeFiles/CMakeTmp'
-Makefile:126: recipe for target 'cmTC_11143/fast' failed
-make: *** [cmTC_11143/fast] Error 2
+Makefile:126: recipe for target 'cmTC_bf6df/fast' failed
+make: *** [cmTC_bf6df/fast] Error 2
 
 

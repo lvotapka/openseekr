@@ -127,6 +127,48 @@ private:
     std::vector<float4> h_planarZOldCom2;
     
     // ANDY end copy/paste
+    
+    CUfunction computeSphericalMilestonesKernel;
+    
+    int numSphericalMilestones;
+    int numSphericalAtomIndices;
+    
+    OpenMM::CudaArray* sphericalNumIndices1;
+    std::vector<int> h_sphericalNumIndices1;
+    
+    OpenMM::CudaArray* sphericalNumIndices2;
+    std::vector<int> h_sphericalNumIndices2;
+    
+    OpenMM::CudaArray* sphericalRadii1;
+    std::vector<float> h_sphericalRadii1;
+    
+    OpenMM::CudaArray* sphericalRadii2;
+    std::vector<float> h_sphericalRadii2;
+    
+    OpenMM::CudaArray* sphericalRadii3;
+    std::vector<float> h_sphericalRadii3;
+    
+    OpenMM::CudaArray* sphericalAtomIndices1;
+    std::vector<int> h_sphericalAtomIndices1;
+    
+    OpenMM::CudaArray* sphericalAtomIndices2;
+    std::vector<int> h_sphericalAtomIndices2;
+    
+    OpenMM::CudaArray* sphericalAtomBounds1;
+    std::vector<int2> h_sphericalAtomBounds1;
+    
+    OpenMM::CudaArray* sphericalAtomBounds2;
+    std::vector<int2> h_sphericalAtomBounds2;
+    
+    OpenMM::CudaArray* sphericalOldCom1;
+    std::vector<float4> h_sphericalOldCom1;
+    
+    OpenMM::CudaArray* sphericalOldCom2;
+    std::vector<float4> h_sphericalOldCom2;
+    
+    OpenMM::CudaArray* collectionReturnCode;
+    std::vector<float> h_collectionReturnCode;
+    //std::vector<int> h_collectionReturnCode;
 
     OpenMM::CudaArray* planarZCollectionReturnCode;
     std::vector<float> h_planarZCollectionReturnCode;
@@ -144,6 +186,7 @@ private:
     
     void allocateMemory(const SeekrForce& force);
     void setupPlanarZMilestones(const SeekrForce& force);
+    void setupSphericalMilestones(const SeekrForce& force);
     void validateAndUpload();
 };
 
