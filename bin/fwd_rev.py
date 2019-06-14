@@ -223,7 +223,7 @@ def sort_forward_dcd_key(forward_dcd):
   return sorting_list
 
 def launch_fwd_rev_stage(seekrcalc, milestone, traj_base, end_on_middle_crossing, dcd_iterator, dcd_iterator_chunk=9e9, input_vels=None, 
-                         box_vectors=None, transition_filename='transition.dat', suffix='', save_fwd_rev=False):
+                         box_vectors=None, transition_filename='transition.dat', suffix='', save_fwd_rev=False, save_last_frame=True):
   # TODO: update the docstring to current inputs
   '''launch a reversal stage SEEKR calculation.
   Input:
@@ -320,6 +320,12 @@ def launch_fwd_rev_stage(seekrcalc, milestone, traj_base, end_on_middle_crossing
       if read_reversal_data_file_last(data_file_name):
         success_positions.append(positions)
         success_velocities.append(velocities)
+        if save_last_frame:
+          pdb_last_frame_base_name = traj_base+"%d_%d%s.pdb" % (i, j, suffix) #"fwd_rev%d_%d.dcd" % (i, j)
+          pdb_last_frame_name = os.path.join(seekrcalc.project.rootdir, 
+                                  milestone.directory, 'md', 'fwd_rev', 
+                                  pdb_last_frame_base_name)
+          amber.save_restart(seekrcalc, milestone, pdb_last_frame_name)
         
     i += 1
     
