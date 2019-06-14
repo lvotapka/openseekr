@@ -386,7 +386,6 @@ def generate_ellipsoidal_milestones(seekrcalc, atom_indices_locus_1,
   '''
     
   milestones = []
-  lowest_nu = nu_list[0] # the lowest radius
   nus_in_site = len(nu_list)
   for i in range(nus_in_site): # loop through all the milestone nu's
     nu = nu_list[i]
@@ -420,8 +419,9 @@ def print_ellipsoidal_milestone_info(milestones):
     print "Milestone index:", milestone.index, "siteid:", milestone.siteid
     print "origin_1:", milestone.locus_1_vec, "center_atoms_locus_1:", milestone.locus_1_atom_indices
     print "origin_2:", milestone.locus_2_vec, "center_atoms_locus_2:", milestone.locus_2_atom_indices
-    print "  num neighbors:", len(milestone.neighbors), "anchor:", milestone.anchor, "md:", milestone.md, "bd:", milestone.bd, "bd_adjacent:", milestone.bd_adjacent
-    print "  end:", milestone.end, "fullname:", milestone.fullname, "nu:", milestone.nu
+    print "num neighbors:", len(milestone.neighbors), "anchor:", milestone.anchor
+    print "md:", milestone.md, "bd:", milestone.bd, "bd_adjacent:", milestone.bd_adjacent
+    print "end:", milestone.end, "fullname:", milestone.fullname, "nu:", milestone.nu
   return
 
 
