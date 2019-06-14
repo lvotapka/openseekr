@@ -169,9 +169,9 @@ def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umb
   properties = seekrcalc.openmm.properties
   
   # add restraints
-  if milestone.type == 'spherical':
+  if milestone.__class__.__name__ in ['Concentric_Spherical_Milestone']:
     new_force = create_spherical_forces(seekrcalc, milestone, system)
-  elif milestone.type == 'planar_z':
+  elif milestone.__class__.__name__ in ['Planar_Z_Milestone']:
     new_force = create_planar_z_forces(seekrcalc, milestone, system)
   else:
     raise Exception, "milestone.type = %s not implemented." % milestone.type

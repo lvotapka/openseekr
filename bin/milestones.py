@@ -53,7 +53,6 @@ class Milestone():
 class Concentric_Spherical_Milestone(Milestone):
   '''Concentric spherical milestones centered on an atom selection.'''
   def __init__(self, index, siteid, absolute='False', md=True, bd=False):
-    self.type = 'spherical'
     self.fullname = ''
     self.directory = ''
     self.anchor = None # the location where the ligand was started
@@ -71,7 +70,7 @@ class Concentric_Spherical_Milestone(Milestone):
     self.radius = 0.0
     self.wet_holo_filename = ''
     self.dry_holo_filename = ''
-    self.atom_selection_1 = None
+    self.atom_selection_1 = None # TODO: review role of this selection vs. center_atom_indices
     self.atom_selection_2 = None
     self.openmm = Milestone_System()
     self.config = None
@@ -80,7 +79,6 @@ class Concentric_Spherical_Milestone(Milestone):
 class Planar_Z_Milestone(Milestone):
   '''Planar milestones perpendicular to Z-axis and centered on an atom selection.'''
   def __init__(self, index, siteid, absolute='False', md=True, bd=False):
-    self.type = 'planar_z'
     self.fullname = ''
     self.directory = ''
     self.anchor = None # the location where the ligand was started
@@ -97,6 +95,61 @@ class Planar_Z_Milestone(Milestone):
     self.center_vec = None # the x,y,z location of the center of this spherical milestone
     self.offset = 0.0
     self.wet_holo_filename = ''
+    self.atom_selection_1 = None
+    self.atom_selection_2 = None
+    self.openmm = Milestone_System()
+    self.config = None
+    self.box_vectors = None
+    
+class Ellipsoidal_Milestone(Milestone):
+  '''Ellipsoidal milestones centered on an atom selection.'''
+  def __init__(self, index, siteid, absolute='False', md=True, bd=False):
+    self.fullname = ''
+    self.directory = ''
+    self.anchor = None # the location where the ligand was started
+    self.neighbors = []
+    self.index = index
+    self.siteid = siteid
+    self.absolute = absolute
+    self.md = md
+    self.bd = bd
+    self.bd_adjacent = None
+    self.end = False
+    # dimensions
+    self.locus_1_atom_indices = [] # the indices of the atoms in the system that define the center of this spherical milestone
+    self.locus_1_vec = None # the x,y,z location of the center of this spherical milestone
+    self.locus_2_atom_indices = [] # the indices of the atoms in the system that define the center of this spherical milestone
+    self.locus_2_vec = None # the x,y,z location of the center of this spherical milestone
+    self.nu = 0.0
+    self.wet_holo_filename = ''
+    self.dry_holo_filename = ''
+    self.atom_selection_locus_1 = None
+    self.atom_selection_locus_2 = None
+    self.atom_selection_ligand = None
+    self.openmm = Milestone_System()
+    self.config = None
+    self.box_vectors = None
+    
+class RMSD_Milestone(Milestone):
+  '''RMSD milestones centered on a list of atom selections.'''
+  def __init__(self, index, siteid, absolute='False', md=True, bd=False):
+    self.fullname = ''
+    self.directory = ''
+    self.anchor = None # the location where the ligand was started
+    self.neighbors = []
+    self.index = index
+    self.siteid = siteid
+    self.absolute = absolute
+    self.md = md
+    self.bd = bd
+    self.bd_adjacent = None
+    self.end = False
+    # dimensions
+    self.center_atom_indices = [] # the indices of the atoms in the system that define the center of this spherical milestone
+    self.center_vec = None # the x,y,z location of the center of this spherical milestone
+    self.radius = 0.0
+    self.wet_holo_filename = ''
+    self.dry_holo_filename = ''
     self.atom_selection_1 = None
     self.atom_selection_2 = None
     self.openmm = Milestone_System()
@@ -176,6 +229,22 @@ def find_planar_z_anchor_from_vectors(origin, offset, vectors):
       return anchor
     summed_vectors += cur_vector
   return anchor
+    
+def find_ellipsoidal_anchor_from_vectors(locus_1, locus_2, nu):
+  '''Given the locations of the two loci of the milestone, the ligand will be 
+  placed at the ellipsoidal coordinate 'nu' between the two points.
+  Input:
+   - locus_1: 3-membered numpy array representing the center of locus 1 
+   - locus_2: 3-membered numpy array representing the center of locus 2
+   - nu: the nu coordinate
+  Output:
+   - anchor: 3-array representing the location of the anchor.
+  '''
+  diff_vec = locus_2 - locus_1
+  anchor = diff_vec * nu
+  return anchor
+
+#def find_RMSD_anchor_from_vectors(origin, offset, vectors):
     
 def generate_spherical_milestones(seekrcalc, atom_indices, origin, radius_list, siteid, vectors, absolute=False):
   '''Create a list of concentric spherical milestones around an atom selection.
@@ -300,6 +369,61 @@ def print_planar_z_milestone_info(milestones):
     print "  end:", milestone.end, "fullname:", milestone.fullname, "offset:", \
         milestone.offset
   return
+
+def generate_ellipsoidal_milestones(seekrcalc, atom_indices_locus_1, 
+                                    atom_indices_locus_2, origin_1, origin_2, 
+                                    nu_list, siteid, absolute=False):
+  '''Create a list of concentric spherical milestones around an atom selection.
+  Input: UPDATE
+   - atom_indices: a list of integers representing the atom indices that this milestone is centered on
+   - origin: 3-array that should be equal (or approximately equal) to the coordinates of the center of mass of the atom indices in the input structure
+   - radius_list: a list of floats representing the radii of the concentric spheres in the list of milestones
+   - siteid: integer representing the index of this list of milestones
+   - vectors: a list of lists of floats, or of numpy arrays, that define the pathway out of the active site, and in turn, the locations where the ligand will be placed
+   - absolute: boolean defining whether this milestone will remain stationary in space regardless of how the receptor moves  
+  Output:
+   - milestones: a list of milestone objects
+  '''
+    
+  milestones = []
+  lowest_nu = nu_list[0] # the lowest radius
+  nus_in_site = len(nu_list)
+  for i in range(nus_in_site): # loop through all the milestone nu's
+    nu = nu_list[i]
+    anchor = find_ellipsoidal_anchor_from_vectors(origin_1, origin_2, nu)# now we need to find the anchor - the location where the ligand will be placed
+    milestone = Ellipsoidal_Milestone(i, siteid, absolute, md=seekrcalc.project.md, bd=seekrcalc.project.bd)
+    milestone.locus_1_atom_indices = atom_indices_locus_1
+    milestone.locus_1_vec = origin_1
+    milestone.locus_2_atom_indices = atom_indices_locus_2
+    milestone.locus_2_vec = origin_2
+    milestone.nu = nu
+    milestone.anchor = anchor
+    milestone.bd = False
+    if i > 0:
+      milestone.neighbors.append(i-1) # if we are the furthest milestone in either direction, then include no neighbors
+    
+    if i < nus_in_site - 1:
+      milestone.neighbors.append(i+1)
+      
+    milestone.fullname = "%d_%d_%s_%.1f_%.1f_%.1f" % (i+(nus_in_site*int(siteid)), i, siteid, anchor[0], anchor[1], anchor[2])
+    milestones.append(milestone)
+  return milestones
+
+def print_ellipsoidal_milestone_info(milestones):
+  '''Print the information in all milestones for debug and verbosity purposes.
+  Input:
+   - milestones: a list of milestone objects to print information about.
+  Output:
+   - None
+   '''
+  for milestone in milestones:
+    print "Milestone index:", milestone.index, "siteid:", milestone.siteid
+    print "origin_1:", milestone.locus_1_vec, "center_atoms_locus_1:", milestone.locus_1_atom_indices
+    print "origin_2:", milestone.locus_2_vec, "center_atoms_locus_2:", milestone.locus_2_atom_indices
+    print "  num neighbors:", len(milestone.neighbors), "anchor:", milestone.anchor, "md:", milestone.md, "bd:", milestone.bd, "bd_adjacent:", milestone.bd_adjacent
+    print "  end:", milestone.end, "fullname:", milestone.fullname, "nu:", milestone.nu
+  return
+
 
 class Test_milestones(unittest.TestCase):
   # several test cases to ensure the functions in this module are working properly
