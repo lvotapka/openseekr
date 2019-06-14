@@ -318,6 +318,7 @@ def launch_fwd_rev_stage(seekrcalc, milestone, traj_base, end_on_middle_crossing
       if had_error == True:
         break # move on to the next frame
       if read_reversal_data_file_last(data_file_name):
+        milestone.openmm.simulation = simulation
         success_positions.append(positions)
         success_velocities.append(velocities)
         if save_last_frame:
