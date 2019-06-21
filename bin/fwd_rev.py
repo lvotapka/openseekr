@@ -5,9 +5,9 @@ a SEEKR calculation.
 Created on June 15, 2018
 
 @author: lvotapka
+@author: astokely
 '''
 
-#Changed "spherical" varibles to planar ones...should be good to go (6/7/2019)
 
 from simtk.openmm.app import *
 from simtk.openmm import *
@@ -77,7 +77,9 @@ quit
   os.system("%s < %s" % (cpptraj_exe, cpptraj_script_location)) # run cpptraj
   return
 
-def create_planar_seekr_force(seekrcalc, milestone, system, end_on_middle_crossing, transition_filename='transition.dat'):
+def create_spherical_seekr_force(seekrcalc, milestone, system, 
+                                 end_on_middle_crossing, 
+                                 transition_filename='transition.dat'):
   '''create the SEEKR 'force' even though it's more of a monitor than a force.
   Input:
    - seekrcalc: The SeekrCalculation object that contains all the settings for 
@@ -94,20 +96,61 @@ def create_planar_seekr_force(seekrcalc, milestone, system, end_on_middle_crossi
   if len(milestone.neighbors) == 2:
     neighbor1 = seekrcalc.milestones[milestone.neighbors[0]] # find the neighbor milestones
     neighbor2 = seekrcalc.milestones[milestone.neighbors[1]]
-    length1 = neighbor1.length / 10.0 # extract neighbor milestone lengths
-    length2 = milestone.length / 10.0 # convert to nm. TODO: better way to deal with these units?
-    length3 = neighbor2.length / 10.0
+    radius1 = neighbor1.radius / 10.0 # extract neighbor milestone radii
+    radius2 = milestone.radius / 10.0 # convert to nm. TODO: better way to deal with these units?
+    radius3 = neighbor2.radius / 10.0
   elif len(milestone.neighbors) == 1: # this is an endpoint milestone HACKY...
     neighbor1 = seekrcalc.milestones[milestone.neighbors[0]] # find the neighbor milestones
     neighbor2 = seekrcalc.milestones[milestone.neighbors[0]]
-    length1 = 0.0 # extract neighbor milestone lengths
-    length2 = milestone.length / 10.0 # convert to nm. TODO: better way to deal with these units?
-    length3 = neighbor2.length / 10.0
+    radius1 = 0.0 # extract neighbor milestone radii
+    radius2 = milestone.radius / 10.0 # convert to nm. TODO: better way to deal with these units?
+    radius3 = neighbor2.radius / 10.0
   else:
     raise Exception, "Only one or two milestone neighbors allowed at present. Number of neighbors: %d" % milestone.neighbors
   data_file_name = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'fwd_rev', transition_filename) # define the file to write transition information
   # Define all settings and parameters for the SEEKR force object
-  force.addPlanarMilestone(len(milestone.atom_selection_1), len(milestone.atom_selection_2), length1, length2, length3, milestone.atom_selection_1, milestone.atom_selection_2, end_on_middle_crossing, data_file_name)
+  force.addsphericalMilestone(len(milestone.atom_selection_1), len(milestone.atom_selection_2), radius1, radius2, radius3, milestone.atom_selection_1, milestone.atom_selection_2, end_on_middle_crossing, data_file_name)
+  system.addForce(force) # Add the SEEKR force to the openMM system
+  if verbose: print "SEEKR force added to system."
+  return force, data_file_name
+
+def create_planar_z_seekr_force(seekrcalc, milestone, system, 
+                                end_on_middle_crossing, 
+                                transition_filename='transition.dat'):
+  '''create the SEEKR 'force' even though it's more of a monitor than a force.
+  Input:
+   - seekrcalc: The SeekrCalculation object that contains all the settings for spherical
+       the SEEKR calculation.
+   - milestone: the Milestone() object to run the simulation for
+   - system: the OpenMM system to add the SEEKR 'force' to
+   - end_on_middle_crossing: boolean to whether to end the simulation on a crossing of the
+       middle milestone
+  Output:
+   - force: the SEEKR force object
+   - data_file_name: the data file that will be monitored for crossing events.
+   '''
+  force = SeekrForce() # create the SEEKR force object
+  if len(milestone.neighbors) == 2:
+    neighbor1 = seekrcalc.milestones[milestone.neighbors[0]] # find the neighbor milestones
+    neighbor2 = seekrcalc.milestones[milestone.neighbors[1]]
+    offset1 = neighbor1.offset / 10.0 # extract neighbor milestone radii
+    offset2 = milestone.offset / 10.0 # convert to nm. TODO: better way to deal with these units?
+    offset3 = neighbor2.offset / 10.0
+  elif len(milestone.neighbors) == 1: 
+    raise Exception, "Forward/Reversal stage of planar milestones must have two neighbors. Only one detected."
+    '''
+    neighbor1 = seekrcalc.milestones[milestone.neighbors[0]] # find the neighbor milestones
+    neighbor2 = seekrcalc.milestones[milestone.neighbors[0]]
+    if milestone.offset < neighbor1.offset: # bottom milestone
+      offset1 = 0.0 # extract neighbor milestone radii
+      radius2 = milestone.radius / 10.0 # convert to nm. TODO: better way to deal with these units?
+      radius3 = neighbor2.radius / 10.0
+    '''
+  else:
+    raise Exception, "Only two milestone neighbors allowed at present. Number of neighbors: %d" % milestone.neighbors
+  data_file_name = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'fwd_rev', transition_filename) # define the file to write transition information
+  # Define all settings and parameters for the SEEKR force object
+  force.addPlanarZMilestone(len(milestone.atom_selection_1), len(milestone.atom_selection_2), offset1, offset2, offset3, milestone.atom_selection_1, milestone.atom_selection_2, end_on_middle_crossing, data_file_name)
   system.addForce(force) # Add the SEEKR force to the openMM system
   if verbose: print "SEEKR force added to system."
   return force, data_file_name
@@ -224,8 +267,54 @@ def sort_forward_dcd_key(forward_dcd):
   sorting_list = [int(index_list[2]), int(index_list[0]), int(index_list[1])]
   return sorting_list
 
-def launch_fwd_rev_stage(seekrcalc, milestone, traj_base, end_on_middle_crossing, dcd_iterator, dcd_iterator_chunk=9e9, input_vels=None, 
-                         box_vectors=None, transition_filename='transition.dat', suffix='', save_fwd_rev=False):
+def prep_fwd_rev_amber(seekrcalc, milestone):
+  '''Prepare the necessary files for an AMBER fwd-rev stage calculation
+  Input:
+   - seekrcalc: the Seekr Calculation parameters object
+   - milestone: the Milestone() object to run the fwd-rev stage for
+  Output:
+   - system: the OpenMM system object created by the amber input files
+  '''
+  prmtop_filename = milestone.openmm.prmtop_filename
+  inpcrd_filename = milestone.openmm.inpcrd_filename
+  if verbose: print "opening files:", prmtop_filename, inpcrd_filename
+  prmtop = AmberPrmtopFile(prmtop_filename)
+  inpcrd = AmberInpcrdFile(inpcrd_filename)
+  
+  # create OpenMM NVE system
+  system = prmtop.createSystem(nonbondedMethod=PME, nonbondedCutoff=1*nanometer,
+                               constraints=HBonds)
+  return system
+
+def prep_umbrella_charmm(seekrcalc, milestone):
+  '''Prepare a system that will use the CHARMM forcefield
+  Input:
+   - seekrcalc: The SeekrCalculation object that contains all the settings for 
+       the SEEKR calculation.
+   - milestone: the Milestone() object to prep the simulation for
+  Output:
+   - system: the OpenMM system to return from the CHARMM inputs
+  '''
+  psf = CharmmPsfFile(milestone.openmm.psf_filename)
+
+  # Get the coordinates from the PDB
+  pdb = PDBFile(milestone.openmm.umbrella_pdb_filename)
+
+  # Load the parameter set.
+  params = CharmmParameterSet(milestone.openmm.rtf_filename, 
+                              milestone.openmm.par_filename)
+
+  system = psf.createSystem(params, 
+                            nonbondedMethod=nonbondedCutoff=1.2*nanometer,
+                            nonbondedCutoff=None)
+  return system
+
+def launch_fwd_rev_stage(seekrcalc, milestone, traj_base, 
+                         end_on_middle_crossing, dcd_iterator, 
+                         dcd_iterator_chunk=9e9, input_vels=None, 
+                         box_vectors=None, 
+                         transition_filename='transition.dat', suffix='', 
+                         save_fwd_rev=False):
   # TODO: update the docstring to current inputs
   '''launch a reversal stage SEEKR calculation.
   Input:
@@ -244,26 +333,37 @@ def launch_fwd_rev_stage(seekrcalc, milestone, traj_base, end_on_middle_crossing
   if input_vels != None and seekrcalc.fwd_rev_stage.launches_per_config != 1: # then it's a forward stage, but there shouldn't be any velocity randomizations
     raise Exception, "The variable 'fwd_rev_stage.launches_per_config' should be set to 1 for the forward stage. (or velocities should not be provided to this function)."
   
-  prmtop_filename = milestone.openmm.prmtop_filename
-  inpcrd_filename = milestone.openmm.inpcrd_filename
-  if verbose: print "opening files:", prmtop_filename, inpcrd_filename
-  prmtop = AmberPrmtopFile(prmtop_filename)
-  inpcrd = AmberInpcrdFile(inpcrd_filename)
+  if seekrcalc.building.ff.lower() == 'amber':
+    system = prep_fwd_rev_amber(seekrcalc, milestone)
+  elif seekrcalc.building.ff.lower() == 'charmm':
+    system = prep_fwd_rev_charmm(seekrcalc, milestone)
+  else:
+    raise Exception, "This forcefield not implemented for forward/reversal stage: %s" % seekrcalc.building.ff
   
-  # create OpenMM NVE system
-  system = prmtop.createSystem(nonbondedMethod=PME, nonbondedCutoff=1*nanometer, constraints=HBonds) # This is fine because h-bonds are always constrained in water!
   integrator = VerletIntegrator(0.002*picoseconds)
   platform = Platform.getPlatformByName('CUDA')
   properties = seekrcalc.openmm.properties
   
   # create and prepare the SEEKR milestones
-  myforce, data_file_name = create_planar_seekr_force(seekrcalc, milestone, system, end_on_middle_crossing, transition_filename)
+  if milestone.type == 'spherical':
+    myforce, data_file_name = create_spherical_seekr_force(seekrcalc, milestone,
+                                                           system, 
+                                                           end_on_middle_crossing, 
+                                                           transition_filename)
+  elif milestone.type == 'planar_z':
+    myforce, data_file_name = create_planar_z_seekr_force(seekrcalc, milestone,
+                                                           system, 
+                                                           end_on_middle_crossing, 
+                                                           transition_filename)
+  else:
+    raise Exception, 'Milestone type not yet implemented: %s' % milestone.type
   
   if save_fwd_rev == False:
     print "Deleting transition file:", data_file_name
     os.system('rm %s' % data_file_name) # delete the existing transition data file if it exists
   
-  simulation = Simulation(prmtop.topology, system, integrator, platform, properties) # create the system object
+  simulation = Simulation(prmtop.topology, system, integrator, platform, 
+                          properties) # create the system object
   
   starttime = time.time()
   success_velocities = []
@@ -297,8 +397,12 @@ def launch_fwd_rev_stage(seekrcalc, milestone, traj_base, end_on_middle_crossing
       velocities = state.getVelocities()
       positions = state.getPositions()
       traj_name = traj_base+"%d_%d%s.dcd" % (i, j, suffix) #"fwd_rev%d_%d.dcd" % (i, j)
-      fwd_rev_traj = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'fwd_rev', traj_name)
-      simulation.reporters = [StateDataReporter(stdout, seekrcalc.fwd_rev_stage.energy_freq, step=True, potentialEnergy=True, temperature=True, volume=True)]
+      fwd_rev_traj = os.path.join(seekrcalc.project.rootdir, 
+                                  milestone.directory, 'md', 'fwd_rev', 
+                                  traj_name)
+      simulation.reporters = [StateDataReporter(stdout, seekrcalc.fwd_rev_stage.energy_freq, 
+                                                step=True, potentialEnergy=True, 
+                                                temperature=True, volume=True)]
       simulation.reporters.append(DCDReporter(fwd_rev_traj, seekrcalc.fwd_rev_stage.traj_freq))
       
       data_file_length = get_data_file_length(data_file_name)

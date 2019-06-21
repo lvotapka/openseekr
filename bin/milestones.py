@@ -1,7 +1,12 @@
 '''
 Created on June 11, 2019
 
+<<<<<<< HEAD
 @author: lvotapka and astokely
+=======
+@author: lvotapka
+@author: astokely
+>>>>>>> 274c61c6ef6e295376dcb3230866c228bef39750
 
 Procedures for creating spherical and planar milestone objects
 '''
@@ -19,8 +24,11 @@ class Milestone_System():
   def __init__(self):
     self.wet_holo_pdb_filename = ''
     self.dry_holo_pdb_filename = ''
-    self.prmtop_filename = ''
+    self.prmtop_filename = '' # AMBER inputs
     self.inpcrd_filename = ''
+    self.psf_filename = ''
+    self.rtf_filename = '' # CHARMM inputs
+    self.par_filename = ''
     self.umbrella_pdb_filename = ''
     self.system = None
     self.simulation = None
@@ -28,6 +36,7 @@ class Milestone_System():
 class Milestone():
   '''Milestone superclass. It represents a surface in phase space that is monitored for crossings'''
   def __init__(self, anchor, dimensions, index, siteid):
+    self.type = ""
     self.fullname = ""
     self.directory = ""
     self.anchor = anchor # the location of this milestone's anchor
@@ -48,6 +57,7 @@ class Milestone():
 class Concentric_Spherical_Milestone(Milestone):
   '''Concentric spherical milestones centered on an atom selection.'''
   def __init__(self, index, siteid, absolute='False', md=True, bd=False):
+    self.type = 'spherical'
     self.fullname = ''
     self.directory = ''
     self.anchor = None # the location where the ligand was started
@@ -74,6 +84,7 @@ class Concentric_Spherical_Milestone(Milestone):
 class Planar_Z_Milestone(Milestone):
   '''Planar milestones perpendicular to Z-axis and centered on an atom selection.'''
   def __init__(self, index, siteid, absolute='False', md=True, bd=False):
+    self.type = 'planar_z'
     self.fullname = ''
     self.directory = ''
     self.anchor = None # the location where the ligand was started
@@ -86,8 +97,8 @@ class Planar_Z_Milestone(Milestone):
     self.bd_adjacent = None
     self.end = False
     # dimensions
-    self.center_atom_indices = [] # the indices of the atoms in the system that define the center of this spherical milestone
-    self.center_vec = None # the x,y,z location of the center of this spherical milestone
+    self.center_atom_indices = [] # the indices of the atoms in the system that define the center of this planar milestone
+    self.center_vec = None # the x,y,z location of the center of this planar milestone
     self.offset = 0.0
     self.wet_holo_filename = ''
     self.atom_selection_1 = None

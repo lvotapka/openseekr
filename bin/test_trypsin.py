@@ -65,14 +65,14 @@ me.browndye.prods_per_anchor = 1000000
 me.browndye.apbs.executable = '/home/lvotapka/Downloads/APBS-1.5-linux64/bin/apbs'
 me.browndye.fhpd_numtraj = 1000
 
-ion1 = seekr.APBS_ion('Cl-', 0.10, -1.0, 1.67)
-ion2 = seekr.APBS_ion('Ca2+', 0.02, 2.0, 1.14) # define ions in the system
-ion3 = seekr.APBS_ion('tris', 0.06, 1.0, 4.0)
+#ion1 = seekr.APBS_ion('Cl-', 0.10, -1.0, 1.67)
+#ion2 = seekr.APBS_ion('Ca2+', 0.02, 2.0, 1.14) # define ions in the system
+#ion3 = seekr.APBS_ion('tris', 0.06, 1.0, 4.0)
 
 
-me.browndye.apbs.ions = [ion1, ion2, ion3]
-me.browndye.apbs.linear_pbe = False
-me.browndye.apbs.inputgen.executable = '/home/lvotapka/Downloads/APBS-1.5-linux64/share/apbs/tools/manip/inputgen.py'
+#me.browndye.apbs.ions = [ion1, ion2, ion3]
+#me.browndye.apbs.linear_pbe = False
+#me.browndye.apbs.inputgen.executable = '/home/lvotapka/Downloads/APBS-1.5-linux64/share/apbs/tools/manip/inputgen.py'
 
 # Generate Milestones
 origin = np.array([-1.536, 13.859, 16.539])

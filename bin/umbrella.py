@@ -2,6 +2,7 @@
 Created on June 7, 2018
 
 @author: lvotapka
+@author: astokely
 
 Functions and objects for running Umbrella sampling
 '''
@@ -115,12 +116,7 @@ def create_planar_forces(seekrcalc, milestone, system):
   if verbose: print "new_force.getNumPerBondParameters():", new_force.getNumPerBondParameters()
   return new_force
 
-def create_forces(seekrcalc, milestone, system):
-  '''Temporary function to allow backwards compatibility with previous versions
-  of openseekr. TO BE REMOVED EVENTUALLY.'''
-  return create_spherical_forces(seekrcalc, milestone, system)
-
-def create_planar_forces(seekrcalc, milestone, system):
+def create_planar_z_forces(seekrcalc, milestone, system):
   '''
   Add the umbrella force: which maintains the ligand on the surface of the 
   planar milestone.
@@ -146,23 +142,75 @@ def create_planar_forces(seekrcalc, milestone, system):
   if verbose: print "new_force.getNumPerBondParameters():", new_force.getNumPerBondParameters()
   return new_force
 
+def prep_umbrella_amber(seekrcalc, milestone):
+  '''Prepare a system that will use the AMBER forcefield
+  Input:
+   - seekrcalc: The SeekrCalculation object that contains all the settings for 
+       the SEEKR calculation.
+   - milestone: the Milestone() object to prep the simulation for
+  Output:
+   - system: the OpenMM system to return from the prmtop and inpcrd inputs
+  '''
+  prmtop_filename = milestone.openmm.prmtop_filename
+  inpcrd_filename = milestone.openmm.inpcrd_filename
+  if verbose: print "opening files:", prmtop_filename, inpcrd_filename, pdb_filename
+  prmtop = AmberPrmtopFile(prmtop_filename)
+  inpcrd = AmberInpcrdFile(inpcrd_filename)
+  system = prmtop.createSystem(nonbondedMethod=PME, nonbondedCutoff=1*nanometer,
+                               constraints=HBonds)
+  return system
+  
+def prep_umbrella_charmm(seekrcalc, milestone):
+  '''Prepare a system that will use the CHARMM forcefield
+  Input:
+   - seekrcalc: The SeekrCalculation object that contains all the settings for 
+       the SEEKR calculation.
+   - milestone: the Milestone() object to prep the simulation for
+  Output:
+   - system: the OpenMM system to return from the CHARMM inputs
+  '''
+  psf = CharmmPsfFile(milestone.openmm.psf_filename)
+
+  # Get the coordinates from the PDB
+  pdb = PDBFile(milestone.openmm.umbrella_pdb_filename)
+
+  # Load the parameter set.
+  params = CharmmParameterSet(milestone.openmm.rtf_filename, 
+                              milestone.openmm.par_filename)
+
+  system = psf.createSystem(params, 
+                            nonbondedMethod=nonbondedCutoff=1.2*nanometer,
+                            nonbondedCutoff=None)
+  return system
+
 def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umbrella1.dcd'):
   '''launch an umbrella sampling job.
   Input:
    - seekrcalc: The SeekrCalculation object that contains all the settings for 
        the SEEKR calculation.
    - milestone: the Milestone() object to run the simulation for
+   - box_vectors: 2d numpy array that represents the box vectors. Typically
+       extracted from the inpcrd or rst7 files
+   - traj_name: the name of this umbrella trajectory
   Output:
    - ending_box_vectors: An array of three vectors that represents the ending
    state of the periodic box. This may not be the same as was started, but could
    have changed through the course of a constant pressure simulation.
+   - umbrella_traj: The absolute path to the file of the umbrella trajectory.
   '''
-  prmtop_filename = milestone.openmm.prmtop_filename
+  if seekrcalc.building.ff.lower() == 'amber':
+    system = prep_umbrella_amber(seekrcalc, milestone)
+  elif seekrcalc.building.ff.lower() == 'charmm':
+    system = prep_umbrella_charmm(seekrcalc, milestone)
+  else:
+    raise Exception, "Forcefield %s not yet implemented in openseekr" % seekrcalc.building.ff
+  
+  
   pdb_filename = milestone.openmm.umbrella_pdb_filename
   if os.path.exists(pdb_filename):
     pdb = PDBFile(pdb_filename)
     my_positions = pdb.positions
-  else:
+  else: # This will restart a failed umbrella from the last frame
     basename = os.path.basename(pdb_filename)
     no_ext = os.path.splitext(basename)[0] 
     dcd_filename = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'umbrella', '%s.dcd' % no_ext)
@@ -171,21 +219,20 @@ def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umb
     last_fwd_frame = load_last_mdtraj_frame(dcd_filename, milestone.openmm.prmtop_filename)
     my_positions = last_fwd_frame.xyz[0]
     
-  inpcrd_filename = milestone.openmm.inpcrd_filename
-  if verbose: print "opening files:", prmtop_filename, inpcrd_filename, pdb_filename
-  prmtop = AmberPrmtopFile(prmtop_filename)
-  inpcrd = AmberInpcrdFile(inpcrd_filename)
-  
-  
-  system = prmtop.createSystem(nonbondedMethod=PME, nonbondedCutoff=1*nanometer, constraints=HBonds) # This is fine because h-bonds are always constrained in water!
-  integrator = LangevinIntegrator(seekrcalc.master_temperature*kelvin, 1/picosecond, 0.002*picoseconds) #LangevinIntegrator(300*kelvin, 1/picosecond, 0.002*picoseconds)
+  integrator = LangevinIntegrator(seekrcalc.master_temperature*kelvin, 1/picosecond, 0.002*picoseconds)
   platform = Platform.getPlatformByName('CUDA')
   
   # TODO: change this back
-  properties = seekrcalc.openmm.properties #{'CudaDeviceIndex':'0', 'CudaPrecision':'mixed', 'UseCpuPme':'false'}
+  properties = seekrcalc.openmm.properties
   
   # add restraints
-  new_force = create_forces(seekrcalc, milestone, system) #system, prmtop.topology, inpcrd.positions, seekrcalc.min_equil.constrained)
+  if milestone.type == 'spherical':
+    new_force = create_spherical_forces(seekrcalc, milestone, system)
+  elif milestone.type == 'planar_z':
+    new_force = create_planar_z_forces(seekrcalc, milestone, system)
+  else:
+    raise Exception, "milestone.type = %s not implemented." % milestone.type
+  
   system.addForce(new_force)
   if seekrcalc.umbrella_stage.barostat:
     barostat = MonteCarloBarostat(seekrcalc.umbrella_stage.barostat_pressure, seekrcalc.master_temperature*kelvin, seekrcalc.umbrella_stage.barostat_freq)
