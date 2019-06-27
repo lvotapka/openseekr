@@ -244,7 +244,34 @@ def find_ellipsoidal_anchor_from_vectors(locus_1, locus_2, nu):
   anchor = diff_vec * nu
   return anchor
 
-#def find_RMSD_anchor_from_vectors(origin, offset, vectors):
+'''
+def find_RMSD_anchor_from_vectors(origin, radius, vectors):
+  ''Given an origin and radius of the milestone, will follow the vectors list
+  by summing them until they cross the radius. Then, the ligand will be placed
+  at that location - the anchor.
+  Input:
+   - origin: 3-membered numpy array representing the center of the spherical 
+  milestone
+   - radius: float representing the radius of the milestone
+   - vectors: a list of 3-membered arrays representing vectors that define the
+   'pathway' out of the receptor's active site
+  Output:
+   - anchor: 3-array representing the location of the anchor.
+  ''
+  summed_vectors = np.array([0.0,0.0,0.0]) # starting from the very beginning of the origin 
+  for i in range(len(vectors)):
+    cur_vector = vectors[i]
+    cur_vector_prime = cur_vector / np.linalg.norm(cur_vector)
+    if i == len(vectors)-1 or np.linalg.norm(summed_vectors + cur_vector) > radius: # then this is the last vector, so the anchor has to be placed in line with this one
+      a = np.dot(cur_vector_prime,cur_vector_prime) # 'a' for the quadratic formula
+      b = 2.0 * np.dot(summed_vectors,cur_vector_prime) # 'b' for the quadratic formula
+      c = np.dot(summed_vectors,summed_vectors) - radius**2 # 'c' for the quadratic formula
+      roots = quadratic_formula(a,b,c)
+      anchor = origin + summed_vectors + cur_vector_prime * min(map(abs,roots)) # get the root with the smallest absolute value from the quadratic formula
+      return anchor
+    summed_vectors += cur_vector
+  return anchor
+''' # remove
     
 def generate_spherical_milestones(seekrcalc, atom_indices, origin, radius_list, siteid, vectors, absolute=False):
   '''Create a list of concentric spherical milestones around an atom selection.
@@ -298,7 +325,7 @@ def print_spherical_milestone_info(milestones):
    '''
   for milestone in milestones:
     print "Milestone index:", milestone.index, "siteid:", milestone.siteid, "origin:", milestone.center_vec, "center_atoms:", milestone.center_atom_indices
-    print "  num neighbors:", len(milestone.neighbors), "anchor:", milestone.anchor, "md:", milestone.md, "bd:", milestonespherical.bd, "bd_adjacent:", milestone.bd_adjacent
+    print "  num neighbors:", len(milestone.neighbors), "anchor:", milestone.anchor, "md:", milestone.md, "bd:", milestone.bd, "bd_adjacent:", milestone.bd_adjacent
     print "  end:", milestone.end, "fullname:", milestone.fullname, "radius:", milestone.radius
   return
 
@@ -422,6 +449,64 @@ def print_ellipsoidal_milestone_info(milestones):
     print "num neighbors:", len(milestone.neighbors), "anchor:", milestone.anchor
     print "md:", milestone.md, "bd:", milestone.bd, "bd_adjacent:", milestone.bd_adjacent
     print "end:", milestone.end, "fullname:", milestone.fullname, "nu:", milestone.nu
+  return
+
+def generate_RMSD_milestones(seekrcalc, atom_indices, origin, radius_list, 
+                             num_pairs, siteid, vectors, absolute=False):
+  '''Create a list of concentric RMSD milestones around an atom selection.
+  Input:
+   - atom_indices: a list of integers representing the atom indices that this milestone is centered on
+   - origin: 3-array that should be equal (or approximately equal) to the coordinates of the center of mass of the atom indices in the input structure
+   - radius_list: a list of floats representing the radii of the concentric RMSD hyperspheres in the list of milestones
+   - siteid: integer representing the index of this list of milestones
+   - vectors: a list of lists of floats, or of numpy arrays, that define the pathway out of the active site, and in turn, the locations where the ligand will be placed
+   - absolute: boolean defining whether this milestone will remain stationary in space regardless of how the receptor moves  
+  Output:
+   - milestones: a list of milestone objects
+  '''
+    
+  milestones = []
+  lowest_radius = radius_list[0] # the lowest radius
+  #total_spherical_milestones = 0 #TODO: remove
+  spheres_in_site = len(radius_list)
+  #cur_vector = vectors[0] # TODO: remove
+  for i in range(spheres_in_site): # loop through all the milestone radii
+    radius = radius_list[i]
+    cartesian_radius = sqrt(radius**2/num_pairs) # TODO: verify this is right
+    anchor = find_spherical_anchor_from_vectors(origin, cartesian_radius, vectors)# now we need to find the anchor - the location where the ligand will be placed
+    
+    milestone = RMSD_Milestone(i, siteid, absolute, md=seekrcalc.project.md, bd=seekrcalc.project.bd)
+    milestone.center_atom_indices = atom_indices
+    milestone.center_vec = origin
+    milestone.radius = radius
+    milestone.anchor = anchor
+    if i > 0:
+      milestone.neighbors.append(i-1) # if we are the furthest milestone in either direction, then include no neighbors
+    #else:
+      #if not k_off: milestone.end = True
+    if i < spheres_in_site - 1:
+      milestone.neighbors.append(i+1)
+      milestone.bd = False
+    else: # then this is the outermost one, so set BD to true
+      milestone.bd = True
+      milestone.bd_adjacent = milestones[-1] # make the adjacent milestone the previously created md milestone
+      milestone.end = True
+      milestone.md = False
+    milestone.fullname = "%d_%d_%s_%.1f_%.1f_%.1f" % (i+(spheres_in_site*int(siteid)), i, siteid, anchor[0], anchor[1], anchor[2])
+    milestones.append(milestone)
+  return milestones
+
+def print_RMSD_milestone_info(milestones):
+  '''Print the information in all milestones for debug and verbosity purposes.
+  Input:
+   - milestones: a list of milestone objects to print information about.
+  Output:
+   - None
+   '''
+  for milestone in milestones:
+    print "Milestone index:", milestone.index, "siteid:", milestone.siteid, "origin:", milestone.center_vec, "center_atoms:", milestone.center_atom_indices
+    print "  num neighbors:", len(milestone.neighbors), "anchor:", milestone.anchor, "md:", milestone.md, "bd:", milestone.bd, "bd_adjacent:", milestone.bd_adjacent
+    print "  end:", milestone.end, "fullname:", milestone.fullname, "radius:", milestone.radius
   return
 
 
