@@ -173,8 +173,9 @@ def read_data_file_transitions_down(data_file_name, destination='1', last_frame=
   return downward_indices
   
 
+downward = True
 print "Parse arguments"
-if len(sys.argv) not in [4, 5, 7]:
+if len(sys.argv) < 4:
   print "Usage:\npython dig_deeper.py milestone pickle method *arguments"
   print "Available arguments for 'method': first, last, similar, "
   print "Usage for 'similar' method:"
@@ -182,6 +183,7 @@ if len(sys.argv) not in [4, 5, 7]:
   print "Usage for 'index' method:"
   print "python dig_deeper.py milestone pickle index number"
   print "be sure to provide reference PDB and ligand resname if using 'similar' method argument."
+  print "if the last argument is 'up' then an upward-going trajectory is chosen."
   exit()
 
 which = int(sys.argv[1])
@@ -197,12 +199,18 @@ if method == 'similar':
   lig_resname = sys.argv[6]
 elif method == 'index':
   index = int(sys.argv[4])
+  
+if sys.argv[-1] == 'up':
+  downward = False
 
 print "Loading SEEKR calculation."
 me = seekr.openSeekrCalc(picklename)
 
 milestone = me.milestones[which]
-lower_milestone = me.milestones[which-1]
+if downward:
+  lower_milestone = me.milestones[which-1] # TODO: hacky
+else:
+  lower_milestone = me.milestones[which+1]
 
 # define all directories and files
 fwd_rev_dir = os.path.join(me.project.rootdir, milestone.directory, 'md', 'fwd_rev')
@@ -219,7 +227,10 @@ new_inpcrd = os.path.join(lower_milestone_building, 'holo.rst7')
 
 # figure out which forward to pull out from
 print "Attempting to extract the last frame of a successful downward trajectory."
-downward_indices = read_data_file_transitions_down(data_file_name)
+if downward:
+  downward_indices = read_data_file_transitions_down(data_file_name)
+else:
+  downward_indices = read_data_file_transitions_down(data_file_name, destination='3') # TODO: hacky
 
 dcd_list = sorted(glob.glob(os.path.join(fwd_rev_dir, 'forward*.dcd')), key=seekr.sort_forward_dcd_key)
 
@@ -241,7 +252,7 @@ elif method=='similar':
     #dcd_list.append(os.path.join(fwd_rev_dir, 'forward%i_0.dcd' % dcd_index))
     dcd_downward_list.append(dcd_list[dcd_index])
   last_fwd_frame = find_closest_ligand_orientation(prmtop, dcd_downward_list, ref_parm7, ref_rst7, lig_resname, lower_milestone.center_atom_indices)
-elif method=='index'
+elif method=='index':
   downward_dcd = dcd_list[downward_indices[index]]
   print "Extracting frame from file:", downward_dcd
   last_fwd_frame = seekr.load_last_mdtraj_frame(downward_dcd, prmtop)
