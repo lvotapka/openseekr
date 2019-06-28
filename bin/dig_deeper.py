@@ -174,9 +174,13 @@ def read_data_file_transitions_down(data_file_name, destination='1', last_frame=
   
 
 print "Parse arguments"
-if len(sys.argv) not in [4, 7]:
-  print "Usage:\npython dig_deeper.py milestone pickle method [ref_parm7] [ref_rst7] [lig_resname]"
-  print "Available arguments for 'method': first, last, similar"
+if len(sys.argv) not in [4, 5, 7]:
+  print "Usage:\npython dig_deeper.py milestone pickle method *arguments"
+  print "Available arguments for 'method': first, last, similar, "
+  print "Usage for 'similar' method:"
+  print "python dig_deeper.py milestone pickle similar ref_parm7 ref_rst7  lig_resname"
+  print "Usage for 'index' method:"
+  print "python dig_deeper.py milestone pickle index number"
   print "be sure to provide reference PDB and ligand resname if using 'similar' method argument."
   exit()
 
@@ -191,6 +195,8 @@ if method == 'similar':
   ref_parm7 = sys.argv[4]
   ref_rst7 = sys.argv[5]
   lig_resname = sys.argv[6]
+elif method == 'index':
+  index = int(sys.argv[4])
 
 print "Loading SEEKR calculation."
 me = seekr.openSeekrCalc(picklename)
@@ -235,6 +241,13 @@ elif method=='similar':
     #dcd_list.append(os.path.join(fwd_rev_dir, 'forward%i_0.dcd' % dcd_index))
     dcd_downward_list.append(dcd_list[dcd_index])
   last_fwd_frame = find_closest_ligand_orientation(prmtop, dcd_downward_list, ref_parm7, ref_rst7, lig_resname, lower_milestone.center_atom_indices)
+elif method=='index'
+  downward_dcd = dcd_list[downward_indices[index]]
+  print "Extracting frame from file:", downward_dcd
+  last_fwd_frame = seekr.load_last_mdtraj_frame(downward_dcd, prmtop)
+else:
+  raise Exception, "Method not allowed: %s" % method
+
 last_fwd_frame.save_pdb(lower_temp_equil_filename)
 last_fwd_frame.save_pdb(lower_milestone_holo)
 last_fwd_frame.save_amberrst7(new_inpcrd)
