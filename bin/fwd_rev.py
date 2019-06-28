@@ -219,7 +219,10 @@ def sort_forward_dcd_key(forward_dcd):
   the forward dcd files.'''
   basename = os.path.basename(forward_dcd).split('.')[0][7:] # TODO: this is hacky...
   index_list = basename.split('_')
-  sorting_list = [int(index_list[2]), int(index_list[0]), int(index_list[1])]
+  if len(index_list) == 3:
+    sorting_list = [int(index_list[2]), int(index_list[0]), int(index_list[1])]
+  elif len(index_list) == 2: # backwards compatibility
+    sorting_list = [int(index_list[0]), int(index_list[1])]
   return sorting_list
 
 def launch_fwd_rev_stage(seekrcalc, milestone, traj_base, end_on_middle_crossing, dcd_iterator, dcd_iterator_chunk=9e9, input_vels=None, 
