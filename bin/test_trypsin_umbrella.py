@@ -45,10 +45,10 @@ print "Using", ensemble, "ensemble for", num_steps, "steps."
 
 picklename = '/home/lvotapka/tryp_test/seekr_calc.pickle'
 me = seekr.openSeekrCalc(picklename)
-me.umbrella_stage.force_constant = 900.0*kilocalories_per_mole/angstroms**2
+me.umbrella_stage.force_constant = 90.0*kilocalories_per_mole/angstroms**2
 me.umbrella_stage.steps = num_steps # in 2*fs
 me.umbrella_stage.energy_freq = 10000
-me.umbrella_stage.traj_freq = 100000
+me.umbrella_stage.traj_freq = 10000
 if ensemble == 'npt':
   me.umbrella_stage.barostat = True # turn on barostat, run in NPT
   me.umbrella_stage.barostat_freq = 25
@@ -58,7 +58,7 @@ else:
   
 # Make sure you use a VMD selection by index (not serial) to find these numbers
 lig_selection = [3222, 3223, 3224, 3225, 3226, 3227, 3228, 3229, 3230]
-rec_selection = [2467, 2479, 2490, 2536, 2746, 2770, 2788]
+rec_selection = [2478, 2489, 2499, 2535, 2718, 2745, 2769, 2787, 2794, 2867, 2926]
 
 ##################################################################
 # DON'T MODIFY THE SECTION BELOW UNLESS YOU KNOW WHAT YOU'RE DOING
@@ -71,7 +71,22 @@ else:
   
 for milestone in all_milestones:
   if milestone.md:
-    if not milestone.openmm.prmtop_filename: continue
+    #if not milestone.openmm.prmtop_filename: 
+    #  print "parm7 file not found for milestone:", milestone.index
+    #  continue
+    if not milestone.openmm.prmtop_filename: 
+      prmtop_path = os.path.join(me.project.rootdir, milestone.directory, 'md', 'building', 'holo.parm7')
+      inpcrd_path = os.path.join(me.project.rootdir, milestone.directory, 'md', 'building', 'holo.rst7')
+      if os.path.exists(prmtop_path) and os.path.exists(inpcrd_path):
+        milestone.openmm.prmtop_filename = prmtop_path
+        milestone.openmm.inpcrd_filename = inpcrd_path
+        inpcrd = AmberInpcrdFile(inpcrd_path)
+        milestone.box_vectors = inpcrd.boxVectors
+        print "box_vectors:", milestone.box_vectors
+      else:
+        print "prmtop or inpcrd file not found for milestone %d. Skipping..." % milestone.index
+        continue
+    
     print "launching constant pressure umbrella sampling for milestone:", which
     if rec_selection:
       milestone.atom_selection_1 = rec_selection
