@@ -57,7 +57,7 @@ else:
   me.umbrella_stage.barostat = False
   
 # Make sure you use a VMD selection by index (not serial) to find these numbers
-lig_selection = [3222, 3223, 3224, 3225, 3226, 3227, 3228, 3229, 3230]
+lig_selection = [3221, 3222, 3223, 3224, 3225, 3226, 3227, 3228, 3229]
 rec_selection = [2478, 2489, 2499, 2535, 2718, 2745, 2769, 2787, 2794, 2867, 2926]
 
 ##################################################################
