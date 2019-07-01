@@ -14,6 +14,8 @@ import sys, os, time
 from sys import stdout
 from seekr import amber
 from copy import deepcopy
+import parmed
+
 
 from seekrplugin import SeekrForce
 from adv_template import Adv_template
@@ -329,7 +331,14 @@ def launch_fwd_rev_stage(seekrcalc, milestone, traj_base, end_on_middle_crossing
           pdb_last_frame_name = os.path.join(seekrcalc.project.rootdir, 
                                   milestone.directory, 'md', 'fwd_rev', 
                                   pdb_last_frame_base_name)
-          amber.save_restart(seekrcalc, milestone, pdb_last_frame_name)
+          if seekrcalc.building.ff == 'amber':
+            amber_parm = parmed.amber.AmberParm(milestone.openmm.prmtop_filename, milestone.openmm.inpcrd_filename)
+            amber_parm.positions = positions
+            amber_parm.save(pdb_last_frame_name, overwrite=True)
+          elif seekrcalc.building.ff == 'charmm':
+            raise Exception, "charmm ff not yet implemented."
+          else:
+            raise Exception, "ff not yet implemented: %s" % seekrcalc.building.ff
         
     i += 1
     
