@@ -198,6 +198,65 @@ def find_spherical_anchor_from_vectors(origin, radius, vectors):
     summed_vectors += cur_vector
   return anchor
 
+def get_points_diff(points1, points2):
+  '''Find vectors (points_diff) that points from points1 to points2'''
+  for i in len(points1):
+    points_diff = points2 - points1
+  return points_diff
+
+def points_rmsd(points_diff):
+  '''Finds the RMSD between two sets of points'''
+  msd = 0.0
+  for i in len(points_diff):
+    #point1 = points1[i]
+    #point2 = points2[i]
+    #points_diff = point2 - point1
+    msd += np.dot(points_diff, points_diff)
+  rmsd = np.sqrt(msd)
+  return rmsd
+  
+
+def find_rmsd_anchor_from_vectors(points1, points2, vector, radius, TOL=0.0001):
+  '''Given a set of points in the receptor (points1) and ligand (points2)
+  the algorithm uses a Babylonian algorithm to choose a location for points2
+  that lies along the vector
+  by summing them until they cross the radius. Then, the ligand will be placed
+  at that location - the anchor.
+  Input:
+   - origin: 3-membered numpy array representing the center of the spherical 
+  milestone
+   - radius: float representing the radius of the milestone
+   - vectors: a list of 3-membered arrays representing vectors that define the
+   'pathway' out of the receptor's active site
+  Output:
+   - anchor: 3-array representing the location of the anchor.
+  '''
+  assert len(points1) == len(points2), "there must be the same number of points in the points1 and points2 variables."
+  n = len(points1)
+  err = TOL + 1.0
+  max_count = 20000
+  counter = 0
+  upper_factor = 1.0
+  points_diff = get_points_diff(points1, points2)
+  while err > TOL and counter < max_count:
+    upper_rmsd = points_rmsd(upper)
+  
+  
+  
+  summed_vectors = np.array([0.0,0.0,0.0]) # starting from the very beginning of the origin 
+  for i in range(len(vectors)):
+    cur_vector = vectors[i]
+    cur_vector_prime = cur_vector / np.linalg.norm(cur_vector)
+    if i == len(vectors)-1 or np.linalg.norm(summed_vectors + cur_vector) > radius: # then this is the last vector, so the anchor has to be placed in line with this one
+      a = np.dot(cur_vector_prime,cur_vector_prime) # 'a' for the quadratic formula
+      b = 2.0 * np.dot(summed_vectors,cur_vector_prime) # 'b' for the quadratic formula
+      c = np.dot(summed_vectors,summed_vectors) - radius**2 # 'c' for the quadratic formula
+      roots = quadratic_formula(a,b,c)
+      anchor = origin + summed_vectors + cur_vector_prime * min(map(abs,roots)) # get the root with the smallest absolute value from the quadratic formula
+      return anchor
+    summed_vectors += cur_vector
+  return anchor
+
 def find_planar_z_anchor_from_vectors(origin, offset, vectors):
   '''Given an origin and radius of the milestone, will follow the vectors list
   by summing them until they cross the radius. Then, the ligand will be placed
@@ -451,8 +510,9 @@ def print_ellipsoidal_milestone_info(milestones):
     print "end:", milestone.end, "fullname:", milestone.fullname, "nu:", milestone.nu
   return
 
-def generate_RMSD_milestones(seekrcalc, atom_indices, origin, radius_list, 
-                             num_pairs, siteid, vectors, absolute=False):
+def generate_RMSD_milestones(seekrcalc, atom_indices1, atom_indices2, points1,
+                             points2, radius_list, 
+                             num_pairs, siteid, vector, absolute=False):
   '''Create a list of concentric RMSD milestones around an atom selection.
   Input:
    - atom_indices: a list of integers representing the atom indices that this milestone is centered on
@@ -468,12 +528,11 @@ def generate_RMSD_milestones(seekrcalc, atom_indices, origin, radius_list,
   milestones = []
   lowest_radius = radius_list[0] # the lowest radius
   #total_spherical_milestones = 0 #TODO: remove
-  spheres_in_site = len(radius_list)
+  hyperspheres_in_site = len(radius_list)
   #cur_vector = vectors[0] # TODO: remove
-  for i in range(spheres_in_site): # loop through all the milestone radii
+  for i in range(hyperspheres_in_site): # loop through all the milestone radii
     radius = radius_list[i]
-    cartesian_radius = sqrt(radius**2/num_pairs) # TODO: verify this is right
-    anchor = find_spherical_anchor_from_vectors(origin, cartesian_radius, vectors)# now we need to find the anchor - the location where the ligand will be placed
+    anchor = find_rmsd_anchor_from_vectors(points1, points2, vector, radius)# now we need to find the anchor - the location where the ligand will be placed
     
     milestone = RMSD_Milestone(i, siteid, absolute, md=seekrcalc.project.md, bd=seekrcalc.project.bd)
     milestone.center_atom_indices = atom_indices
