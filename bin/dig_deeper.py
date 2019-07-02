@@ -198,7 +198,7 @@ if method == 'similar':
   ref_rst7 = sys.argv[5]
   lig_resname = sys.argv[6]
 elif method == 'index':
-  index = int(sys.argv[4])
+  index = sys.argv[4]
   
 if sys.argv[-1] == 'up':
   downward = False
