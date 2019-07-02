@@ -176,12 +176,12 @@ def read_data_file_transitions_down(data_file_name, destination='1', last_frame=
 downward = True
 print "Parse arguments"
 if len(sys.argv) < 4:
-  print "Usage:\npython dig_deeper.py milestone pickle method *arguments"
-  print "Available arguments for 'method': first, last, similar, "
+  print "Usage:\npython dig_deeper.py MILESTONE PICKLE METHOD *ARGUMENTS"
+  print "Available arguments for 'METHOD': first, last, similar, "
   print "Usage for 'similar' method:"
-  print "python dig_deeper.py milestone pickle similar ref_parm7 ref_rst7  lig_resname"
+  print "python dig_deeper.py MILESTONE PICKLE similar REF_PARM7 REF_RST7  LIG_RESNAME"
   print "Usage for 'index' method:"
-  print "python dig_deeper.py milestone pickle index number"
+  print "python dig_deeper.py MILESTONE PICKLE index FILENAME"
   print "be sure to provide reference PDB and ligand resname if using 'similar' method argument."
   print "if the last argument is 'up' then an upward-going trajectory is chosen."
   exit()
@@ -253,7 +253,7 @@ elif method=='similar':
     dcd_downward_list.append(dcd_list[dcd_index])
   last_fwd_frame = find_closest_ligand_orientation(prmtop, dcd_downward_list, ref_parm7, ref_rst7, lig_resname, lower_milestone.center_atom_indices)
 elif method=='index':
-  downward_dcd = dcd_list[downward_indices[index]]
+  downward_dcd = os.path.join(fwd_rev_dir, index)
   print "Extracting frame from file:", downward_dcd
   last_fwd_frame = seekr.load_last_mdtraj_frame(downward_dcd, prmtop)
 else:
