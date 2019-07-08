@@ -111,6 +111,39 @@ def create_ellipsoidal_forces(seekrcalc, milestone, system):
   if verbose: print "new_force.getNumPerBondParameters():", new_force.getNumPerBondParameters()
   return new_force
 
+def create_rmsd_forces(seekrcalc, milestone, system):
+  '''
+  Add the umbrella force: which maintains the ligand on the surface of the 
+  spherical milestone.
+  Input:
+   - seekrcalc: The SeekrCalculation object that contains all the settings for 
+       the SEEKR calculation.
+   - milestone: the Milestone() object to run the simulation for
+   - system: the OpenMM system object to add the force to
+  Output:
+   - None
+  '''
+  assert len(milestone.atom_indices1) == len(milestone.atom_indices2), "milestone must have the same number of indices in both molecules for RMSD."
+  n = len(milestone.atom_indices1)
+  rmsd_list = []
+  for i in range(n):
+    rmsd_list.append('distance(g%d, g%d)^2' % (i*2+1,i*2+2))
+  rmsd_string = '+'.join(rmsd_list)
+  force_string = '0.5*k*(%s-radius^2)' % rmsd_string
+  print "RMSD umbrella force using string:", force_string
+  new_force = CustomCentroidBondForce(2*n, force_string)
+  k = new_force.addGlobalParameter('k', seekrcalc.umbrella_stage.force_constant)
+  r0 = new_force.addGlobalParameter('radius', milestone.radius*angstrom)
+  groups = []
+  for i in range(n):
+    groups.append(new_force.addGroup(milestone.atom_indices1[i]))
+    groups.append(new_force.addGroup(milestone.atom_indices2[i]))
+  new_force.addBond(groups, [])
+  if verbose: print "k:", seekrcalc.umbrella_stage.force_constant, "radius:", milestone.radius*angstrom, "groups1:", milestone.atom_indices1, "groups2:", milestone.atom_indices2
+  if verbose: print "new_force.getNumGlobalParameters():", new_force.getNumGlobalParameters()
+  if verbose: print "new_force.getNumPerBondParameters():", new_force.getNumPerBondParameters()
+  return new_force
+
 def prep_umbrella_amber(seekrcalc, milestone):
   '''Prepare a system that will use the AMBER forcefield
   Input:
@@ -148,7 +181,7 @@ def prep_umbrella_charmm(seekrcalc, milestone):
                               milestone.openmm.par_filename)
 
   system = psf.createSystem(params, 
-                            nonbondedMethod=nonbondedCutoff=1.2*nanometer,
+                            nonbondedMethod=1.2*nanometer,
                             nonbondedCutoff=None)
   return system
 
@@ -222,7 +255,20 @@ def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umb
   simulation.reporters.append(StateDataReporter(stdout, seekrcalc.umbrella_stage.energy_freq, step=True, potentialEnergy=True, temperature=True, volume=True))
   simulation.reporters.append(DCDReporter(umbrella_traj, seekrcalc.umbrella_stage.traj_freq))
   starttime = time.time()
-  simulation.step(seekrcalc.umbrella_stage.steps)
+  
+  state_filename = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'umbrella', 'backup.state')
+  current_step = 0
+  while current_step < seekrcalc.umbrella_stage.steps:
+  try:
+    simulation.saveState(state_filename)
+    print "running %d steps" % seekrcalc.umbrella_stage.traj_freq
+    simulation.step(seekrcalc.umbrella_stage.traj_freq)
+    current_step = current_step + seekrcalc.umbrella_stage.traj_freq
+  except ValueError:
+    print "Alert! NaN error detected. Restarting from saved state."
+    simulation.loadState(state_filename)
+    
+  #simulation.step(seekrcalc.umbrella_stage.steps) # old way: simulate steps directly
   print "time:", time.time() - starttime, "s"
   end_state = simulation.context.getState(getPositions=True)
   ending_box_vectors = end_state.getPeriodicBoxVectors()

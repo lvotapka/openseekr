@@ -93,7 +93,7 @@ def generate_configs(seekrcalc):
   if verbose: print "Generating structural configurations..."
   parser = pdb.Big_PDBParser()
   if verbose: print "now loading structures"
-
+  holo_config_wet = None
   # Read and/or create pickle files for the structures to save I/O time
   ligand_pkl_filename = os.path.join(seekrcalc.project.rootdir, "ligand.pkl")
   receptor_pkl_wet_filename = os.path.join(seekrcalc.project.rootdir, "receptor.pkl")
@@ -110,10 +110,13 @@ def generate_configs(seekrcalc):
   milestones = seekrcalc.milestones
   configs = []
   starttime = time.time()
-  struct_center = pdb.center_of_mass(ligand)
   if verbose: print "Generating", len(milestones), "ligand configurations"
   for milestone in milestones:
     new_ligand = deepcopy(ligand) # copy the entire structure
+    if milestone.lig_center is not None:
+      struct_center = milestone.lig_center
+    else:
+      struct_center = pdb.center_of_mass(ligand)
     new_ligand.moveby(-struct_center) # reposition ligand structure over the origin
     new_ligand.moveby(milestone.anchor) # move ligand to the anchor location
     new_ligand.struct_id = milestone.fullname
@@ -152,5 +155,7 @@ def generate_configs(seekrcalc):
       dry_holo_filename = milestone.openmm.dry_holo_pdb_filename
       if verbose: print "writing file:", dry_holo_filename
       holo_config_dry.save(dry_holo_filename, amber=True, standard=False) # write the holo structure into the md directory
+  
+  assert holo_config_wet != None, "All structures clashed. Consider adding more milestones. Exiting..."
   return holo_config_wet, last_insert_index, last_last_ligand_index
 
