@@ -120,7 +120,20 @@ def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umb
   simulation.reporters.append(StateDataReporter(stdout, seekrcalc.umbrella_stage.energy_freq, step=True, potentialEnergy=True, temperature=True, volume=True))
   simulation.reporters.append(DCDReporter(umbrella_traj, seekrcalc.umbrella_stage.traj_freq))
   starttime = time.time()
-  simulation.step(seekrcalc.umbrella_stage.steps)
+  
+  state_filename = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'umbrella', 'backup.state')
+  current_step = 0
+  while current_step < seekrcalc.umbrella_stage.steps:
+  try:
+    simulation.saveState(state_filename)
+    print "running %d steps" % seekrcalc.umbrella_stage.traj_freq
+    simulation.step(seekrcalc.umbrella_stage.traj_freq)
+    current_step = current_step + seekrcalc.umbrella_stage.traj_freq
+  except ValueError:
+    print "Alert! NaN error detected. Restarting from saved state."
+    simulation.loadState(state_filename)
+    
+  #simulation.step(seekrcalc.umbrella_stage.steps) # old way: simulate steps directly
   print "time:", time.time() - starttime, "s"
   end_state = simulation.context.getState(getPositions=True)
   ending_box_vectors = end_state.getPeriodicBoxVectors()
