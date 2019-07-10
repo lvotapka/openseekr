@@ -201,12 +201,12 @@ class Structure():
     index_counter = 0
     found_resids = set() # just to keep track of all the resids given that are ACTUALLY in this pdb
 
-    while index_counter < self.num_atoms: # for all atoms
+    while index_counter < len(self.atoms): # for all atoms
       if self.atoms[index_counter].resid in resids:
-        self.atoms.pop(index_counter)
+        found_resid = self.atoms.pop(index_counter)
         self.num_atoms -= 1
         if self.num_atoms == 0: break
-        found_resids.add(self.atoms[index_counter].resid)
+        found_resids.add(found_resid)
         #resids.remove(self.atoms[index_counter].resid)
       else:
         self.atoms[index_counter].index = index_counter+1 # set the internal index numbers to be incremental
@@ -637,11 +637,12 @@ def center (structure):
 
   return ((max(xlist) + min(xlist))*0.5, (max(ylist) + min(ylist))*0.5, (max(zlist) + min(zlist)) * 0.5)
 
-def center_of_mass (structure, weighted=True, heavy_atoms=False):
+def center_of_mass (structure, weighted=True, heavy_atoms=False, indices=None):
   '''finds the center of mass of a structure. Returns a numpy vector'''
   total_weight = 0.0 # keeps track of the weight of the molecule
   coord_sum = numpy.array([0.0,0.0,0.0]) # keeps track of the sum of the coordinates
   for atom in structure.get_atoms(): # for every atom in the structure
+    if indices and atom.index not in indices: continue
     if heavy_atoms==True and atom.element=='H': continue # we don't care about the hydrogens, so skip them
     if weighted:
       atom_weight = atomic_weights[atom.element]

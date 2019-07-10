@@ -175,7 +175,7 @@ def read_data_file_transitions_down(data_file_name, destination='1', last_frame=
 
 print "Parse arguments"
 if len(sys.argv) not in [4, 7]:
-  print "Usage:\npython dig_deeper.py milestone pickle method [ref_parm7] [ref_rst7] [lig_resname]"
+  print "Usage:\npython dig_deeper.py MILESTONE PICKLE METHOD [ref_parm7] [ref_rst7] [lig_resname]"
   print "Available arguments for 'method': first, last, similar"
   print "be sure to provide reference PDB and ligand resname if using 'similar' method argument."
   exit()

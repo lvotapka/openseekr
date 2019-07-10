@@ -646,7 +646,8 @@ def build_bd(seekrcalc):
   starting_surfaces = []
   for milestone in seekrcalc.milestones:
     if milestone.end:
-      b_surface_criteria.append({'centerx':milestone.center_vec[0], 'centery':milestone.center_vec[1], 'centerz':milestone.center_vec[2], 'ligx':lig_center[0], 'ligy':lig_center[1], 'ligz':lig_center[2], 'radius':milestone.radius, 'index':milestone.index, 'siteid':milestone.siteid}) # add every site to the criteria list
+      if milestone.type == 'spherical':
+        b_surface_criteria.append({'centerx':milestone.center_vec[0], 'centery':milestone.center_vec[1], 'centerz':milestone.center_vec[2], 'ligx':lig_center[0], 'ligy':lig_center[1], 'ligz':lig_center[2], 'radius':milestone.radius, 'index':milestone.index, 'siteid':milestone.siteid}) # add every site to the criteria list
     if milestone.bd:
       starting_surfaces.append({'site':milestone.siteid, 'radius':milestone.radius, 'index':milestone.index})
   
@@ -691,7 +692,8 @@ def build_bd(seekrcalc):
         else:
           proper_radius = surface['radius']
           proper_index = surface['index']
-        criteria.append({'centerx':milestone.center_vec[0], 'centery':milestone.center_vec[1], 'centerz':milestone.center_vec[2], 'ligx':lig_center[0], 'ligy':lig_center[1], 'ligz':lig_center[2], 'radius':proper_radius, 'index':proper_index, 'siteid':milestone.siteid})
+        if milestone.type == "spherical":
+          criteria.append({'centerx':milestone.center_vec[0], 'centery':milestone.center_vec[1], 'centerz':milestone.center_vec[2], 'ligx':lig_center[0], 'ligy':lig_center[1], 'ligz':lig_center[2], 'radius':proper_radius, 'index':proper_index, 'siteid':milestone.siteid})
       '''
       criteria = [] #[[(31.121, 37.153, 35.253), (38.742, 51.710, 68.137), 9.0],] # a list of all reaction criteria
       for site in settings['starting_surfaces']:
