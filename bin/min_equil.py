@@ -30,11 +30,15 @@ def run_min_equil(seekrcalc):
       # minimize energy
       simulation = milestone.openmm.simulation
       
+      state = simulation.context.getState()
+      print "box_vectors:"
+      print(state.getPeriodicBoxVectors())
+      
       if verbose: print "Running energy minimization on milestone:", milestone.index
       simulation.minimizeEnergy()
       
       reporter_output = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'temp_equil', 'temp_equil.dcd')
-      simulation.reporters.append(DCDReporter(reporter_output, 100))
+      simulation.reporters.append(DCDReporter(reporter_output, 1000)) # TODO: allow users to modify this quantity
       
       if verbose: print "Running temperature equilibration."
       for i, temperature in enumerate(seekrcalc.min_equil.temp_equil_temperatures):

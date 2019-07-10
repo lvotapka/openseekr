@@ -129,15 +129,15 @@ def create_rmsd_forces(seekrcalc, milestone, system):
   for i in range(n):
     rmsd_list.append('distance(g%d, g%d)^2' % (i*2+1,i*2+2))
   rmsd_string = '+'.join(rmsd_list)
-  force_string = '0.5*k*(%s-radius^2)' % rmsd_string
+  force_string = '0.5*k*(sqrt(%s)-radius)^2' % rmsd_string
   print "RMSD umbrella force using string:", force_string
   new_force = CustomCentroidBondForce(2*n, force_string)
   k = new_force.addGlobalParameter('k', seekrcalc.umbrella_stage.force_constant)
   r0 = new_force.addGlobalParameter('radius', milestone.radius*angstrom)
   groups = []
   for i in range(n):
-    groups.append(new_force.addGroup(milestone.atom_indices1[i]))
-    groups.append(new_force.addGroup(milestone.atom_indices2[i]))
+    groups.append(new_force.addGroup([milestone.atom_indices1[i]]))
+    groups.append(new_force.addGroup([milestone.atom_indices2[i]]))
   new_force.addBond(groups, [])
   if verbose: print "k:", seekrcalc.umbrella_stage.force_constant, "radius:", milestone.radius*angstrom, "groups1:", milestone.atom_indices1, "groups2:", milestone.atom_indices2
   if verbose: print "new_force.getNumGlobalParameters():", new_force.getNumGlobalParameters()
@@ -155,12 +155,12 @@ def prep_umbrella_amber(seekrcalc, milestone):
   '''
   prmtop_filename = milestone.openmm.prmtop_filename
   inpcrd_filename = milestone.openmm.inpcrd_filename
-  if verbose: print "opening files:", prmtop_filename, inpcrd_filename, pdb_filename
+  if verbose: print "opening files:", prmtop_filename, inpcrd_filename
   prmtop = AmberPrmtopFile(prmtop_filename)
   inpcrd = AmberInpcrdFile(inpcrd_filename)
   system = prmtop.createSystem(nonbondedMethod=PME, nonbondedCutoff=1*nanometer,
                                constraints=HBonds)
-  return system
+  return system, prmtop, inpcrd
   
 def prep_umbrella_charmm(seekrcalc, milestone):
   '''Prepare a system that will use the CHARMM forcefield
@@ -185,7 +185,7 @@ def prep_umbrella_charmm(seekrcalc, milestone):
                             nonbondedCutoff=None)
   return system
 
-def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umbrella1.dcd'):
+def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umbrella1.dcd', minimize=False):
   '''launch an umbrella sampling job.
   Input:
    - seekrcalc: The SeekrCalculation object that contains all the settings for 
@@ -201,16 +201,18 @@ def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umb
    - umbrella_traj: The absolute path to the file of the umbrella trajectory.
   '''
   if seekrcalc.building.ff.lower() == 'amber':
-    system = prep_umbrella_amber(seekrcalc, milestone)
+    system, prmtop, inpcrd = prep_umbrella_amber(seekrcalc, milestone)
+    
   elif seekrcalc.building.ff.lower() == 'charmm':
     system = prep_umbrella_charmm(seekrcalc, milestone)
   else:
-    raise Exception, "Forcefield %s not yet implemented in openseekr" % seekrcalc.building.ff
+    raise Exception, "Forcefield %s not yet implemented." % seekrcalc.building.ff
   
   
   pdb_filename = milestone.openmm.umbrella_pdb_filename
   if os.path.exists(pdb_filename):
     pdb = PDBFile(pdb_filename)
+    if verbose: print("assigning positions based on file:", pdb_filename)
     my_positions = pdb.positions
   else: # This will restart a failed umbrella from the last frame
     basename = os.path.basename(pdb_filename)
@@ -228,10 +230,12 @@ def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umb
   properties = seekrcalc.openmm.properties
   
   # add restraints
-  if milestone.__class__.__name__ in ['Concentric_Spherical_Milestone']:
+  if milestone.type == 'spherical':
     new_force = create_spherical_forces(seekrcalc, milestone, system)
-  elif milestone.__class__.__name__ in ['Planar_Z_Milestone']:
+  elif milestone.type == 'planar_z':
     new_force = create_planar_z_forces(seekrcalc, milestone, system)
+  elif milestone.type == 'rmsd':
+    new_force = create_rmsd_forces(seekrcalc, milestone, system)
   else:
     raise Exception, "milestone.type = %s not implemented." % milestone.type
   
@@ -240,7 +244,11 @@ def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umb
     barostat = MonteCarloBarostat(seekrcalc.umbrella_stage.barostat_pressure, seekrcalc.master_temperature*kelvin, seekrcalc.umbrella_stage.barostat_freq)
     system.addForce(barostat)
   
-  simulation = Simulation(prmtop.topology, system, integrator, platform, properties)
+  if seekrcalc.building.ff.lower() == 'amber':
+    simulation = Simulation(prmtop.topology, system, integrator, platform, properties)
+  else:
+    raise Exception, "Forcefield %s not yet implemented." % seekrcalc.building.ff
+    
   simulation.context.setPositions(my_positions)
   simulation.context.setVelocitiesToTemperature(seekrcalc.master_temperature*kelvin)
   if box_vectors:
@@ -249,7 +257,8 @@ def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umb
     simulation.context.setPeriodicBoxVectors(*inpcrd.boxVectors)
   
   if verbose: print "Running energy minimization on milestone:", milestone.index
-  simulation.minimizeEnergy()
+  if minimize:
+    simulation.minimizeEnergy()
   
   umbrella_traj = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'umbrella', traj_name)
   simulation.reporters.append(StateDataReporter(stdout, seekrcalc.umbrella_stage.energy_freq, step=True, potentialEnergy=True, temperature=True, volume=True))
@@ -258,15 +267,17 @@ def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umb
   
   state_filename = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'umbrella', 'backup.state')
   current_step = 0
+  failed_step = 0
+  print "running %d steps" % seekrcalc.umbrella_stage.steps
   while current_step < seekrcalc.umbrella_stage.steps:
-  try:
-    simulation.saveState(state_filename)
-    print "running %d steps" % seekrcalc.umbrella_stage.traj_freq
-    simulation.step(seekrcalc.umbrella_stage.traj_freq)
-    current_step = current_step + seekrcalc.umbrella_stage.traj_freq
-  except ValueError:
-    print "Alert! NaN error detected. Restarting from saved state."
-    simulation.loadState(state_filename)
+    try:
+      simulation.saveState(state_filename)
+      simulation.step(seekrcalc.umbrella_stage.traj_freq)
+      current_step = current_step + seekrcalc.umbrella_stage.traj_freq
+    except ValueError:
+      print "Alert! NaN error detected. Restarting from saved state."
+      assert failed_step != current_step, "NaNs occurred twice in a row. Simulation appears to be stuck. Quitting..."
+      simulation.loadState(state_filename)
     
   #simulation.step(seekrcalc.umbrella_stage.steps) # old way: simulate steps directly
   print "time:", time.time() - starttime, "s"

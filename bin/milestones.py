@@ -213,8 +213,9 @@ def get_points_diff(points1, points2):
   '''Find vectors (points_diff) that points from points1 to points2'''
   assert len(points1) ==  len(points2), "the lengths of points1 and points2 must be equal."
   n = len(points1)
+  points_diff = []
   for i in range(n):
-    points_diff = points2[i] - points1[i]
+    points_diff.append(points1[i] - points2[i])
   return points_diff
 
 def points_rmsd(points_diff):
@@ -274,8 +275,8 @@ def find_rmsd_anchor_from_vectors(points1, points2, vector, radius, TOL=0.0001):
   n = len(points1)
   com1 = get_points_com(points1)
   com2 = get_points_com(points2)
-  print "com1:", com1
-  print "com2:", com2
+  points_diff_xtal = get_points_diff(points1, points2)
+  xtal_rmsd = points_rmsd(points_diff_xtal)
   points1_origin = subtract_vector_from_points(com1, points1)
   points2_origin = subtract_vector_from_points(com2, points2)
   points_diff_origin = get_points_diff(points1_origin, points2_origin)
@@ -289,7 +290,7 @@ def find_rmsd_anchor_from_vectors(points1, points2, vector, radius, TOL=0.0001):
     points2_vec_higher = add_vector_to_points(vec_higher, points2_origin)
     points_diff = get_points_diff(points1_origin, points2_vec_higher)
     rmsd = points_rmsd(points_diff)
-    print "rmsd:", rmsd
+    #print "rmsd:", rmsd
     if (rmsd - radius)**2 < TOL**2: # then we have found a radius that works
       #new_points2 = add_vector_to_points(com1, add_vector_to_points(vec_higher, points2_origin))
       anchor = com1 + vec_higher
@@ -302,15 +303,9 @@ def find_rmsd_anchor_from_vectors(points1, points2, vector, radius, TOL=0.0001):
       points2_vector = add_vector_to_points(vector, points2_origin)
       points_diff_vector = get_points_diff(points1_origin, points2_vector)
       rmsd2 = points_rmsd(points_diff_vector)
-      print "vec_lower:", vec_lower
-      print "vec_higher:", vec_higher
-      print "rmsd2:", rmsd2
-      print "radius:", radius
       if radius > rmsd2: # need to go higher
-        print "going higher"
         vec_lower = deepcopy(vector)
-      else:
-        print "going lower"
+      else: # need to go lower
         vec_higher = deepcopy(vector)
   
     counter += 1
@@ -603,7 +598,7 @@ def generate_RMSD_milestones(seekrcalc, atom_indices1, atom_indices2,
     milestone.atom_indices1 = atom_indices1
     milestone.atom_points1 = atom_points1
     milestone.atom_vec1 = com1
-    milestone.atom_indeces2 = atom_indices2
+    milestone.atom_indices2 = deepcopy(atom_indices2)
     milestone.atom_points2 = atom_points2
     milestone.atom_vec2 = anchor
     milestone.radius = radius
@@ -623,6 +618,7 @@ def generate_RMSD_milestones(seekrcalc, atom_indices1, atom_indices2,
       milestone.md = False
     milestone.fullname = "%d_%d_%s_%.1f_%.1f_%.1f" % (i+(hyperspheres_in_site*int(siteid)), i, siteid, anchor[0], anchor[1], anchor[2])
     milestones.append(milestone)
+    
   return milestones
 
 def print_RMSD_milestone_info(milestones):
@@ -667,3 +663,44 @@ class Test_milestones(unittest.TestCase):
     self.assertEqual(find_spherical_anchor_from_vectors(B2, A, 2.0), sqrt(3.0)-1.0) # check a vector against 45 degree angle
     '''
     return
+  
+  def test_get_points_diff(self):
+    '''Find vectors (points_diff) that points from points1 to points2'''
+    #print "get_points_diff(np.array([5.0, 5.0, 5.0]), np.array([2.0, 3.0, 4.0])):", get_points_diff(np.array([5.0, 5.0, 5.0]), np.array([2.0, 3.0, 4.0]))
+    self.assertTrue(np.array_equal([np.array([3.0, 2.0, 1.0])], get_points_diff([np.array([5.0, 5.0, 5.0])], [np.array([2.0, 3.0, 4.0])])))
+  
+  def test_points_rmsd(self):
+    '''Finds the RMSD between two sets of points'''
+    #print "points_rmsd(np.array([3.0, 4.0, 5.0])):", points_rmsd(np.array([3.0, 4.0, 5.0]))
+    self.assertAlmostEqual(np.sqrt(50.0), points_rmsd(np.array([3.0, 4.0, 5.0])))
+    
+
+  def test_get_points_com(self):
+    '''compute the center of mass of a vector.'''
+  
+    points = [np.array([-1.0, 2.0, 0.0]), np.array([1.0, 2.0, 0.0]),
+            np.array([0.0, 1.0, 0.0]), np.array([0.0, 3.0, 0.0]),
+            np.array([0.0, 2.0, -1.0]), np.array([0.0, 2.0, 1.0])]
+    #print "get_points_com(points):", get_points_com(points)
+    self.assertTrue(np.array_equal(np.array([0.0, 2.0, 0.0]), get_points_com(points)))
+  
+
+  def test_add_vector_to_points(self):
+    vector = np.array([-3.0, 4.0, 5.0])
+    points = [np.array([-1.0, 1.0, 0.0]), np.array([1.0, 1.0, 0.0])]
+    result = [np.array([-4.0, 5.0, 5.0]), np.array([-2.0, 5.0, 5.0])]
+    #print "result:", result
+    #print "add_vector_to_points(vector, points):", add_vector_to_points(vector, points)
+    self.assertTrue(np.array_equal(result[0], add_vector_to_points(vector, points)[0]))
+    self.assertTrue(np.array_equal(result[1], add_vector_to_points(vector, points)[1]))
+
+  def subtract_vector_from_points(self):
+    vector = np.array([-3.0, 4.0, 5.0])
+    points = [np.array([-1.0, 1.0, 0.0]), np.array([1.0, 1.0, 0.0])]
+    result = [np.array([2.0, -3.0, -5.0]), np.array([4.0, -3.0, -5.0])]
+    #print "result:", result
+    #print "add_vector_to_points(vector, points):", add_vector_to_points(vector, points)
+    self.assertEqual(result, add_vector_to_points(vector, points))
+
+if __name__ == "__main__":
+  unittest.main()
