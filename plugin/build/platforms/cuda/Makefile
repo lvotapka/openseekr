@@ -48,10 +48,10 @@ RM = /usr/local/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/astokely/planar/openseekr/plugin
+CMAKE_SOURCE_DIR = /home/astokely/SEEKR/openseekr/plugin
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/astokely/planar/openseekr/plugin/build
+CMAKE_BINARY_DIR = /home/astokely/SEEKR/openseekr/plugin/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -137,14 +137,14 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	cd /home/astokely/planar/openseekr/plugin/build && $(CMAKE_COMMAND) -E cmake_progress_start /home/astokely/planar/openseekr/plugin/build/CMakeFiles /home/astokely/planar/openseekr/plugin/build/platforms/cuda/CMakeFiles/progress.marks
-	cd /home/astokely/planar/openseekr/plugin/build && $(MAKE) -f CMakeFiles/Makefile2 platforms/cuda/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/astokely/planar/openseekr/plugin/build/CMakeFiles 0
+	cd /home/astokely/SEEKR/openseekr/plugin/build && $(CMAKE_COMMAND) -E cmake_progress_start /home/astokely/SEEKR/openseekr/plugin/build/CMakeFiles /home/astokely/SEEKR/openseekr/plugin/build/platforms/cuda/CMakeFiles/progress.marks
+	cd /home/astokely/SEEKR/openseekr/plugin/build && $(MAKE) -f CMakeFiles/Makefile2 platforms/cuda/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/astokely/SEEKR/openseekr/plugin/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /home/astokely/planar/openseekr/plugin/build && $(MAKE) -f CMakeFiles/Makefile2 platforms/cuda/clean
+	cd /home/astokely/SEEKR/openseekr/plugin/build && $(MAKE) -f CMakeFiles/Makefile2 platforms/cuda/clean
 .PHONY : clean
 
 # The main clean target
@@ -154,22 +154,22 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /home/astokely/planar/openseekr/plugin/build && $(MAKE) -f CMakeFiles/Makefile2 platforms/cuda/preinstall
+	cd /home/astokely/SEEKR/openseekr/plugin/build && $(MAKE) -f CMakeFiles/Makefile2 platforms/cuda/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /home/astokely/planar/openseekr/plugin/build && $(MAKE) -f CMakeFiles/Makefile2 platforms/cuda/preinstall
+	cd /home/astokely/SEEKR/openseekr/plugin/build && $(MAKE) -f CMakeFiles/Makefile2 platforms/cuda/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	cd /home/astokely/planar/openseekr/plugin/build && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /home/astokely/SEEKR/openseekr/plugin/build && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
 # Convenience name for target.
 platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/rule:
-	cd /home/astokely/planar/openseekr/plugin/build && $(MAKE) -f CMakeFiles/Makefile2 platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/rule
+	cd /home/astokely/SEEKR/openseekr/plugin/build && $(MAKE) -f CMakeFiles/Makefile2 platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/rule
 .PHONY : platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/rule
 
 # Convenience name for target.
@@ -179,7 +179,7 @@ SeekrPluginCUDA: platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/rule
 
 # fast build rule for target.
 SeekrPluginCUDA/fast:
-	cd /home/astokely/planar/openseekr/plugin/build && $(MAKE) -f platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/build.make platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/build
+	cd /home/astokely/SEEKR/openseekr/plugin/build && $(MAKE) -f platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/build.make platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/build
 .PHONY : SeekrPluginCUDA/fast
 
 src/CudaSeekrKernelFactory.o: src/CudaSeekrKernelFactory.cpp.o
@@ -188,7 +188,7 @@ src/CudaSeekrKernelFactory.o: src/CudaSeekrKernelFactory.cpp.o
 
 # target to build an object file
 src/CudaSeekrKernelFactory.cpp.o:
-	cd /home/astokely/planar/openseekr/plugin/build && $(MAKE) -f platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/build.make platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernelFactory.cpp.o
+	cd /home/astokely/SEEKR/openseekr/plugin/build && $(MAKE) -f platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/build.make platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernelFactory.cpp.o
 .PHONY : src/CudaSeekrKernelFactory.cpp.o
 
 src/CudaSeekrKernelFactory.i: src/CudaSeekrKernelFactory.cpp.i
@@ -197,7 +197,7 @@ src/CudaSeekrKernelFactory.i: src/CudaSeekrKernelFactory.cpp.i
 
 # target to preprocess a source file
 src/CudaSeekrKernelFactory.cpp.i:
-	cd /home/astokely/planar/openseekr/plugin/build && $(MAKE) -f platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/build.make platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernelFactory.cpp.i
+	cd /home/astokely/SEEKR/openseekr/plugin/build && $(MAKE) -f platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/build.make platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernelFactory.cpp.i
 .PHONY : src/CudaSeekrKernelFactory.cpp.i
 
 src/CudaSeekrKernelFactory.s: src/CudaSeekrKernelFactory.cpp.s
@@ -206,7 +206,7 @@ src/CudaSeekrKernelFactory.s: src/CudaSeekrKernelFactory.cpp.s
 
 # target to generate assembly for a file
 src/CudaSeekrKernelFactory.cpp.s:
-	cd /home/astokely/planar/openseekr/plugin/build && $(MAKE) -f platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/build.make platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernelFactory.cpp.s
+	cd /home/astokely/SEEKR/openseekr/plugin/build && $(MAKE) -f platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/build.make platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernelFactory.cpp.s
 .PHONY : src/CudaSeekrKernelFactory.cpp.s
 
 src/CudaSeekrKernelSources.o: src/CudaSeekrKernelSources.cpp.o
@@ -215,7 +215,7 @@ src/CudaSeekrKernelSources.o: src/CudaSeekrKernelSources.cpp.o
 
 # target to build an object file
 src/CudaSeekrKernelSources.cpp.o:
-	cd /home/astokely/planar/openseekr/plugin/build && $(MAKE) -f platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/build.make platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernelSources.cpp.o
+	cd /home/astokely/SEEKR/openseekr/plugin/build && $(MAKE) -f platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/build.make platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernelSources.cpp.o
 .PHONY : src/CudaSeekrKernelSources.cpp.o
 
 src/CudaSeekrKernelSources.i: src/CudaSeekrKernelSources.cpp.i
@@ -224,7 +224,7 @@ src/CudaSeekrKernelSources.i: src/CudaSeekrKernelSources.cpp.i
 
 # target to preprocess a source file
 src/CudaSeekrKernelSources.cpp.i:
-	cd /home/astokely/planar/openseekr/plugin/build && $(MAKE) -f platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/build.make platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernelSources.cpp.i
+	cd /home/astokely/SEEKR/openseekr/plugin/build && $(MAKE) -f platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/build.make platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernelSources.cpp.i
 .PHONY : src/CudaSeekrKernelSources.cpp.i
 
 src/CudaSeekrKernelSources.s: src/CudaSeekrKernelSources.cpp.s
@@ -233,7 +233,7 @@ src/CudaSeekrKernelSources.s: src/CudaSeekrKernelSources.cpp.s
 
 # target to generate assembly for a file
 src/CudaSeekrKernelSources.cpp.s:
-	cd /home/astokely/planar/openseekr/plugin/build && $(MAKE) -f platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/build.make platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernelSources.cpp.s
+	cd /home/astokely/SEEKR/openseekr/plugin/build && $(MAKE) -f platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/build.make platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernelSources.cpp.s
 .PHONY : src/CudaSeekrKernelSources.cpp.s
 
 src/CudaSeekrKernels.o: src/CudaSeekrKernels.cpp.o
@@ -242,7 +242,7 @@ src/CudaSeekrKernels.o: src/CudaSeekrKernels.cpp.o
 
 # target to build an object file
 src/CudaSeekrKernels.cpp.o:
-	cd /home/astokely/planar/openseekr/plugin/build && $(MAKE) -f platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/build.make platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernels.cpp.o
+	cd /home/astokely/SEEKR/openseekr/plugin/build && $(MAKE) -f platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/build.make platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernels.cpp.o
 .PHONY : src/CudaSeekrKernels.cpp.o
 
 src/CudaSeekrKernels.i: src/CudaSeekrKernels.cpp.i
@@ -251,7 +251,7 @@ src/CudaSeekrKernels.i: src/CudaSeekrKernels.cpp.i
 
 # target to preprocess a source file
 src/CudaSeekrKernels.cpp.i:
-	cd /home/astokely/planar/openseekr/plugin/build && $(MAKE) -f platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/build.make platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernels.cpp.i
+	cd /home/astokely/SEEKR/openseekr/plugin/build && $(MAKE) -f platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/build.make platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernels.cpp.i
 .PHONY : src/CudaSeekrKernels.cpp.i
 
 src/CudaSeekrKernels.s: src/CudaSeekrKernels.cpp.s
@@ -260,7 +260,7 @@ src/CudaSeekrKernels.s: src/CudaSeekrKernels.cpp.s
 
 # target to generate assembly for a file
 src/CudaSeekrKernels.cpp.s:
-	cd /home/astokely/planar/openseekr/plugin/build && $(MAKE) -f platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/build.make platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernels.cpp.s
+	cd /home/astokely/SEEKR/openseekr/plugin/build && $(MAKE) -f platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/build.make platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernels.cpp.s
 .PHONY : src/CudaSeekrKernels.cpp.s
 
 # Help Target
@@ -297,6 +297,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	cd /home/astokely/planar/openseekr/plugin/build && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /home/astokely/SEEKR/openseekr/plugin/build && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

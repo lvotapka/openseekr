@@ -1,7 +1,7 @@
 /*
    Copyright 2019 by Andy Stokely
 	All rights reserved
-   Planar Milestone C++ Code for the OpenMM Plugin SEEKR that links the seekrForce.cu CUDA code to 
+   PlanarZ Milestone C++ Code for the OpenMM Plugin SEEKR that links the seekrForce.cu CUDA code to 
    rest of the program
 
 
@@ -37,7 +37,7 @@
  * USE OR OTHER DEALINGS IN THE SOFTWARE.                                     *
  * -------------------------------------------------------------------------- */
 
-//TODO I just updated the "spherical", "Length", etc names to their respective planar versions. I may have to go back and update the data structure types. (6-2-2019)
+//TODO I just updated the "spherical", "Offset", etc names to their respective planarZ versions. I may have to go back and update the data structure types. (6-2-2019)
 
 #include "CudaSeekrKernels.h"
 #include "CudaSeekrKernelSources.h"
@@ -93,22 +93,40 @@ CudaCalcSeekrForceKernel::CudaCalcSeekrForceKernel(std::string name, const Platf
         cout << "***" << endl;
         throw OpenMMException("SeekrForce does not support double precision");
     }
-    numPlanarMilestones = 0;
-    numPlanarAtomIndices = 0;
+    numPlanarZMilestones = 0;
+    numPlanarZAtomIndices = 0;
     
-    planarNumIndices1 = nullptr;
-    planarNumIndices2 = nullptr;
-    planarLengths1 = nullptr;
-    planarLengths2 = nullptr;
-    planarLengths3 = nullptr;
-    planarAtomIndices1 = nullptr;
-    planarAtomIndices2 = nullptr; //TODO: ANDY-->RESOLVED
-    planarAtomBounds1 = nullptr;
-    planarAtomBounds2 = nullptr;
-    planarOldCom1 = nullptr;
-    planarOldCom2 = nullptr;
+    planarZNumIndices1 = nullptr;
+    planarZNumIndices2 = nullptr;
+    planarZOffsets1 = nullptr;
+    planarZOffsets2 = nullptr;
+    planarZOffsets3 = nullptr;
+    planarZAtomIndices1 = nullptr;
+    planarZAtomIndices2 = nullptr; //TODO: ANDY-->RESOLVED
+    planarZAtomBounds1 = nullptr;
+    planarZAtomBounds2 = nullptr;
+    planarZOldCom1 = nullptr;
+    planarZOldCom2 = nullptr;
     
-    planarCollectionReturnCode = nullptr;
+    planarZCollectionReturnCode = nullptr;
+    
+    numSphericalMilestones = 0;
+    numSphericalAtomIndices = 0;
+    
+    sphericalNumIndices1 = nullptr;
+    sphericalNumIndices2 = nullptr;
+    sphericalRadii1 = nullptr;
+    sphericalRadii2 = nullptr;
+    sphericalRadii3 = nullptr;
+    sphericalAtomIndices1 = nullptr;
+    sphericalAtomIndices2 = nullptr;
+    sphericalAtomBounds1 = nullptr;
+    sphericalAtomBounds2 = nullptr;
+    sphericalOldCom1 = nullptr;
+    sphericalOldCom2 = nullptr;
+    
+    sphericalCollectionReturnCode = nullptr;
+    
     
     endSimulation = false;
     endOnMiddleCrossing = false;
@@ -118,57 +136,103 @@ CudaCalcSeekrForceKernel::CudaCalcSeekrForceKernel(std::string name, const Platf
 CudaCalcSeekrForceKernel::~CudaCalcSeekrForceKernel() {
     cu.setAsCurrent();
     
-    delete planarNumIndices1;
-    delete planarNumIndices2;
-    delete planarLengths1;
-    delete planarLengths2;
-    delete planarLengths3;
-    delete planarAtomIndices1;
-    delete planarAtomIndices2; //TODO: ANDY-->RESOLVED
-    delete planarAtomBounds1;
-    delete planarAtomBounds2;
-    delete planarOldCom1;
-    delete planarOldCom2;
-    delete planarCollectionReturnCode;
+    delete planarZNumIndices1;
+    delete planarZNumIndices2;
+    delete planarZOffsets1;
+    delete planarZOffsets2;
+    delete planarZOffsets3;
+    delete planarZAtomIndices1;
+    delete planarZAtomIndices2; //TODO: ANDY-->RESOLVED
+    delete planarZAtomBounds1;
+    delete planarZAtomBounds2;
+    delete planarZOldCom1;
+    delete planarZOldCom2;
+    delete planarZCollectionReturnCode;
+    delete sphericalNumIndices1;
+    delete sphericalNumIndices2;
+    delete sphericalRadii1;
+    delete sphericalRadii2;
+    delete sphericalRadii3;
+    delete sphericalAtomIndices1;
+    delete sphericalAtomIndices2;
+    delete sphericalAtomBounds1;
+    delete sphericalAtomBounds2;
+    delete sphericalOldCom1;
+    delete sphericalOldCom2;
+    delete sphericalCollectionReturnCode;
     //if (params != NULL)
     //    delete params;
 }
 
 void CudaCalcSeekrForceKernel::allocateMemory(const SeekrForce& force) {
   
-  numPlanarMilestones = force.getNumPlanarMilestones();
-  numPlanarAtomIndices = force.getNumPlanarAtomIndices();
+  numPlanarZMilestones = force.getNumPlanarZMilestones();
+  numPlanarZAtomIndices = force.getNumPlanarZAtomIndices();
   
-  planarNumIndices1 =  CudaArray::create<int> (cu, numPlanarMilestones, "planarNumIndices1");
-  planarNumIndices2 =  CudaArray::create<int> (cu, numPlanarMilestones, "planarNumIndices2");
-  planarLengths1 =       CudaArray::create<float> (cu, numPlanarMilestones, "planarLengths1");
-  planarLengths2 =       CudaArray::create<float> (cu, numPlanarMilestones, "planarLengths2");
-  planarLengths3 =       CudaArray::create<float> (cu, numPlanarMilestones, "planarLengths3");
-  planarAtomIndices1 = CudaArray::create<int> (cu, numPlanarAtomIndices, "planarAtomIndices1");
-  planarAtomIndices2 = CudaArray::create<int> (cu, numPlanarAtomIndices, "planarAtomIndices2"); // TODO: ANDY
-  planarAtomBounds1  = CudaArray::create<int2> (cu, numPlanarMilestones, "planarAtomBounds1");
-  planarAtomBounds2  = CudaArray::create<int2> (cu, numPlanarMilestones, "planarAtomBounds2");
-  planarOldCom1      = CudaArray::create<float4> (cu, numPlanarMilestones, "planarOldCom1");
-  planarOldCom2      = CudaArray::create<float4> (cu, numPlanarMilestones, "planarOldCom2");
-  planarCollectionReturnCode  =  CudaArray::create<float> (cu, numPlanarMilestones, "planarCollectionReturnCode"); // TODO: ANDY watch out
-  //planarCollectionReturnCode =  CudaArray::create<int> (cu, numPlanarMilestones, "planarCollectionReturnCode");
+  planarZNumIndices1 =  CudaArray::create<int> (cu, numPlanarZMilestones, "planarZNumIndices1");
+  planarZNumIndices2 =  CudaArray::create<int> (cu, numPlanarZMilestones, "planarZNumIndices2");
+  planarZOffsets1 =       CudaArray::create<float> (cu, numPlanarZMilestones, "planarZOffsets1");
+  planarZOffsets2 =       CudaArray::create<float> (cu, numPlanarZMilestones, "planarZOffsets2");
+  planarZOffsets3 =       CudaArray::create<float> (cu, numPlanarZMilestones, "planarZOffsets3");
+  planarZAtomIndices1 = CudaArray::create<int> (cu, numPlanarZAtomIndices, "planarZAtomIndices1");
+  planarZAtomIndices2 = CudaArray::create<int> (cu, numPlanarZAtomIndices, "planarZAtomIndices2"); // TODO: ANDY
+  planarZAtomBounds1  = CudaArray::create<int2> (cu, numPlanarZMilestones, "planarZAtomBounds1");
+  planarZAtomBounds2  = CudaArray::create<int2> (cu, numPlanarZMilestones, "planarZAtomBounds2");
+  planarZOldCom1      = CudaArray::create<float4> (cu, numPlanarZMilestones, "planarZOldCom1");
+  planarZOldCom2      = CudaArray::create<float4> (cu, numPlanarZMilestones, "planarZOldCom2");
+  planarZCollectionReturnCode  =  CudaArray::create<float> (cu, numPlanarZMilestones, "planarZCollectionReturnCode"); // TODO: ANDY watch out
+  //planarZCollectionReturnCode =  CudaArray::create<int> (cu, numPlanarZMilestones, "planarZCollectionReturnCode");
   
   // host memory (CPU)
   
-  h_planarNumIndices1  = std::vector<int> (numPlanarMilestones, 0);
-  h_planarNumIndices2  = std::vector<int> (numPlanarMilestones, 0);
-  h_planarLengths1       = std::vector<float> (numPlanarMilestones, 0.0);
-  h_planarLengths2       = std::vector<float> (numPlanarMilestones, 0.0);
-  h_planarLengths3       = std::vector<float> (numPlanarMilestones, 0.0);
-  h_planarAtomIndices1 = std::vector<int> (numPlanarAtomIndices, 0);
-  h_planarAtomIndices2 = std::vector<int> (numPlanarAtomIndices, 0);
-  h_planarAtomBounds1  = std::vector<int2> (numPlanarMilestones, make_int2(-1, -1));
-  h_planarAtomBounds2  = std::vector<int2> (numPlanarMilestones, make_int2(-1, -1));
-  h_planarOldCom1      = std::vector<float4> (numPlanarMilestones, make_float4(-9.0e5, -9.0e5, -9.0e5, -9.0e5));
-  h_planarOldCom2      = std::vector<float4> (numPlanarMilestones, make_float4(-9.0e5, -9.0e5, -9.0e5, -9.0e5));
+  h_planarZNumIndices1  = std::vector<int> (numPlanarZMilestones, 0);
+  h_planarZNumIndices2  = std::vector<int> (numPlanarZMilestones, 0);
+  h_planarZOffsets1       = std::vector<float> (numPlanarZMilestones, 0.0);
+  h_planarZOffsets2       = std::vector<float> (numPlanarZMilestones, 0.0);
+  h_planarZOffsets3       = std::vector<float> (numPlanarZMilestones, 0.0);
+  h_planarZAtomIndices1 = std::vector<int> (numPlanarZAtomIndices, 0);
+  h_planarZAtomIndices2 = std::vector<int> (numPlanarZAtomIndices, 0);
+  h_planarZAtomBounds1  = std::vector<int2> (numPlanarZMilestones, make_int2(-1, -1));
+  h_planarZAtomBounds2  = std::vector<int2> (numPlanarZMilestones, make_int2(-1, -1));
+  h_planarZOldCom1      = std::vector<float4> (numPlanarZMilestones, make_float4(-9.0e5, -9.0e5, -9.0e5, -9.0e5));
+  h_planarZOldCom2      = std::vector<float4> (numPlanarZMilestones, make_float4(-9.0e5, -9.0e5, -9.0e5, -9.0e5));
   
-  h_planarCollectionReturnCode  = std::vector<float> (numPlanarMilestones, 0);
-  //h_planarCollectionReturnCode  = std::vector<int> (1, 0);
+  h_planarZCollectionReturnCode  = std::vector<float> (numPlanarZMilestones, 0);
+  //h_planarZCollectionReturnCode  = std::vector<int> (1, 0);
+  
+  numSphericalMilestones = force.getNumSphericalMilestones();
+  numSphericalAtomIndices = force.getNumSphericalAtomIndices();
+  
+  sphericalNumIndices1 =  CudaArray::create<int> (cu, numSphericalMilestones, "sphericalNumIndices1");
+  sphericalNumIndices2 =  CudaArray::create<int> (cu, numSphericalMilestones, "sphericalNumIndices2");
+  sphericalRadii1 =       CudaArray::create<float> (cu, numSphericalMilestones, "sphericalRadii1");
+  sphericalRadii2 =       CudaArray::create<float> (cu, numSphericalMilestones, "sphericalRadii2");
+  sphericalRadii3 =       CudaArray::create<float> (cu, numSphericalMilestones, "sphericalRadii3");
+  sphericalAtomIndices1 = CudaArray::create<int> (cu, numSphericalAtomIndices, "sphericalAtomIndices1");
+  sphericalAtomIndices2 = CudaArray::create<int> (cu, numSphericalAtomIndices, "sphericalAtomIndices2");
+  sphericalAtomBounds1  = CudaArray::create<int2> (cu, numSphericalMilestones, "sphericalAtomBounds1");
+  sphericalAtomBounds2  = CudaArray::create<int2> (cu, numSphericalMilestones, "sphericalAtomBounds2");
+  sphericalOldCom1      = CudaArray::create<float4> (cu, numSphericalMilestones, "sphericalOldCom1");
+  sphericalOldCom2      = CudaArray::create<float4> (cu, numSphericalMilestones, "sphericalOldCom2");
+  sphericalCollectionReturnCode  =  CudaArray::create<float> (cu, numSphericalMilestones, "sphericalCollectionReturnCode");
+  //sphericalCollectionReturnCode =  CudaArray::create<int> (cu, numSphericalMilestones, "sphericalCollectionReturnCode");
+  
+  // host memory
+  
+  h_sphericalNumIndices1  = std::vector<int> (numSphericalMilestones, 0);
+  h_sphericalNumIndices2  = std::vector<int> (numSphericalMilestones, 0);
+  h_sphericalRadii1       = std::vector<float> (numSphericalMilestones, 0.0);
+  h_sphericalRadii2       = std::vector<float> (numSphericalMilestones, 0.0);
+  h_sphericalRadii3       = std::vector<float> (numSphericalMilestones, 0.0);
+  h_sphericalAtomIndices1 = std::vector<int> (numSphericalAtomIndices, 0);
+  h_sphericalAtomIndices2 = std::vector<int> (numSphericalAtomIndices, 0);
+  h_sphericalAtomBounds1  = std::vector<int2> (numSphericalMilestones, make_int2(-1, -1));
+  h_sphericalAtomBounds2  = std::vector<int2> (numSphericalMilestones, make_int2(-1, -1));
+  h_sphericalOldCom1      = std::vector<float4> (numSphericalMilestones, make_float4(-9.0e5, -9.0e5, -9.0e5, -9.0e5));
+  h_sphericalOldCom2      = std::vector<float4> (numSphericalMilestones, make_float4(-9.0e5, -9.0e5, -9.0e5, -9.0e5));
+  
+  h_sphericalCollectionReturnCode  = std::vector<float> (numSphericalMilestones, 0);
+  //h_sphericalCollectionReturnCode  = std::vector<int> (1, 0);
 }
   //endSimulation = false;
   //endOnMiddleCrossing = force.getEndOnMiddleCrossing();
@@ -191,98 +255,193 @@ void checkAtomIndex(int numAtoms, const std::string& milestoneType, const int at
   }
 }
 
-void checkPlanarMilestone(float Lengths1, float Lengths2, float Lengths3) { // TODO: ANDY make one for planar 
+void checkPlanarZMilestone(float Offsets1, float Offsets2, float Offsets3) { // TODO: ANDY make one for planarZ 
   bool error = false;
-  if (Lengths1 >= Lengths2) {
+  if (Offsets1 >= Offsets2) {
     error = true;
   }
-  if (Lengths2 >= Lengths3) {
+  if (Offsets2 >= Offsets3) {
     error = true;
   }
   
   if (error){
     std::stringstream m;
-    m<<"Error: bad Lengthss for milestone of type: planar milestone";
-    m<<". Lengths1 (inner): "<<Lengths1<<" Lengths2 (middle): "<<Lengths2<<" Lengths3 (outer): "<<Lengths3;
+    m<<"Error: bad Offsetss for milestone of type: planarZ milestone";
+    m<<". Offsets1 (inner): "<<Offsets1<<" Offsets2 (middle): "<<Offsets2<<" Offsets3 (outer): "<<Offsets3;
     throw OpenMMException(m.str());
   }
 }
 
-void CudaCalcSeekrForceKernel::setupPlanarMilestones(const SeekrForce& force){ //TODO: ANDY create your own DONE
-  int numAtoms = system.getNumParticles();
-  std::string milestoneType = "planar milestone";
-  int currentAtomIndex1 = 0;
-  int currentAtomIndex2 = 0;
-  endOnMiddleCrossing = force.getEndOnMiddleCrossing();
-  for (int i=0; i < numPlanarMilestones; i++) {
-    
-    int thisStart1 = currentAtomIndex1;
-    int thisStart2 = currentAtomIndex2;
-    // retrieve the planar milestone parameters from the C++ api
-    h_planarNumIndices1[i] = force.getPlanarNumIndices(i, 1); 
-    h_planarNumIndices2[i] = force.getPlanarNumIndices(i, 2);
-    h_planarLengths1[i] = force.getPlanarLength(i, 1);
-    h_planarLengths2[i] = force.getPlanarLength(i, 2);
-    h_planarLengths3[i] = force.getPlanarLength(i, 3);
-    
-    // check the Lengthss to make sure that they make sense
-    checkPlanarMilestone(h_planarLengths1[i], h_planarLengths2[i], h_planarLengths3[i]); 
-    
-    // Retrieve the individual atoms from the API
-    for(int j=0; j<h_planarNumIndices1[i]; j++) {
-      int atom_id;
-      force.getPlanarMilestoneAtoms(i, j, atom_id, 1);
-      checkAtomIndex(numAtoms, milestoneType, atom_id);
-      h_planarAtomIndices1[currentAtomIndex1] = atom_id;
-      currentAtomIndex1++;
-    }
-    int thisEnd1 = currentAtomIndex1;
-    h_planarAtomBounds1[i] = make_int2(thisStart1, thisEnd1);
-    
-    for(int j=0; j<h_planarNumIndices2[i]; j++) {
-      int atom_id;
-      force.getPlanarMilestoneAtoms(i, j, atom_id, 2);
-      checkAtomIndex(numAtoms, milestoneType, atom_id);
-      h_planarAtomIndices2[currentAtomIndex2] = atom_id;
-      currentAtomIndex2++;
-    }
-    int thisEnd2 = currentAtomIndex2;
-    h_planarAtomBounds2[i] = make_int2(thisStart2, thisEnd2);
-    
-    /*
-    cout << "CUDA kernel: Setting up planar milestone number: " << i << ". planarNumIndices1: ";
-    cout << h_planarNumIndices1[i] << " planarNumIndices2: " << h_planarNumIndices2[i];
-    cout << " planarLengths: (" << h_planarLengths1[i] << ", " << h_planarLengths2[i];
-    cout << ", " << h_planarLengths3[i] << "). planarAtomBounds1: (";
-    cout << h_planarAtomBounds1[i].x << ", " << h_planarAtomBounds1[i].y;
-    cout << ") planarAtomIndices1: [";
-    for (int j=h_planarAtomBounds1[i].x; j<h_planarAtomBounds1[i].y; j++) {
-      cout << h_planarAtomIndices1[j] << " ";
-    }
-    cout << "] planarAtomBounds2: (";
-    cout << h_planarAtomBounds2[i].x << ", " << h_planarAtomBounds2[i].y;
-    cout << ") planarAtomIndices2: [";
-    for (int j=h_planarAtomBounds2[i].x; j<h_planarAtomBounds2[i].y; j++) {
-      cout << h_planarAtomIndices2[j] << " ";
-    }
-    cout << "]\n";*/
-    dataFileNames.push_back(force.getDataFileName(i));
+void checkSphericalMilestone(float Radii1, float Radii2, float Radii3) { // TODO: ANDY make one for planarZ 
+  bool error = false;
+  if (Radii1 >= Radii2) {
+    error = true;
+  }
+  if (Radii2 >= Radii3) {
+    error = true;
+  }
+  
+  if (error){
+    std::stringstream m;
+    m<<"Error: bad Offsetss for milestone of type: planarZ milestone";
+    m<<". Offsets1 (inner): "<<Radii1<<" Offsets2 (middle): "<<Radii2<<" Offsets3 (outer): "<<Radii3;
+    throw OpenMMException(m.str());
   }
 }
 
+void CudaCalcSeekrForceKernel::setupPlanarZMilestones(const SeekrForce& force){ //TODO: ANDY create your own DONE
+  int numAtoms = system.getNumParticles();
+  std::string milestoneType = "planarZ milestone";
+  int currentAtomIndex1 = 0;
+  int currentAtomIndex2 = 0;
+  endOnMiddleCrossing = force.getEndOnMiddleCrossing();
+  for (int i=0; i < numPlanarZMilestones; i++) {
+    
+    int thisStart1 = currentAtomIndex1;
+    int thisStart2 = currentAtomIndex2;
+    // retrieve the planarZ milestone parameters from the C++ api
+    h_planarZNumIndices1[i] = force.getPlanarZNumIndices(i, 1); 
+    h_planarZNumIndices2[i] = force.getPlanarZNumIndices(i, 2);
+    h_planarZOffsets1[i] = force.getPlanarZOffset(i, 1);
+    h_planarZOffsets2[i] = force.getPlanarZOffset(i, 2);
+    h_planarZOffsets3[i] = force.getPlanarZOffset(i, 3);
+    
+    // check the Offsetss to make sure that they make sense
+    checkPlanarZMilestone(h_planarZOffsets1[i], h_planarZOffsets2[i], h_planarZOffsets3[i]); 
+    
+    // Retrieve the individual atoms from the API
+    for(int j=0; j<h_planarZNumIndices1[i]; j++) {
+      int atom_id;
+      force.getPlanarZMilestoneAtoms(i, j, atom_id, 1);
+      checkAtomIndex(numAtoms, milestoneType, atom_id);
+      h_planarZAtomIndices1[currentAtomIndex1] = atom_id;
+      currentAtomIndex1++;
+    }
+    int thisEnd1 = currentAtomIndex1;
+    h_planarZAtomBounds1[i] = make_int2(thisStart1, thisEnd1);
+    
+    for(int j=0; j<h_planarZNumIndices2[i]; j++) {
+      int atom_id;
+      force.getPlanarZMilestoneAtoms(i, j, atom_id, 2);
+      checkAtomIndex(numAtoms, milestoneType, atom_id);
+      h_planarZAtomIndices2[currentAtomIndex2] = atom_id;
+      currentAtomIndex2++;
+    }
+    int thisEnd2 = currentAtomIndex2;
+    h_planarZAtomBounds2[i] = make_int2(thisStart2, thisEnd2);
+    
+    /*
+    cout << "CUDA kernel: Setting up planarZ milestone number: " << i << ". planarZNumIndices1: ";
+    cout << h_planarZNumIndices1[i] << " planarZNumIndices2: " << h_planarZNumIndices2[i];
+    cout << " planarZOffsets: (" << h_planarZOffsets1[i] << ", " << h_planarZOffsets2[i];
+    cout << ", " << h_planarZOffsets3[i] << "). planarZAtomBounds1: (";
+    cout << h_planarZAtomBounds1[i].x << ", " << h_planarZAtomBounds1[i].y;
+    cout << ") planarZAtomIndices1: [";
+    for (int j=h_planarZAtomBounds1[i].x; j<h_planarZAtomBounds1[i].y; j++) {
+      cout << h_planarZAtomIndices1[j] << " ";
+    }
+    cout << "] planarZAtomBounds2: (";
+    cout << h_planarZAtomBounds2[i].x << ", " << h_planarZAtomBounds2[i].y;
+    cout << ") planarZAtomIndices2: [";
+    for (int j=h_planarZAtomBounds2[i].x; j<h_planarZAtomBounds2[i].y; j++) {
+      cout << h_planarZAtomIndices2[j] << " ";
+    }
+    cout << "]\n";*/
+    dataSphericalFileNames.push_back(force.getPlanarZDataFileName(i));
+  }
+}
+
+void CudaCalcSeekrForceKernel::setupSphericalMilestones(const SeekrForce& force){ 
+  int numAtoms = system.getNumParticles();
+  std::string milestoneType = "spherical milestone";
+  int currentAtomIndex1 = 0;
+  int currentAtomIndex2 = 0;
+  endOnMiddleCrossing = force.getEndOnMiddleCrossing();
+  for (int i=0; i < numSphericalMilestones; i++) {
+    
+    int thisStart1 = currentAtomIndex1;
+    int thisStart2 = currentAtomIndex2;
+    // retrieve the spherical milestone parameters from the C++ api
+    h_sphericalNumIndices1[i] = force.getSphericalNumIndices(i, 1); 
+    h_sphericalNumIndices2[i] = force.getSphericalNumIndices(i, 2);
+    h_sphericalRadii1[i] = force.getSphericalRadius(i, 1);
+    h_sphericalRadii2[i] = force.getSphericalRadius(i, 2);
+    h_sphericalRadii3[i] = force.getSphericalRadius(i, 3);
+    
+    // check the Radiis to make sure that they make sense
+    checkSphericalMilestone(h_sphericalRadii1[i], h_sphericalRadii2[i], h_sphericalRadii3[i]); 
+    
+    // Retrieve the individual atoms from the API
+    for(int j=0; j<h_sphericalNumIndices1[i]; j++) {
+      int atom_id;
+      force.getSphericalMilestoneAtoms(i, j, atom_id, 1);
+      checkAtomIndex(numAtoms, milestoneType, atom_id);
+      h_sphericalAtomIndices1[currentAtomIndex1] = atom_id;
+      currentAtomIndex1++;
+    }
+    int thisEnd1 = currentAtomIndex1;
+    h_sphericalAtomBounds1[i] = make_int2(thisStart1, thisEnd1);
+    
+    for(int j=0; j<h_sphericalNumIndices2[i]; j++) {
+      int atom_id;
+      force.getSphericalMilestoneAtoms(i, j, atom_id, 2);
+      checkAtomIndex(numAtoms, milestoneType, atom_id);
+      h_sphericalAtomIndices2[currentAtomIndex2] = atom_id;
+      currentAtomIndex2++;
+    }
+    int thisEnd2 = currentAtomIndex2;
+    h_sphericalAtomBounds2[i] = make_int2(thisStart2, thisEnd2);
+    
+    /*
+    cout << "CUDA kernel: Setting up spherical milestone number: " << i << ". sphericalNumIndices1: ";
+    cout << h_sphericalNumIndices1[i] << " sphericalNumIndices2: " << h_sphericalNumIndices2[i];
+    cout << " sphericalRadii: (" << h_sphericalRadii1[i] << ", " << h_sphericalRadii2[i];
+    cout << ", " << h_sphericalRadii3[i] << "). sphericalAtomBounds1: (";
+    cout << h_sphericalAtomBounds1[i].x << ", " << h_sphericalAtomBounds1[i].y;
+    cout << ") sphericalAtomIndices1: [";
+    for (int j=h_sphericalAtomBounds1[i].x; j<h_sphericalAtomBounds1[i].y; j++) {
+      cout << h_sphericalAtomIndices1[j] << " ";
+    }
+    cout << "] sphericalAtomBounds2: (";
+    cout << h_sphericalAtomBounds2[i].x << ", " << h_sphericalAtomBounds2[i].y;
+    cout << ") sphericalAtomIndices2: [";
+    for (int j=h_sphericalAtomBounds2[i].x; j<h_sphericalAtomBounds2[i].y; j++) {
+      cout << h_sphericalAtomIndices2[j] << " ";
+    }
+    cout << "]\n";*/
+    dataSphericalFileNames.push_back(force.getSphericalDataFileName(i));
+  }
+}
+
+
+
+
+
+
 void CudaCalcSeekrForceKernel::validateAndUpload() {
   cout << "Attempting to upload host arrays to device.\n";
-  planarNumIndices1->upload(h_planarNumIndices1);
-  planarNumIndices2->upload(h_planarNumIndices2);
-  planarLengths1->upload(h_planarLengths1);
-  planarLengths2->upload(h_planarLengths2);
-  planarLengths3->upload(h_planarLengths3);
-  planarAtomIndices1->upload(h_planarAtomIndices1);
-  planarAtomIndices2->upload(h_planarAtomIndices2); // TODO: ANDY-->RESOLVED
-  planarAtomBounds1->upload(h_planarAtomBounds1);
-  planarAtomBounds2->upload(h_planarAtomBounds2);
-  planarOldCom1->upload(h_planarOldCom1);
-  planarOldCom2->upload(h_planarOldCom2);
+  planarZNumIndices1->upload(h_planarZNumIndices1);
+  planarZNumIndices2->upload(h_planarZNumIndices2);
+  planarZOffsets1->upload(h_planarZOffsets1);
+  planarZOffsets2->upload(h_planarZOffsets2);
+  planarZOffsets3->upload(h_planarZOffsets3);
+  planarZAtomIndices1->upload(h_planarZAtomIndices1);
+  planarZAtomIndices2->upload(h_planarZAtomIndices2); // TODO: ANDY-->RESOLVED
+  planarZAtomBounds1->upload(h_planarZAtomBounds1);
+  planarZAtomBounds2->upload(h_planarZAtomBounds2);
+  planarZOldCom1->upload(h_planarZOldCom1);
+  planarZOldCom2->upload(h_planarZOldCom2);
+  sphericalNumIndices1->upload(h_sphericalNumIndices1);
+  sphericalNumIndices2->upload(h_sphericalNumIndices2);
+  sphericalRadii1->upload(h_sphericalRadii1);
+  sphericalRadii2->upload(h_sphericalRadii2);
+  sphericalRadii3->upload(h_sphericalRadii3);
+  sphericalAtomIndices1->upload(h_sphericalAtomIndices1);
+  sphericalAtomIndices2->upload(h_sphericalAtomIndices2); // TODO: ANDY-->RESOLVED
+  sphericalAtomBounds1->upload(h_sphericalAtomBounds1);
+  sphericalAtomBounds2->upload(h_sphericalAtomBounds2);
+  sphericalOldCom1->upload(h_sphericalOldCom1);
+  sphericalOldCom2->upload(h_sphericalOldCom2);
   cout << "Uploaded all host arrays to device.\n";
 }
 
@@ -290,54 +449,81 @@ void CudaCalcSeekrForceKernel::initialize(const System& system, const SeekrForce
     cu.setAsCurrent();
     
     allocateMemory(force);
-    setupPlanarMilestones(force); // TODO:ANDY add yours here--RESOLVED
+    setupPlanarZMilestones(force); // TODO:ANDY add yours here--RESOLVED
     validateAndUpload();
     
     CUmodule module = cu.createModule(CudaSeekrKernelSources::vectorOps + CudaSeekrKernelSources::seekrForce);
-    computePlanarMilestonesKernel = cu.getKernel(module, "monitorPlanarMilestones");
+    computePlanarZMilestonesKernel = cu.getKernel(module, "monitorPlanarZMilestones");
+    computeSphericalMilestonesKernel = cu.getKernel(module, "monitorSphericalMilestones");
     cu.addForce(new CudaSeekrForceInfo(force));
+    
+    setupSphericalMilestones(force); // TODO:ANDY add yours here--RESOLVED
+    validateAndUpload();
+    
+
 }
 
 double CudaCalcSeekrForceKernel::execute(ContextImpl& context, bool includeForces, bool includeEnergy) {
     if (context.getTime() == 0.0) {
       endSimulation = false;
-      h_planarOldCom1      = std::vector<float4> (numPlanarMilestones, make_float4(-9.0e5, -9.0e5, -9.0e5, -9.0e5));
-      h_planarOldCom2      = std::vector<float4> (numPlanarMilestones, make_float4(-9.0e5, -9.0e5, -9.0e5, -9.0e5));
-      planarOldCom1->upload(h_planarOldCom1);
-      planarOldCom2->upload(h_planarOldCom2);
+      h_planarZOldCom1      = std::vector<float4> (numPlanarZMilestones, make_float4(-9.0e5, -9.0e5, -9.0e5, -9.0e5));
+      h_planarZOldCom2      = std::vector<float4> (numPlanarZMilestones, make_float4(-9.0e5, -9.0e5, -9.0e5, -9.0e5));
+      planarZOldCom1->upload(h_planarZOldCom1);
+      planarZOldCom2->upload(h_planarZOldCom2);
+      h_sphericalOldCom1      = std::vector<float4> (numSphericalMilestones, make_float4(-9.0e5, -9.0e5, -9.0e5, -9.0e5));
+      h_sphericalOldCom2      = std::vector<float4> (numSphericalMilestones, make_float4(-9.0e5, -9.0e5, -9.0e5, -9.0e5));
+      sphericalOldCom1->upload(h_sphericalOldCom1);
+      sphericalOldCom2->upload(h_sphericalOldCom2);
     }
     
-    void* planarMilestoneArgs[] = {
+    void* planarZMilestoneArgs[] = {
       &cu.getPosq().getDevicePointer(),
       &cu.getVelm().getDevicePointer(),
-      &planarNumIndices1->getDevicePointer(),
-      &planarNumIndices2->getDevicePointer(),
-      &planarLengths1->getDevicePointer(),
-      &planarLengths2->getDevicePointer(),
-      &planarLengths3->getDevicePointer(),
-      &planarAtomIndices1->getDevicePointer(),
-      &planarAtomIndices2->getDevicePointer(),
-      &planarAtomBounds1->getDevicePointer(),
-      &planarAtomBounds2->getDevicePointer(),
-      &planarCollectionReturnCode->getDevicePointer(),
-      &planarOldCom1->getDevicePointer(),
-      &planarOldCom2->getDevicePointer(),
-      &numPlanarMilestones
+      &planarZNumIndices1->getDevicePointer(),
+      &planarZNumIndices2->getDevicePointer(),
+      &planarZOffsets1->getDevicePointer(),
+      &planarZOffsets2->getDevicePointer(),
+      &planarZOffsets3->getDevicePointer(),
+      &planarZAtomIndices1->getDevicePointer(),
+      &planarZAtomIndices2->getDevicePointer(),
+      &planarZAtomBounds1->getDevicePointer(),
+      &planarZAtomBounds2->getDevicePointer(),
+      &planarZCollectionReturnCode->getDevicePointer(),
+      &planarZOldCom1->getDevicePointer(),
+      &planarZOldCom2->getDevicePointer(),
+      &numPlanarZMilestones
     };
-    cu.executeKernel(computePlanarMilestonesKernel, planarMilestoneArgs, numPlanarMilestones);
-    planarCollectionReturnCode->download(h_planarCollectionReturnCode); 
-    //cout << "planarCollectionReturnCode: " << h_planarCollectionReturnCode[0] << endl;
+    cu.executeKernel(computePlanarZMilestonesKernel, planarZMilestoneArgs, numPlanarZMilestones);
+    planarZCollectionReturnCode->download(h_planarZCollectionReturnCode); 
+  
+  	 void* sphericalMilestoneArgs[] = {
+      &cu.getPosq().getDevicePointer(),
+      &cu.getVelm().getDevicePointer(),
+      &sphericalNumIndices1->getDevicePointer(),
+      &sphericalNumIndices2->getDevicePointer(),
+      &sphericalRadii1->getDevicePointer(),
+      &sphericalRadii2->getDevicePointer(),
+      &sphericalRadii3->getDevicePointer(),
+      &sphericalAtomIndices1->getDevicePointer(),
+      &sphericalAtomIndices2->getDevicePointer(),
+      &sphericalAtomBounds1->getDevicePointer(),
+      &sphericalAtomBounds2->getDevicePointer(),
+      &sphericalCollectionReturnCode->getDevicePointer(),
+      &sphericalOldCom1->getDevicePointer(),
+      &sphericalOldCom2->getDevicePointer(),
+      &numSphericalMilestones
+    };
+    cu.executeKernel(computeSphericalMilestonesKernel, sphericalMilestoneArgs, numSphericalMilestones);
+    sphericalCollectionReturnCode->download(h_sphericalCollectionReturnCode); 
     
-    //cout << "step:" << context.getTime() << "\n";
     
-    
-    for (int i=0; i<numPlanarMilestones; i++) {
-      if (h_planarCollectionReturnCode[i] == 1) {
+    for (int i=0; i<numPlanarZMilestones; i++) {
+      if (h_planarZCollectionReturnCode[i] == 1) {
         if (endSimulation == false) { // if we haven't already crossed an ending milestone
           cout<<"Inner milestone crossed. Time:" << context.getTime() << " ps\n"; // output info to user
           endSimulation = true; // make sure we end after this point
           ofstream datafile; // open datafile for writing
-          datafile.open(dataFileNames[i], std::ios_base::app); // append to file
+          datafile.open(dataPlanarZFileNames[i], std::ios_base::app); // append to file
           if (crossedStartingMilestone == true || endOnMiddleCrossing == true) { // if it's the reversal stage or we've crossed the starting milestone
             datafile << "1 " << context.getTime() << "\n";
           } else { // if its the forward stage and the starting milestone isn't crossed
@@ -346,13 +532,13 @@ double CudaCalcSeekrForceKernel::execute(ContextImpl& context, bool includeForce
           crossedStartingMilestone = false; // reset whether we've crossed the starting milestone for the next simulation
           datafile.close(); // close data file
         }
-      } else if (h_planarCollectionReturnCode[i] == 2) {
+      } else if (h_planarZCollectionReturnCode[i] == 2) {
         if (endSimulation == false) { // if we haven't already crossed an ending milestone
           if (endOnMiddleCrossing == true) { // then it's a reversal stage
             cout<<"Middle milestone crossed. Time:" << context.getTime() << " ps\n";
             endSimulation = true;
             ofstream datafile;
-            datafile.open(dataFileNames[i], std::ios_base::app);
+            datafile.open(dataPlanarZFileNames[i], std::ios_base::app);
             datafile << "2 " << context.getTime() << "\n";
             datafile.close();
           } else { // Then its the forward stage, so assert that this milestone is crossed
@@ -362,12 +548,60 @@ double CudaCalcSeekrForceKernel::execute(ContextImpl& context, bool includeForce
             }
           }
         }
-      } else if (h_planarCollectionReturnCode[i] == 3) { // This should be a fairly identical procedure to inner milestone crossing above
+      } else if (h_planarZCollectionReturnCode[i] == 3) { // This should be a fairly identical procedure to inner milestone crossing above
         if (endSimulation == false) {
           cout<<"Outer milestone crossed. Time:" << context.getTime() << " ps\n";
           endSimulation = true;
           ofstream datafile;
-          datafile.open(dataFileNames[i], std::ios_base::app);
+          datafile.open(dataPlanarZFileNames[i], std::ios_base::app);
+          if (crossedStartingMilestone == true || endOnMiddleCrossing == true) {
+            datafile << "3 " << context.getTime() << "\n";
+          } else {
+            datafile << "3* " << context.getTime() << "\n";
+          }
+          crossedStartingMilestone = false;
+          datafile.close();
+        }
+      }
+    }
+    
+    for (int i=0; i<numSphericalMilestones; i++) {
+      if (h_sphericalCollectionReturnCode[i] == 1) {
+        if (endSimulation == false) { // if we haven't already crossed an ending milestone
+          cout<<"Inner milestone crossed. Time:" << context.getTime() << " ps\n"; // output info to user
+          endSimulation = true; // make sure we end after this point
+          ofstream datafile; // open datafile for writing
+          datafile.open(dataSphericalFileNames[i], std::ios_base::app); // append to file
+          if (crossedStartingMilestone == true || endOnMiddleCrossing == true) { // if it's the reversal stage or we've crossed the starting milestone
+            datafile << "1 " << context.getTime() << "\n";
+          } else { // if its the forward stage and the starting milestone isn't crossed
+            datafile << "1* " << context.getTime() << "\n";
+          }
+          crossedStartingMilestone = false; // reset whether we've crossed the starting milestone for the next simulation
+          datafile.close(); // close data file
+        }
+      } else if (h_sphericalCollectionReturnCode[i] == 2) {
+        if (endSimulation == false) { // if we haven't already crossed an ending milestone
+          if (endOnMiddleCrossing == true) { // then it's a reversal stage
+            cout<<"Middle milestone crossed. Time:" << context.getTime() << " ps\n";
+            endSimulation = true;
+            ofstream datafile;
+            datafile.open(dataSphericalFileNames[i], std::ios_base::app);
+            datafile << "2 " << context.getTime() << "\n";
+            datafile.close();
+          } else { // Then its the forward stage, so assert that this milestone is crossed
+            if (crossedStartingMilestone == false) { // as long as we haven't crossed once already
+              crossedStartingMilestone = true; // we've crossed it once
+              context.setTime(0.0); // reset the timer
+            }
+          }
+        }
+      } else if (h_sphericalCollectionReturnCode[i] == 3) { // This should be a fairly identical procedure to inner milestone crossing above
+        if (endSimulation == false) {
+          cout<<"Outer milestone crossed. Time:" << context.getTime() << " ps\n";
+          endSimulation = true;
+          ofstream datafile;
+          datafile.open(dataSphericalFileNames[i], std::ios_base::app);
           if (crossedStartingMilestone == true || endOnMiddleCrossing == true) {
             datafile << "3 " << context.getTime() << "\n";
           } else {
@@ -384,7 +618,7 @@ double CudaCalcSeekrForceKernel::execute(ContextImpl& context, bool includeForce
 void CudaCalcSeekrForceKernel::copyParametersToContext(ContextImpl& context, const SeekrForce& force) {
     cu.setAsCurrent();
     int numContexts = cu.getPlatformData().contexts.size();
-    //setupPlanarMilestones(force);
+    //setupPlanarZMilestones(force);
     //validateAndUpload();
     cout << "copyParametersToContext\n";
     

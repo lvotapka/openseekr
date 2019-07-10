@@ -11,6 +11,7 @@ from milestones import *
 from filetree import *
 from building import *
 import amber
+import charmm
 import bd
 from min_equil import *
 from umbrella import *

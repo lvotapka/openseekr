@@ -54,27 +54,49 @@ public:
      */
     SeekrForce();
     
-    int getNumPlanarMilestones() const;
+    int getNumPlanarZMilestones() const;
     
-    int getNumPlanarAtomIndices() const;
+    int getNumPlanarZAtomIndices() const;
     
-    int getPlanarNumIndices(int forceIndex, int molecule) const;
+    int getPlanarZNumIndices(int forceIndex, int molecule) const;
     
-    float getPlanarLength(int forceIndex, int milestone_id) const;
+    float getPlanarZOffset(int forceIndex, int milestone_id) const;
     
-    void getPlanarMilestoneAtoms(int forceIndex, int atomIndex, int& atom_id, int molecule) const;
+    void getPlanarZMilestoneAtoms(int forceIndex, int atomIndex, int& atom_id, int molecule) const;
+    
+    int getNumSphericalMilestones() const;
+    
+    int getNumSphericalAtomIndices() const;
+    
+    int getSphericalNumIndices(int forceIndex, int molecule) const;
+    
+    float getSphericalRadius(int forceIndex, int milestone_id) const;
+    
+    void getSphericalMilestoneAtoms(int forceIndex, int atomIndex, int& atom_id, int molecule) const;
     
     bool getEndOnMiddleCrossing() const;
     
-    std::string getDataFileName(int forceIndex) const;
+    std::string getSphericalDataFileName(int forceIndex) const;
     
-    void addPlanarMilestone(int numIndices1, int numIndices2, float length1, 
-                              float length2, float length3, std::vector<int> atomIndices1,
+    std::string getPlanarZDataFileName(int forceIndex) const;
+    
+    void addPlanarZMilestone(int numIndices1, int numIndices2, float offset1, 
+                              float offset2, float offset3, std::vector<int> atomIndices1,
                               std::vector<int> atomIndices2, bool endOnMiddleCrossingArg,
                               std::string dataFileName);
                               
-    void modifyPlanarMilestone(int forceIndex, int numIndices1, int numIndices2, float length1, 
-                              float length2, float length3, std::vector<int> atomIndices1,
+    void modifyPlanarZMilestone(int forceIndex, int numIndices1, int numIndices2, float offset1, 
+                              float offset2, float offset3, std::vector<int> atomIndices1,
+                              std::vector<int> atomIndices2, bool endOnMiddleCrossingArg,
+                              std::string dataFileName);
+                              
+    void addSphericalMilestone(int numIndices1, int numIndices2, float radius1, 
+                              float radius2, float radius3, std::vector<int> atomIndices1,
+                              std::vector<int> atomIndices2, bool endOnMiddleCrossingArg,
+                              std::string dataFileName);
+                              
+    void modifySphericalMilestone(int forceIndex, int numIndices1, int numIndices2, float radius1, 
+                              float radius2, float radius3, std::vector<int> atomIndices1,
                               std::vector<int> atomIndices2, bool endOnMiddleCrossingArg,
                               std::string dataFileName);
     
@@ -101,33 +123,61 @@ public:
 protected:
     OpenMM::ForceImpl* createImpl() const;
 private:
-    class PlanarMilestoneInfo;
+    class PlanarZMilestoneInfo;
     
-    class PlanarMilestoneInfo {
+    class PlanarZMilestoneInfo {
       public:
           int numIndices1, numIndices2;
-          float length1, length2, length3;
+          float offset1, offset2, offset3;
           std::vector<int> atomIndices1;
           std::vector<int> atomIndices2;
           std::string dataFileName;
           
-          PlanarMilestoneInfo() {
+          PlanarZMilestoneInfo() {
             numIndices1 = numIndices2 = 0;
-            length1 = length2 = length3 = 0.0;
+            offset1 = offset2 = offset3 = 0.0;
             // vectors?
           }
           
-          PlanarMilestoneInfo(int numIndices1, int numIndices2, float length1, float length2, float length3, std::vector<int> atomIndices1, std::vector<int> atomIndices2, std::string dataFileName) : 
-                                 numIndices1(numIndices1), numIndices2(numIndices2), length1(length1),
-                                 length2(length2), length3(length3), atomIndices1(atomIndices1), 
+          PlanarZMilestoneInfo(int numIndices1, int numIndices2, float offset1, float offset2, float offset3, std::vector<int> atomIndices1, std::vector<int> atomIndices2, std::string dataFileName) : 
+                                 numIndices1(numIndices1), numIndices2(numIndices2), offset1(offset1),
+                                 offset2(offset2), offset3(offset3), atomIndices1(atomIndices1), 
                                  atomIndices2(atomIndices2), dataFileName(dataFileName) {
           }
     };
     
-    std::vector<PlanarMilestoneInfo> planarMilestones;
+    std::vector<PlanarZMilestoneInfo> planarZMilestones;
+    
+private:
+    class SphericalMilestoneInfo;
+    
+    class SphericalMilestoneInfo {
+      public:
+          int numIndices1, numIndices2;
+          float radius1, radius2, radius3;
+          std::vector<int> atomIndices1;
+          std::vector<int> atomIndices2;
+          std::string dataFileName;
+          
+          SphericalMilestoneInfo() {
+            numIndices1 = numIndices2 = 0;
+            radius1 = radius2 = radius3 = 0.0;
+            // vectors?
+          }
+          
+          SphericalMilestoneInfo(int numIndices1, int numIndices2, float radius1, float radius2, float radius3, std::vector<int> atomIndices1, std::vector<int> atomIndices2, std::string dataFileName) : 
+                                 numIndices1(numIndices1), numIndices2(numIndices2), radius1(radius1),
+                                 radius2(radius2), radius3(radius3), atomIndices1(atomIndices1), 
+                                 atomIndices2(atomIndices2), dataFileName(dataFileName) {
+          }
+    };
+    
+    std::vector<SphericalMilestoneInfo> sphericalMilestones;
     bool endOnMiddleCrossing;
     
+    
 };
+
 
 } // namespace SeekrPlugin
 

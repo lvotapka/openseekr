@@ -1,4 +1,4 @@
-# Install script for directory: /home/astokely/planar/openseekr/plugin/serialization/tests
+# Install script for directory: /home/astokely/SEEKR/openseekr/plugin/serialization/tests
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

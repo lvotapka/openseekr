@@ -17,49 +17,95 @@ using namespace std;
 SeekrForce::SeekrForce() {
 }
 
-int SeekrForce::getNumPlanarMilestones() const {
-  return planarMilestones.size();
+int SeekrForce::getNumPlanarZMilestones() const {
+  return planarZMilestones.size();
 }
 
-int SeekrForce::getNumPlanarAtomIndices() const {
+int SeekrForce::getNumPlanarZAtomIndices() const {
   int total = 0;
-  for(std::vector<PlanarMilestoneInfo>::const_iterator iter=planarMilestones.begin();	
-      iter != planarMilestones.end(); ++iter) {
+  for(std::vector<PlanarZMilestoneInfo>::const_iterator iter=planarZMilestones.begin();	
+      iter != planarZMilestones.end(); ++iter) {
   total += iter->numIndices1;
   total += iter->numIndices2;
   }
   return total;
 }
 
-int SeekrForce::getPlanarNumIndices(int forceIndex, int molecule) const {
+int SeekrForce::getPlanarZNumIndices(int forceIndex, int molecule) const {
   if (molecule == 1) {
-    return planarMilestones[forceIndex].numIndices1;
+    return planarZMilestones[forceIndex].numIndices1;
   } else if (molecule == 2) {
-    return planarMilestones[forceIndex].numIndices2;
+    return planarZMilestones[forceIndex].numIndices2;
   } else {
     throw OpenMMException("Molecule index must be 1 or 2");
   }
 }
 
-float SeekrForce::getPlanarLength(int forceIndex, int milestone_id) const {
+float SeekrForce::getPlanarZOffset(int forceIndex, int milestone_id) const {
   if (milestone_id == 1) {
-    return planarMilestones[forceIndex].length1;
+    return planarZMilestones[forceIndex].offset1;
   } else if (milestone_id == 2) {
-    return planarMilestones[forceIndex].length2;
+    return planarZMilestones[forceIndex].offset2;
   } else if (milestone_id == 3) {
-    return planarMilestones[forceIndex].length3;
+    return planarZMilestones[forceIndex].offset3;
   } else {
     throw OpenMMException("Molecule index must be 1, 2, or 3");
   }
 }
 
-void SeekrForce::getPlanarMilestoneAtoms(int forceIndex, int atomIndex, int& atom_id, int molecule) const {
+void SeekrForce::getPlanarZMilestoneAtoms(int forceIndex, int atomIndex, int& atom_id, int molecule) const {
 cout << "ForceIndex: "<< forceIndex << " Atom Index: " << atomIndex << endl;
-cout << "Get Planar Num Indicies: " << getPlanarNumIndices(forceIndex, molecule) << endl; 
+cout << "Get PlanarZ Num Indicies: " << getPlanarZNumIndices(forceIndex, molecule) << endl; 
   if (molecule == 1) {
-    atom_id = planarMilestones[forceIndex].atomIndices1[atomIndex];
+    atom_id = planarZMilestones[forceIndex].atomIndices1[atomIndex];
   } else if (molecule == 2) {
-    atom_id = planarMilestones[forceIndex].atomIndices2[atomIndex];
+    atom_id = planarZMilestones[forceIndex].atomIndices2[atomIndex];
+  } else {
+    throw OpenMMException("Molecule index must be 1 or 2");
+  }
+}
+
+int SeekrForce::getNumSphericalMilestones() const {
+  return sphericalMilestones.size();
+}
+
+int SeekrForce::getNumSphericalAtomIndices() const {
+  int total = 0;
+  for(std::vector<SphericalMilestoneInfo>::const_iterator iter=sphericalMilestones.begin();
+      iter != sphericalMilestones.end(); ++iter) {
+  total += iter->numIndices1;
+  total += iter->numIndices2;
+  }
+  return total;
+}
+
+int SeekrForce::getSphericalNumIndices(int forceIndex, int molecule) const {
+  if (molecule == 1) {
+    return sphericalMilestones[forceIndex].numIndices1;
+  } else if (molecule == 2) {
+    return sphericalMilestones[forceIndex].numIndices2;
+  } else {
+    throw OpenMMException("Molecule index must be 1 or 2");
+  }
+}
+
+float SeekrForce::getSphericalRadius(int forceIndex, int milestone_id) const {
+  if (milestone_id == 1) {
+    return sphericalMilestones[forceIndex].radius1;
+  } else if (milestone_id == 2) {
+    return sphericalMilestones[forceIndex].radius2;
+  } else if (milestone_id == 3) {
+    return sphericalMilestones[forceIndex].radius3;
+  } else {
+    throw OpenMMException("Molecule index must be 1, 2, or 3");
+  }
+}
+
+void SeekrForce::getSphericalMilestoneAtoms(int forceIndex, int atomIndex, int& atom_id, int molecule) const {
+  if (molecule == 1) {
+    atom_id = sphericalMilestones[forceIndex].atomIndices1[atomIndex];
+  } else if (molecule == 2) {
+    atom_id = sphericalMilestones[forceIndex].atomIndices2[atomIndex];
   } else {
     throw OpenMMException("Molecule index must be 1 or 2");
   }
@@ -69,17 +115,17 @@ bool SeekrForce::getEndOnMiddleCrossing() const {
   return endOnMiddleCrossing;
 }
 
-std::string SeekrForce::getDataFileName(int forceIndex) const {
-  return planarMilestones[forceIndex].dataFileName;
+std::string SeekrForce::getPlanarZDataFileName(int forceIndex) const {
+  return planarZMilestones[forceIndex].dataFileName;
 }
 
-void SeekrForce::addPlanarMilestone(int numIndices1, int numIndices2, float length1, 
-                              float length2, float length3, std::vector<int> atomIndices1,
+void SeekrForce::addPlanarZMilestone(int numIndices1, int numIndices2, float offset1, 
+                              float offset2, float offset3, std::vector<int> atomIndices1,
                               std::vector<int> atomIndices2, bool endOnMiddleCrossingArg,
                               std::string dataFileName) 
 {
-  /*cout << "Adding planar milestone. numIndices1: " << numIndices1 << " numIncices: ";
-  cout << numIndices2 << " radii: (" << length1 << ", " << length2 << ", " << length3;
+  /*cout << "Adding planarZ milestone. numIndices1: " << numIndices1 << " numIncices: ";
+  cout << numIndices2 << " radii: (" << offset1 << ", " << offset2 << ", " << offset3;
   cout << "). atomIndices1: [";
   for (int i=0; i < numIndices1; i++) {
     cout << atomIndices1[i] << " ";
@@ -90,34 +136,88 @@ void SeekrForce::addPlanarMilestone(int numIndices1, int numIndices2, float leng
   }
   cout << "]\n";
   cout << "dataFileName:" << dataFileName << "\n";*/
-  planarMilestones.push_back(
-      PlanarMilestoneInfo(numIndices1, numIndices2, length1, length2, length3, atomIndices1, atomIndices2, dataFileName));
+  planarZMilestones.push_back(
+      PlanarZMilestoneInfo(numIndices1, numIndices2, offset1, offset2, offset3, atomIndices1, atomIndices2, dataFileName));
   endOnMiddleCrossing = endOnMiddleCrossingArg;
   
   
 }
 
-void SeekrForce::modifyPlanarMilestone(int forceIndex, int numIndices1, int numIndices2, float length1, 
-                              float length2, float length3, std::vector<int> atomIndices1,
+void SeekrForce::modifyPlanarZMilestone(int forceIndex, int numIndices1, int numIndices2, float offset1, 
+                              float offset2, float offset3, std::vector<int> atomIndices1,
                               std::vector<int> atomIndices2, bool endOnMiddleCrossingArg,
                               std::string dataFileName) 
 {
   /*int i;
-  planarMilestone.numIndices1 = numIndices1;
-  planarMilestone.numIndices2 = numIndices2;
-  planarMilestone.length1 = length1;
-  planarMilestone.length2 = length2;
-  planarMilestone.length3 = length3;
+  planarZMilestone.numIndices1 = numIndices1;
+  planarZMilestone.numIndices2 = numIndices2;
+  planarZMilestone.offset1 = offset1;
+  planarZMilestone.offset2 = offset2;
+  planarZMilestone.offset3 = offset3;
   for (i=0; i<numIndices1; i++) {
-    planarMilestone.atomIndices1[i] = atomIndices1[i];
+    planarZMilestone.atomIndices1[i] = atomIndices1[i];
   }
   for (i=0; i<numIndices2; i++) {
-    planarMilestone.atomIndices2[i] = atomIndices2[i];
+    planarZMilestone.atomIndices2[i] = atomIndices2[i];
   }
-  std::cout << "Modifying planar milestone. Indices: " << numIndices1 << ", " << numIndices2;
-  std::cout << ". Radii: " << length1 << ", " << length2 << ", " << length3 << ".\n";
+  std::cout << "Modifying planarZ milestone. Indices: " << numIndices1 << ", " << numIndices2;
+  std::cout << ". Radii: " << offset1 << ", " << offset2 << ", " << offset3 << ".\n";
   */
-  planarMilestones[forceIndex] = PlanarMilestoneInfo(numIndices1, numIndices2, length1, length2, length3, atomIndices1, atomIndices2, dataFileName);
+  planarZMilestones[forceIndex] = PlanarZMilestoneInfo(numIndices1, numIndices2, offset1, offset2, offset3, atomIndices1, atomIndices2, dataFileName);
+  endOnMiddleCrossing = endOnMiddleCrossingArg;
+  
+}
+
+
+std::string SeekrForce::getSphericalDataFileName(int forceIndex) const {
+  return sphericalMilestones[forceIndex].dataFileName;
+}
+
+void SeekrForce::addSphericalMilestone(int numIndices1, int numIndices2, float radius1, 
+                              float radius2, float radius3, std::vector<int> atomIndices1,
+                              std::vector<int> atomIndices2, bool endOnMiddleCrossingArg,
+                              std::string dataFileName) 
+{
+  /*cout << "Adding spherical milestone. numIndices1: " << numIndices1 << " numIncices: ";
+  cout << numIndices2 << " radii: (" << radius1 << ", " << radius2 << ", " << radius3;
+  cout << "). atomIndices1: [";
+  for (int i=0; i < numIndices1; i++) {
+    cout << atomIndices1[i] << " ";
+  }
+  cout << "] atomIndices2: [";
+  for (int i=0; i < numIndices2; i++) {
+    cout << atomIndices2[i] << " ";
+  }
+  cout << "]\n";
+  cout << "dataFileName:" << dataFileName << "\n";*/
+  sphericalMilestones.push_back(
+      SphericalMilestoneInfo(numIndices1, numIndices2, radius1, radius2, radius3, atomIndices1, atomIndices2, dataFileName));
+  endOnMiddleCrossing = endOnMiddleCrossingArg;
+  
+  
+}
+
+void SeekrForce::modifySphericalMilestone(int forceIndex, int numIndices1, int numIndices2, float radius1, 
+                              float radius2, float radius3, std::vector<int> atomIndices1,
+                              std::vector<int> atomIndices2, bool endOnMiddleCrossingArg,
+                              std::string dataFileName) 
+{
+  /*int i;
+  sphericalMilestone.numIndices1 = numIndices1;
+  sphericalMilestone.numIndices2 = numIndices2;
+  sphericalMilestone.radius1 = radius1;
+  sphericalMilestone.radius2 = radius2;
+  sphericalMilestone.radius3 = radius3;
+  for (i=0; i<numIndices1; i++) {
+    sphericalMilestone.atomIndices1[i] = atomIndices1[i];
+  }
+  for (i=0; i<numIndices2; i++) {
+    sphericalMilestone.atomIndices2[i] = atomIndices2[i];
+  }
+  std::cout << "Modifying spherical milestone. Indices: " << numIndices1 << ", " << numIndices2;
+  std::cout << ". Radii: " << radius1 << ", " << radius2 << ", " << radius3 << ".\n";
+  */
+  sphericalMilestones[forceIndex] = SphericalMilestoneInfo(numIndices1, numIndices2, radius1, radius2, radius3, atomIndices1, atomIndices2, dataFileName);
   endOnMiddleCrossing = endOnMiddleCrossingArg;
   
 }

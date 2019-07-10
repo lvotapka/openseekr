@@ -3,6 +3,7 @@
 
 serialization/tests/CMakeFiles/TestSerializationSeekrForce.dir/TestSerializationSeekrForce.cpp.o: ../openmmapi/include/SeekrForce.h
 serialization/tests/CMakeFiles/TestSerializationSeekrForce.dir/TestSerializationSeekrForce.cpp.o: ../openmmapi/include/internal/windowsExportSeekr.h
+serialization/tests/CMakeFiles/TestSerializationSeekrForce.dir/TestSerializationSeekrForce.cpp.o: ../serialization/tests/TestSerializationSeekrForce.cpp
 serialization/tests/CMakeFiles/TestSerializationSeekrForce.dir/TestSerializationSeekrForce.cpp.o: /home/astokely/bin/openmm/include/openmm/Context.h
 serialization/tests/CMakeFiles/TestSerializationSeekrForce.dir/TestSerializationSeekrForce.cpp.o: /home/astokely/bin/openmm/include/openmm/Force.h
 serialization/tests/CMakeFiles/TestSerializationSeekrForce.dir/TestSerializationSeekrForce.cpp.o: /home/astokely/bin/openmm/include/openmm/Integrator.h
@@ -17,5 +18,4 @@ serialization/tests/CMakeFiles/TestSerializationSeekrForce.dir/TestSerialization
 serialization/tests/CMakeFiles/TestSerializationSeekrForce.dir/TestSerializationSeekrForce.cpp.o: /home/astokely/bin/openmm/include/openmm/serialization/SerializationNode.h
 serialization/tests/CMakeFiles/TestSerializationSeekrForce.dir/TestSerializationSeekrForce.cpp.o: /home/astokely/bin/openmm/include/openmm/serialization/SerializationProxy.h
 serialization/tests/CMakeFiles/TestSerializationSeekrForce.dir/TestSerializationSeekrForce.cpp.o: /home/astokely/bin/openmm/include/openmm/serialization/XmlSerializer.h
-serialization/tests/CMakeFiles/TestSerializationSeekrForce.dir/TestSerializationSeekrForce.cpp.o: ../serialization/tests/TestSerializationSeekrForce.cpp
 

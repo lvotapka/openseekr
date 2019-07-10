@@ -1,10 +1,14 @@
 '''
-Created on May 9, 2018
+Created on June 11, 2019
 
+<<<<<<< HEAD
+@author: lvotapka and astokely
+=======
 @author: lvotapka
 @author: astokely
+>>>>>>> 274c61c6ef6e295376dcb3230866c228bef39750
 
-Procedures for creating milestone objects
+Procedures for creating spherical and planar milestone objects
 '''
 
 import numpy as np
@@ -23,8 +27,9 @@ class Milestone_System():
     self.prmtop_filename = '' # AMBER inputs
     self.inpcrd_filename = ''
     self.psf_filename = ''
-    self.rtf_filename = '' # CHARMM inputs
+    #self.rtf_filename = '' # CHARMM inputs # TODO: remove
     self.par_filename = ''
+    self.charmm_params_filename_list = []
     self.umbrella_pdb_filename = ''
     self.system = None
     self.simulation = None
@@ -93,8 +98,8 @@ class Planar_Z_Milestone(Milestone):
     self.bd_adjacent = None
     self.end = False
     # dimensions
-    self.center_atom_indices = [] # the indices of the atoms in the system that define the center of this spherical milestone
-    self.center_vec = None # the x,y,z location of the center of this spherical milestone
+    self.center_atom_indices = [] # the indices of the atoms in the system that define the center of this planar milestone
+    self.center_vec = None # the x,y,z location of the center of this planar milestone
     self.offset = 0.0
     self.wet_holo_filename = ''
     self.atom_selection_1 = None
@@ -234,7 +239,7 @@ def print_spherical_milestone_info(milestones):
   return
 
 def generate_planar_z_milestones(seekrcalc, atom_indices, origin, offset_list, 
-                                 siteid, vectors=[[0.0, 0.0, 1.0]], 
+                                 siteid, vectors=[np.array([0.0, 0.0, 1.0])], 
                                  absolute=False):
   '''Create a list of stacked planar milestones around an atom selection.
   Input:

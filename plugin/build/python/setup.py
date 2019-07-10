@@ -5,8 +5,8 @@ import sys
 import platform
 
 openmm_dir = '/home/astokely/bin/openmm'
-seekrplugin_header_dir = '/home/astokely/planar/openseekr/plugin/openmmapi/include'
-seekrplugin_library_dir = '/home/astokely/planar/openseekr/plugin/build'
+seekrplugin_header_dir = '/home/astokely/SEEKR/openseekr/plugin/openmmapi/include'
+seekrplugin_library_dir = '/home/astokely/SEEKR/openseekr/plugin/build'
 
 # setup extra compile and link arguments on Mac
 extra_compile_args = []

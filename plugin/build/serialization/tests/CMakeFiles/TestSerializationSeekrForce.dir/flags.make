@@ -6,5 +6,5 @@ CXX_FLAGS =   -std=gnu++11
 
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/astokely/planar/openseekr/plugin/serialization/include -I/home/astokely/planar/openseekr/plugin/openmmapi/include -I/home/astokely/bin/openmm/include 
+CXX_INCLUDES = -I/home/astokely/SEEKR/openseekr/plugin/serialization/include -I/home/astokely/SEEKR/openseekr/plugin/openmmapi/include -I/home/astokely/bin/openmm/include 
 

@@ -1,11 +1,13 @@
 '''
-The base module contains all the classes used in SEEKR runs
+The base module contains all the classes used in both spherical and planar milestone SEEKR runs
 
-Created on May 8, 2018
+Created on July 2, 2019
 
+@author: astokely
 @author: lvotapka
 '''
 
+#I used "TODO: Andy (date)" to mark the changes I that I made.
 import cPickle as pickle
 import os
 
@@ -16,7 +18,7 @@ class _Project():
     self.rootdir = '' # a directory to write all the MD and BD files
     self.test_mode = False # reduces the calculation time by restricting input size. Use only for debugging SEEKR
     self.md = True # whether MD is run in this calculation
-    self.bd = True # whether BD is run in this calculation
+    self.bd = False # whether BD is run in this calculation
     #self.k_off = False # whether files to prepare k-off calculations are generated
     self.empty_rootdir = False # if set to True will empty the contents of the rootdir when the new file tree is made
     
@@ -141,7 +143,8 @@ class _Umbrella():
     self.force_constant = 0.0
     self.integrator = None # the OpenMM integrator object
     self.reporters = [] # OpenMM reporter frequency
-    self.barostat = True
+    self.barostat = False #Used for npt non-membrane simulations
+    self.membrane_barostat = False #Used for npt membrane system simulations TODO:Andy July 2, 2019 
     self.barostat_coeff = 25
     self.barostat_pressure = 1.0
     self.traj = []

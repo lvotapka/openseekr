@@ -5,6 +5,8 @@ platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernelFactory.cpp.o: 
 platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernelFactory.cpp.o: ../openmmapi/include/SeekrKernels.h
 platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernelFactory.cpp.o: ../openmmapi/include/internal/windowsExportSeekr.h
 platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernelFactory.cpp.o: ../platforms/cuda/include/CudaSeekrKernelFactory.h
+platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernelFactory.cpp.o: ../platforms/cuda/src/CudaSeekrKernelFactory.cpp
+platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernelFactory.cpp.o: ../platforms/cuda/src/CudaSeekrKernels.h
 platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernelFactory.cpp.o: /home/astokely/bin/openmm/include/openmm/AndersenThermostat.h
 platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernelFactory.cpp.o: /home/astokely/bin/openmm/include/openmm/BrownianIntegrator.h
 platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernelFactory.cpp.o: /home/astokely/bin/openmm/include/openmm/CMAPTorsionForce.h
@@ -55,8 +57,6 @@ platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernelFactory.cpp.o: 
 platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernelFactory.cpp.o: /home/astokely/bin/openmm/include/openmm/internal/ThreadPool.h
 platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernelFactory.cpp.o: /home/astokely/bin/openmm/include/openmm/internal/windowsExport.h
 platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernelFactory.cpp.o: /home/astokely/bin/openmm/include/openmm/kernels.h
-platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernelFactory.cpp.o: ../platforms/cuda/src/CudaSeekrKernelFactory.cpp
-platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernelFactory.cpp.o: ../platforms/cuda/src/CudaSeekrKernels.h
 platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernelFactory.cpp.o: /usr/local/cuda/include/builtin_types.h
 platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernelFactory.cpp.o: /usr/local/cuda/include/cuda.h
 platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernelFactory.cpp.o: /usr/local/cuda/include/device_types.h
@@ -74,6 +74,8 @@ platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernelSources.cpp.o: 
 platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernels.cpp.o: ../openmmapi/include/SeekrForce.h
 platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernels.cpp.o: ../openmmapi/include/SeekrKernels.h
 platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernels.cpp.o: ../openmmapi/include/internal/windowsExportSeekr.h
+platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernels.cpp.o: ../platforms/cuda/src/CudaSeekrKernels.cpp
+platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernels.cpp.o: ../platforms/cuda/src/CudaSeekrKernels.h
 platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernels.cpp.o: /home/astokely/bin/openmm/include/openmm/AndersenThermostat.h
 platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernels.cpp.o: /home/astokely/bin/openmm/include/openmm/BrownianIntegrator.h
 platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernels.cpp.o: /home/astokely/bin/openmm/include/openmm/CMAPTorsionForce.h
@@ -125,8 +127,6 @@ platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernels.cpp.o: /home/
 platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernels.cpp.o: /home/astokely/bin/openmm/include/openmm/internal/ThreadPool.h
 platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernels.cpp.o: /home/astokely/bin/openmm/include/openmm/internal/windowsExport.h
 platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernels.cpp.o: /home/astokely/bin/openmm/include/openmm/kernels.h
-platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernels.cpp.o: ../platforms/cuda/src/CudaSeekrKernels.cpp
-platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernels.cpp.o: ../platforms/cuda/src/CudaSeekrKernels.h
 platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernels.cpp.o: /usr/local/cuda/include/builtin_types.h
 platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernels.cpp.o: /usr/local/cuda/include/cuda.h
 platforms/cuda/CMakeFiles/SeekrPluginCUDA.dir/src/CudaSeekrKernels.cpp.o: /usr/local/cuda/include/device_types.h
