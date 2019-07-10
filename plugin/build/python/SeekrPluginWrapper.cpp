@@ -3041,31 +3041,32 @@ SWIG_Python_NonDynamicSetAttr(PyObject *obj, PyObject *name, PyObject *value) {
 #define SWIGTYPE_p_OpenMM__GayBerneForce swig_types[29]
 #define SWIGTYPE_p_OpenMM__HarmonicAngleForce swig_types[30]
 #define SWIGTYPE_p_OpenMM__HarmonicBondForce swig_types[31]
-#define SWIGTYPE_p_OpenMM__MonteCarloAnisotropicBarostat swig_types[32]
-#define SWIGTYPE_p_OpenMM__MonteCarloBarostat swig_types[33]
-#define SWIGTYPE_p_OpenMM__MonteCarloMembraneBarostat swig_types[34]
-#define SWIGTYPE_p_OpenMM__NonbondedForce swig_types[35]
-#define SWIGTYPE_p_OpenMM__PeriodicTorsionForce swig_types[36]
-#define SWIGTYPE_p_OpenMM__RBTorsionForce swig_types[37]
-#define SWIGTYPE_p_OpenMM__RMSDForce swig_types[38]
-#define SWIGTYPE_p_OpenMM__RPMDMonteCarloBarostat swig_types[39]
-#define SWIGTYPE_p_SeekrPlugin__SeekrForce swig_types[40]
-#define SWIGTYPE_p_allocator_type swig_types[41]
-#define SWIGTYPE_p_char swig_types[42]
-#define SWIGTYPE_p_difference_type swig_types[43]
-#define SWIGTYPE_p_int swig_types[44]
-#define SWIGTYPE_p_p_PyObject swig_types[45]
-#define SWIGTYPE_p_size_type swig_types[46]
-#define SWIGTYPE_p_std__allocatorT_double_t swig_types[47]
-#define SWIGTYPE_p_std__allocatorT_int_t swig_types[48]
-#define SWIGTYPE_p_std__invalid_argument swig_types[49]
-#define SWIGTYPE_p_std__string swig_types[50]
-#define SWIGTYPE_p_std__vectorT_double_std__allocatorT_double_t_t swig_types[51]
-#define SWIGTYPE_p_std__vectorT_int_std__allocatorT_int_t_t swig_types[52]
-#define SWIGTYPE_p_swig__SwigPyIterator swig_types[53]
-#define SWIGTYPE_p_value_type swig_types[54]
-static swig_type_info *swig_types[56];
-static swig_module_info swig_module = {swig_types, 55, 0, 0, 0, 0};
+#define SWIGTYPE_p_OpenMM__HippoNonbondedForce swig_types[32]
+#define SWIGTYPE_p_OpenMM__MonteCarloAnisotropicBarostat swig_types[33]
+#define SWIGTYPE_p_OpenMM__MonteCarloBarostat swig_types[34]
+#define SWIGTYPE_p_OpenMM__MonteCarloMembraneBarostat swig_types[35]
+#define SWIGTYPE_p_OpenMM__NonbondedForce swig_types[36]
+#define SWIGTYPE_p_OpenMM__PeriodicTorsionForce swig_types[37]
+#define SWIGTYPE_p_OpenMM__RBTorsionForce swig_types[38]
+#define SWIGTYPE_p_OpenMM__RMSDForce swig_types[39]
+#define SWIGTYPE_p_OpenMM__RPMDMonteCarloBarostat swig_types[40]
+#define SWIGTYPE_p_SeekrPlugin__SeekrForce swig_types[41]
+#define SWIGTYPE_p_allocator_type swig_types[42]
+#define SWIGTYPE_p_char swig_types[43]
+#define SWIGTYPE_p_difference_type swig_types[44]
+#define SWIGTYPE_p_int swig_types[45]
+#define SWIGTYPE_p_p_PyObject swig_types[46]
+#define SWIGTYPE_p_size_type swig_types[47]
+#define SWIGTYPE_p_std__allocatorT_double_t swig_types[48]
+#define SWIGTYPE_p_std__allocatorT_int_t swig_types[49]
+#define SWIGTYPE_p_std__invalid_argument swig_types[50]
+#define SWIGTYPE_p_std__string swig_types[51]
+#define SWIGTYPE_p_std__vectorT_double_std__allocatorT_double_t_t swig_types[52]
+#define SWIGTYPE_p_std__vectorT_int_std__allocatorT_int_t_t swig_types[53]
+#define SWIGTYPE_p_swig__SwigPyIterator swig_types[54]
+#define SWIGTYPE_p_value_type swig_types[55]
+static swig_type_info *swig_types[57];
+static swig_module_info swig_module = {swig_types, 56, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -9904,6 +9905,177 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_SeekrForce_getPlanarZNumIndices(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SeekrPlugin::SeekrForce *arg1 = (SeekrPlugin::SeekrForce *) 0 ;
+  int arg2 ;
+  int arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  int val3 ;
+  int ecode3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  int result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:SeekrForce_getPlanarZNumIndices",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_SeekrPlugin__SeekrForce, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SeekrForce_getPlanarZNumIndices" "', argument " "1"" of type '" "SeekrPlugin::SeekrForce const *""'"); 
+  }
+  arg1 = reinterpret_cast< SeekrPlugin::SeekrForce * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "SeekrForce_getPlanarZNumIndices" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  ecode3 = SWIG_AsVal_int(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "SeekrForce_getPlanarZNumIndices" "', argument " "3"" of type '" "int""'");
+  } 
+  arg3 = static_cast< int >(val3);
+  result = (int)((SeekrPlugin::SeekrForce const *)arg1)->getPlanarZNumIndices(arg2,arg3);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SeekrForce_getPlanarZOffset(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SeekrPlugin::SeekrForce *arg1 = (SeekrPlugin::SeekrForce *) 0 ;
+  int arg2 ;
+  int arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  int val3 ;
+  int ecode3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  float result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:SeekrForce_getPlanarZOffset",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_SeekrPlugin__SeekrForce, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SeekrForce_getPlanarZOffset" "', argument " "1"" of type '" "SeekrPlugin::SeekrForce const *""'"); 
+  }
+  arg1 = reinterpret_cast< SeekrPlugin::SeekrForce * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "SeekrForce_getPlanarZOffset" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  ecode3 = SWIG_AsVal_int(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "SeekrForce_getPlanarZOffset" "', argument " "3"" of type '" "int""'");
+  } 
+  arg3 = static_cast< int >(val3);
+  result = (float)((SeekrPlugin::SeekrForce const *)arg1)->getPlanarZOffset(arg2,arg3);
+  resultobj = SWIG_From_float(static_cast< float >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SeekrForce_getPlanarZMilestoneAtoms(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SeekrPlugin::SeekrForce *arg1 = (SeekrPlugin::SeekrForce *) 0 ;
+  int arg2 ;
+  int arg3 ;
+  int *arg4 = 0 ;
+  int arg5 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  int val3 ;
+  int ecode3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  int val5 ;
+  int ecode5 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOO:SeekrForce_getPlanarZMilestoneAtoms",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_SeekrPlugin__SeekrForce, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SeekrForce_getPlanarZMilestoneAtoms" "', argument " "1"" of type '" "SeekrPlugin::SeekrForce const *""'"); 
+  }
+  arg1 = reinterpret_cast< SeekrPlugin::SeekrForce * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "SeekrForce_getPlanarZMilestoneAtoms" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  ecode3 = SWIG_AsVal_int(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "SeekrForce_getPlanarZMilestoneAtoms" "', argument " "3"" of type '" "int""'");
+  } 
+  arg3 = static_cast< int >(val3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4, SWIGTYPE_p_int,  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "SeekrForce_getPlanarZMilestoneAtoms" "', argument " "4"" of type '" "int &""'"); 
+  }
+  if (!argp4) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "SeekrForce_getPlanarZMilestoneAtoms" "', argument " "4"" of type '" "int &""'"); 
+  }
+  arg4 = reinterpret_cast< int * >(argp4);
+  ecode5 = SWIG_AsVal_int(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "SeekrForce_getPlanarZMilestoneAtoms" "', argument " "5"" of type '" "int""'");
+  } 
+  arg5 = static_cast< int >(val5);
+  ((SeekrPlugin::SeekrForce const *)arg1)->getPlanarZMilestoneAtoms(arg2,arg3,*arg4,arg5);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SeekrForce_getPlanarZDataFileName(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SeekrPlugin::SeekrForce *arg1 = (SeekrPlugin::SeekrForce *) 0 ;
+  int arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  std::string result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:SeekrForce_getPlanarZDataFileName",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_SeekrPlugin__SeekrForce, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SeekrForce_getPlanarZDataFileName" "', argument " "1"" of type '" "SeekrPlugin::SeekrForce const *""'"); 
+  }
+  arg1 = reinterpret_cast< SeekrPlugin::SeekrForce * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "SeekrForce_getPlanarZDataFileName" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  result = ((SeekrPlugin::SeekrForce const *)arg1)->getPlanarZDataFileName(arg2);
+  resultobj = SWIG_NewPointerObj((new std::string(static_cast< const std::string& >(result))), SWIGTYPE_p_std__string, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_SeekrForce_updateParametersInContext(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   SeekrPlugin::SeekrForce *arg1 = (SeekrPlugin::SeekrForce *) 0 ;
@@ -10192,177 +10364,6 @@ SWIGINTERN PyObject *_wrap_SeekrForce_modifySphericalMilestone(PyObject *SWIGUNU
   }
   (arg1)->modifySphericalMilestone(arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11);
   resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_SeekrForce_getPlanarZNumIndices(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  SeekrPlugin::SeekrForce *arg1 = (SeekrPlugin::SeekrForce *) 0 ;
-  int arg2 ;
-  int arg3 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  int val2 ;
-  int ecode2 = 0 ;
-  int val3 ;
-  int ecode3 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  int result;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOO:SeekrForce_getPlanarZNumIndices",&obj0,&obj1,&obj2)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_SeekrPlugin__SeekrForce, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SeekrForce_getPlanarZNumIndices" "', argument " "1"" of type '" "SeekrPlugin::SeekrForce const *""'"); 
-  }
-  arg1 = reinterpret_cast< SeekrPlugin::SeekrForce * >(argp1);
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "SeekrForce_getPlanarZNumIndices" "', argument " "2"" of type '" "int""'");
-  } 
-  arg2 = static_cast< int >(val2);
-  ecode3 = SWIG_AsVal_int(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "SeekrForce_getPlanarZNumIndices" "', argument " "3"" of type '" "int""'");
-  } 
-  arg3 = static_cast< int >(val3);
-  result = (int)((SeekrPlugin::SeekrForce const *)arg1)->getPlanarZNumIndices(arg2,arg3);
-  resultobj = SWIG_From_int(static_cast< int >(result));
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_SeekrForce_getPlanarZOffset(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  SeekrPlugin::SeekrForce *arg1 = (SeekrPlugin::SeekrForce *) 0 ;
-  int arg2 ;
-  int arg3 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  int val2 ;
-  int ecode2 = 0 ;
-  int val3 ;
-  int ecode3 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  float result;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOO:SeekrForce_getPlanarZOffset",&obj0,&obj1,&obj2)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_SeekrPlugin__SeekrForce, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SeekrForce_getPlanarZOffset" "', argument " "1"" of type '" "SeekrPlugin::SeekrForce const *""'"); 
-  }
-  arg1 = reinterpret_cast< SeekrPlugin::SeekrForce * >(argp1);
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "SeekrForce_getPlanarZOffset" "', argument " "2"" of type '" "int""'");
-  } 
-  arg2 = static_cast< int >(val2);
-  ecode3 = SWIG_AsVal_int(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "SeekrForce_getPlanarZOffset" "', argument " "3"" of type '" "int""'");
-  } 
-  arg3 = static_cast< int >(val3);
-  result = (float)((SeekrPlugin::SeekrForce const *)arg1)->getPlanarZOffset(arg2,arg3);
-  resultobj = SWIG_From_float(static_cast< float >(result));
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_SeekrForce_getPlanarZMilestoneAtoms(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  SeekrPlugin::SeekrForce *arg1 = (SeekrPlugin::SeekrForce *) 0 ;
-  int arg2 ;
-  int arg3 ;
-  int *arg4 = 0 ;
-  int arg5 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  int val2 ;
-  int ecode2 = 0 ;
-  int val3 ;
-  int ecode3 = 0 ;
-  void *argp4 = 0 ;
-  int res4 = 0 ;
-  int val5 ;
-  int ecode5 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  PyObject * obj3 = 0 ;
-  PyObject * obj4 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOOOO:SeekrForce_getPlanarZMilestoneAtoms",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_SeekrPlugin__SeekrForce, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SeekrForce_getPlanarZMilestoneAtoms" "', argument " "1"" of type '" "SeekrPlugin::SeekrForce const *""'"); 
-  }
-  arg1 = reinterpret_cast< SeekrPlugin::SeekrForce * >(argp1);
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "SeekrForce_getPlanarZMilestoneAtoms" "', argument " "2"" of type '" "int""'");
-  } 
-  arg2 = static_cast< int >(val2);
-  ecode3 = SWIG_AsVal_int(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "SeekrForce_getPlanarZMilestoneAtoms" "', argument " "3"" of type '" "int""'");
-  } 
-  arg3 = static_cast< int >(val3);
-  res4 = SWIG_ConvertPtr(obj3, &argp4, SWIGTYPE_p_int,  0 );
-  if (!SWIG_IsOK(res4)) {
-    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "SeekrForce_getPlanarZMilestoneAtoms" "', argument " "4"" of type '" "int &""'"); 
-  }
-  if (!argp4) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "SeekrForce_getPlanarZMilestoneAtoms" "', argument " "4"" of type '" "int &""'"); 
-  }
-  arg4 = reinterpret_cast< int * >(argp4);
-  ecode5 = SWIG_AsVal_int(obj4, &val5);
-  if (!SWIG_IsOK(ecode5)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "SeekrForce_getPlanarZMilestoneAtoms" "', argument " "5"" of type '" "int""'");
-  } 
-  arg5 = static_cast< int >(val5);
-  ((SeekrPlugin::SeekrForce const *)arg1)->getPlanarZMilestoneAtoms(arg2,arg3,*arg4,arg5);
-  resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_SeekrForce_getPlanarZDataFileName(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  SeekrPlugin::SeekrForce *arg1 = (SeekrPlugin::SeekrForce *) 0 ;
-  int arg2 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  int val2 ;
-  int ecode2 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  std::string result;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OO:SeekrForce_getPlanarZDataFileName",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_SeekrPlugin__SeekrForce, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SeekrForce_getPlanarZDataFileName" "', argument " "1"" of type '" "SeekrPlugin::SeekrForce const *""'"); 
-  }
-  arg1 = reinterpret_cast< SeekrPlugin::SeekrForce * >(argp1);
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "SeekrForce_getPlanarZDataFileName" "', argument " "2"" of type '" "int""'");
-  } 
-  arg2 = static_cast< int >(val2);
-  result = ((SeekrPlugin::SeekrForce const *)arg1)->getPlanarZDataFileName(arg2);
-  resultobj = SWIG_NewPointerObj((new std::string(static_cast< const std::string& >(result))), SWIGTYPE_p_std__string, SWIG_POINTER_OWN |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -10752,13 +10753,13 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"SeekrForce_getSphericalMilestoneAtoms", _wrap_SeekrForce_getSphericalMilestoneAtoms, METH_VARARGS, NULL},
 	 { (char *)"SeekrForce_getEndOnMiddleCrossing", _wrap_SeekrForce_getEndOnMiddleCrossing, METH_VARARGS, NULL},
 	 { (char *)"SeekrForce_getSphericalDataFileName", _wrap_SeekrForce_getSphericalDataFileName, METH_VARARGS, NULL},
-	 { (char *)"SeekrForce_updateParametersInContext", _wrap_SeekrForce_updateParametersInContext, METH_VARARGS, NULL},
-	 { (char *)"SeekrForce_addSphericalMilestone", _wrap_SeekrForce_addSphericalMilestone, METH_VARARGS, NULL},
-	 { (char *)"SeekrForce_modifySphericalMilestone", _wrap_SeekrForce_modifySphericalMilestone, METH_VARARGS, NULL},
 	 { (char *)"SeekrForce_getPlanarZNumIndices", _wrap_SeekrForce_getPlanarZNumIndices, METH_VARARGS, NULL},
 	 { (char *)"SeekrForce_getPlanarZOffset", _wrap_SeekrForce_getPlanarZOffset, METH_VARARGS, NULL},
 	 { (char *)"SeekrForce_getPlanarZMilestoneAtoms", _wrap_SeekrForce_getPlanarZMilestoneAtoms, METH_VARARGS, NULL},
 	 { (char *)"SeekrForce_getPlanarZDataFileName", _wrap_SeekrForce_getPlanarZDataFileName, METH_VARARGS, NULL},
+	 { (char *)"SeekrForce_updateParametersInContext", _wrap_SeekrForce_updateParametersInContext, METH_VARARGS, NULL},
+	 { (char *)"SeekrForce_addSphericalMilestone", _wrap_SeekrForce_addSphericalMilestone, METH_VARARGS, NULL},
+	 { (char *)"SeekrForce_modifySphericalMilestone", _wrap_SeekrForce_modifySphericalMilestone, METH_VARARGS, NULL},
 	 { (char *)"SeekrForce_addPlanarZMilestone", _wrap_SeekrForce_addPlanarZMilestone, METH_VARARGS, NULL},
 	 { (char *)"SeekrForce_modifyPlanarZMilestone", _wrap_SeekrForce_modifyPlanarZMilestone, METH_VARARGS, NULL},
 	 { (char *)"delete_SeekrForce", _wrap_delete_SeekrForce, METH_VARARGS, NULL},
@@ -10808,9 +10809,6 @@ static void *_p_OpenMM__HarmonicBondForceTo_p_OpenMM__Force(void *x, int *SWIGUN
 static void *_p_OpenMM__CustomExternalForceTo_p_OpenMM__Force(void *x, int *SWIGUNUSEDPARM(newmemory)) {
     return (void *)((OpenMM::Force *)  ((OpenMM::CustomExternalForce *) x));
 }
-static void *_p_OpenMM__AmoebaPiTorsionForceTo_p_OpenMM__Force(void *x, int *SWIGUNUSEDPARM(newmemory)) {
-    return (void *)((OpenMM::Force *)  ((OpenMM::AmoebaPiTorsionForce *) x));
-}
 static void *_p_OpenMM__AmoebaWcaDispersionForceTo_p_OpenMM__Force(void *x, int *SWIGUNUSEDPARM(newmemory)) {
     return (void *)((OpenMM::Force *)  ((OpenMM::AmoebaWcaDispersionForce *) x));
 }
@@ -10831,6 +10829,9 @@ static void *_p_OpenMM__CustomTorsionForceTo_p_OpenMM__Force(void *x, int *SWIGU
 }
 static void *_p_OpenMM__CMMotionRemoverTo_p_OpenMM__Force(void *x, int *SWIGUNUSEDPARM(newmemory)) {
     return (void *)((OpenMM::Force *)  ((OpenMM::CMMotionRemover *) x));
+}
+static void *_p_OpenMM__AmoebaPiTorsionForceTo_p_OpenMM__Force(void *x, int *SWIGUNUSEDPARM(newmemory)) {
+    return (void *)((OpenMM::Force *)  ((OpenMM::AmoebaPiTorsionForce *) x));
 }
 static void *_p_OpenMM__GBSAOBCForceTo_p_OpenMM__Force(void *x, int *SWIGUNUSEDPARM(newmemory)) {
     return (void *)((OpenMM::Force *)  ((OpenMM::GBSAOBCForce *) x));
@@ -10883,6 +10884,9 @@ static void *_p_OpenMM__AmoebaGeneralizedKirkwoodForceTo_p_OpenMM__Force(void *x
 static void *_p_OpenMM__CustomNonbondedForceTo_p_OpenMM__Force(void *x, int *SWIGUNUSEDPARM(newmemory)) {
     return (void *)((OpenMM::Force *)  ((OpenMM::CustomNonbondedForce *) x));
 }
+static void *_p_OpenMM__HippoNonbondedForceTo_p_OpenMM__Force(void *x, int *SWIGUNUSEDPARM(newmemory)) {
+    return (void *)((OpenMM::Force *)  ((OpenMM::HippoNonbondedForce *) x));
+}
 static void *_p_OpenMM__NonbondedForceTo_p_OpenMM__Force(void *x, int *SWIGUNUSEDPARM(newmemory)) {
     return (void *)((OpenMM::Force *)  ((OpenMM::NonbondedForce *) x));
 }
@@ -10901,13 +10905,13 @@ static swig_type_info _swigt__p_OpenMM__AmoebaBondForce = {"_p_OpenMM__AmoebaBon
 static swig_type_info _swigt__p_OpenMM__CustomHbondForce = {"_p_OpenMM__CustomHbondForce", 0, 0, 0, 0, 0};
 static swig_type_info _swigt__p_OpenMM__HarmonicBondForce = {"_p_OpenMM__HarmonicBondForce", 0, 0, 0, 0, 0};
 static swig_type_info _swigt__p_OpenMM__CustomExternalForce = {"_p_OpenMM__CustomExternalForce", 0, 0, 0, 0, 0};
-static swig_type_info _swigt__p_OpenMM__AmoebaPiTorsionForce = {"_p_OpenMM__AmoebaPiTorsionForce", 0, 0, 0, 0, 0};
 static swig_type_info _swigt__p_OpenMM__AmoebaWcaDispersionForce = {"_p_OpenMM__AmoebaWcaDispersionForce", 0, 0, 0, 0, 0};
 static swig_type_info _swigt__p_OpenMM__AmoebaTorsionTorsionForce = {"_p_OpenMM__AmoebaTorsionTorsionForce", 0, 0, 0, 0, 0};
 static swig_type_info _swigt__p_OpenMM__PeriodicTorsionForce = {"_p_OpenMM__PeriodicTorsionForce", 0, 0, 0, 0, 0};
 static swig_type_info _swigt__p_OpenMM__RBTorsionForce = {"_p_OpenMM__RBTorsionForce", 0, 0, 0, 0, 0};
 static swig_type_info _swigt__p_OpenMM__CMAPTorsionForce = {"_p_OpenMM__CMAPTorsionForce", 0, 0, 0, 0, 0};
 static swig_type_info _swigt__p_OpenMM__CustomTorsionForce = {"_p_OpenMM__CustomTorsionForce", 0, 0, 0, 0, 0};
+static swig_type_info _swigt__p_OpenMM__AmoebaPiTorsionForce = {"_p_OpenMM__AmoebaPiTorsionForce", 0, 0, 0, 0, 0};
 static swig_type_info _swigt__p_OpenMM__CMMotionRemover = {"_p_OpenMM__CMMotionRemover", 0, 0, 0, 0, 0};
 static swig_type_info _swigt__p_OpenMM__GBSAOBCForce = {"_p_OpenMM__GBSAOBCForce", 0, 0, 0, 0, 0};
 static swig_type_info _swigt__p_OpenMM__AmoebaVdwForce = {"_p_OpenMM__AmoebaVdwForce", 0, 0, 0, 0, 0};
@@ -10925,6 +10929,7 @@ static swig_type_info _swigt__p_OpenMM__AmoebaInPlaneAngleForce = {"_p_OpenMM__A
 static swig_type_info _swigt__p_OpenMM__CustomManyParticleForce = {"_p_OpenMM__CustomManyParticleForce", 0, 0, 0, 0, 0};
 static swig_type_info _swigt__p_OpenMM__AmoebaGeneralizedKirkwoodForce = {"_p_OpenMM__AmoebaGeneralizedKirkwoodForce", 0, 0, 0, 0, 0};
 static swig_type_info _swigt__p_OpenMM__CustomNonbondedForce = {"_p_OpenMM__CustomNonbondedForce", 0, 0, 0, 0, 0};
+static swig_type_info _swigt__p_OpenMM__HippoNonbondedForce = {"_p_OpenMM__HippoNonbondedForce", 0, 0, 0, 0, 0};
 static swig_type_info _swigt__p_OpenMM__NonbondedForce = {"_p_OpenMM__NonbondedForce", 0, 0, 0, 0, 0};
 static swig_type_info _swigt__p_SeekrPlugin__SeekrForce = {"_p_SeekrPlugin__SeekrForce", "SeekrPlugin::SeekrForce *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_allocator_type = {"_p_allocator_type", "allocator_type *", 0, 0, (void*)0, 0};
@@ -10975,6 +10980,7 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_OpenMM__GayBerneForce,
   &_swigt__p_OpenMM__HarmonicAngleForce,
   &_swigt__p_OpenMM__HarmonicBondForce,
+  &_swigt__p_OpenMM__HippoNonbondedForce,
   &_swigt__p_OpenMM__MonteCarloAnisotropicBarostat,
   &_swigt__p_OpenMM__MonteCarloBarostat,
   &_swigt__p_OpenMM__MonteCarloMembraneBarostat,
@@ -11014,13 +11020,13 @@ static swig_cast_info _swigc__p_OpenMM__AmoebaBondForce[] = {{&_swigt__p_OpenMM_
 static swig_cast_info _swigc__p_OpenMM__CustomHbondForce[] = {{&_swigt__p_OpenMM__CustomHbondForce, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_OpenMM__HarmonicBondForce[] = {{&_swigt__p_OpenMM__HarmonicBondForce, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_OpenMM__CustomExternalForce[] = {{&_swigt__p_OpenMM__CustomExternalForce, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_OpenMM__AmoebaPiTorsionForce[] = {{&_swigt__p_OpenMM__AmoebaPiTorsionForce, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_OpenMM__AmoebaWcaDispersionForce[] = {{&_swigt__p_OpenMM__AmoebaWcaDispersionForce, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_OpenMM__AmoebaTorsionTorsionForce[] = {{&_swigt__p_OpenMM__AmoebaTorsionTorsionForce, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_OpenMM__PeriodicTorsionForce[] = {{&_swigt__p_OpenMM__PeriodicTorsionForce, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_OpenMM__RBTorsionForce[] = {{&_swigt__p_OpenMM__RBTorsionForce, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_OpenMM__CMAPTorsionForce[] = {{&_swigt__p_OpenMM__CMAPTorsionForce, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_OpenMM__CustomTorsionForce[] = {{&_swigt__p_OpenMM__CustomTorsionForce, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_OpenMM__AmoebaPiTorsionForce[] = {{&_swigt__p_OpenMM__AmoebaPiTorsionForce, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_OpenMM__CMMotionRemover[] = {{&_swigt__p_OpenMM__CMMotionRemover, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_OpenMM__GBSAOBCForce[] = {{&_swigt__p_OpenMM__GBSAOBCForce, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_OpenMM__AmoebaVdwForce[] = {{&_swigt__p_OpenMM__AmoebaVdwForce, 0, 0, 0},{0, 0, 0, 0}};
@@ -11038,8 +11044,9 @@ static swig_cast_info _swigc__p_OpenMM__AmoebaInPlaneAngleForce[] = {{&_swigt__p
 static swig_cast_info _swigc__p_OpenMM__CustomManyParticleForce[] = {{&_swigt__p_OpenMM__CustomManyParticleForce, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_OpenMM__AmoebaGeneralizedKirkwoodForce[] = {{&_swigt__p_OpenMM__AmoebaGeneralizedKirkwoodForce, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_OpenMM__CustomNonbondedForce[] = {{&_swigt__p_OpenMM__CustomNonbondedForce, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_OpenMM__HippoNonbondedForce[] = {{&_swigt__p_OpenMM__HippoNonbondedForce, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_OpenMM__NonbondedForce[] = {{&_swigt__p_OpenMM__NonbondedForce, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_OpenMM__Force[] = {  {&_swigt__p_OpenMM__CustomCVForce, _p_OpenMM__CustomCVForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__CustomGBForce, _p_OpenMM__CustomGBForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__AndersenThermostat, _p_OpenMM__AndersenThermostatTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__Force, 0, 0, 0},  {&_swigt__p_OpenMM__RMSDForce, _p_OpenMM__RMSDForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__CustomCentroidBondForce, _p_OpenMM__CustomCentroidBondForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__CustomBondForce, _p_OpenMM__CustomBondForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__AmoebaOutOfPlaneBendForce, _p_OpenMM__AmoebaOutOfPlaneBendForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__AmoebaStretchBendForce, _p_OpenMM__AmoebaStretchBendForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__CustomCompoundBondForce, _p_OpenMM__CustomCompoundBondForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__AmoebaBondForce, _p_OpenMM__AmoebaBondForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__CustomHbondForce, _p_OpenMM__CustomHbondForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__HarmonicBondForce, _p_OpenMM__HarmonicBondForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__CustomExternalForce, _p_OpenMM__CustomExternalForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__AmoebaPiTorsionForce, _p_OpenMM__AmoebaPiTorsionForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__AmoebaWcaDispersionForce, _p_OpenMM__AmoebaWcaDispersionForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__AmoebaTorsionTorsionForce, _p_OpenMM__AmoebaTorsionTorsionForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__PeriodicTorsionForce, _p_OpenMM__PeriodicTorsionForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__RBTorsionForce, _p_OpenMM__RBTorsionForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__CMAPTorsionForce, _p_OpenMM__CMAPTorsionForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__CustomTorsionForce, _p_OpenMM__CustomTorsionForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__CMMotionRemover, _p_OpenMM__CMMotionRemoverTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__GBSAOBCForce, _p_OpenMM__GBSAOBCForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_SeekrPlugin__SeekrForce, _p_SeekrPlugin__SeekrForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__AmoebaVdwForce, _p_OpenMM__AmoebaVdwForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__MonteCarloMembraneBarostat, _p_OpenMM__MonteCarloMembraneBarostatTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__RPMDMonteCarloBarostat, _p_OpenMM__RPMDMonteCarloBarostatTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__MonteCarloBarostat, _p_OpenMM__MonteCarloBarostatTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__MonteCarloAnisotropicBarostat, _p_OpenMM__MonteCarloAnisotropicBarostatTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__GayBerneForce, _p_OpenMM__GayBerneForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__DrudeForce, _p_OpenMM__DrudeForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__CustomAngleForce, _p_OpenMM__CustomAngleForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__AmoebaAngleForce, _p_OpenMM__AmoebaAngleForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__HarmonicAngleForce, _p_OpenMM__HarmonicAngleForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__AmoebaMultipoleForce, _p_OpenMM__AmoebaMultipoleForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__AmoebaInPlaneAngleForce, _p_OpenMM__AmoebaInPlaneAngleForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__CustomManyParticleForce, _p_OpenMM__CustomManyParticleForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__AmoebaGeneralizedKirkwoodForce, _p_OpenMM__AmoebaGeneralizedKirkwoodForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__CustomNonbondedForce, _p_OpenMM__CustomNonbondedForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__NonbondedForce, _p_OpenMM__NonbondedForceTo_p_OpenMM__Force, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_OpenMM__Force[] = {  {&_swigt__p_OpenMM__CustomCVForce, _p_OpenMM__CustomCVForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__CustomGBForce, _p_OpenMM__CustomGBForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__AndersenThermostat, _p_OpenMM__AndersenThermostatTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__Force, 0, 0, 0},  {&_swigt__p_OpenMM__RMSDForce, _p_OpenMM__RMSDForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__CustomCentroidBondForce, _p_OpenMM__CustomCentroidBondForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__CustomBondForce, _p_OpenMM__CustomBondForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__AmoebaOutOfPlaneBendForce, _p_OpenMM__AmoebaOutOfPlaneBendForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__AmoebaStretchBendForce, _p_OpenMM__AmoebaStretchBendForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__CustomCompoundBondForce, _p_OpenMM__CustomCompoundBondForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__AmoebaBondForce, _p_OpenMM__AmoebaBondForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__CustomHbondForce, _p_OpenMM__CustomHbondForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__HarmonicBondForce, _p_OpenMM__HarmonicBondForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__CustomExternalForce, _p_OpenMM__CustomExternalForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__AmoebaWcaDispersionForce, _p_OpenMM__AmoebaWcaDispersionForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__AmoebaTorsionTorsionForce, _p_OpenMM__AmoebaTorsionTorsionForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__PeriodicTorsionForce, _p_OpenMM__PeriodicTorsionForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__RBTorsionForce, _p_OpenMM__RBTorsionForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__CMAPTorsionForce, _p_OpenMM__CMAPTorsionForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__CustomTorsionForce, _p_OpenMM__CustomTorsionForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__AmoebaPiTorsionForce, _p_OpenMM__AmoebaPiTorsionForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__CMMotionRemover, _p_OpenMM__CMMotionRemoverTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__GBSAOBCForce, _p_OpenMM__GBSAOBCForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_SeekrPlugin__SeekrForce, _p_SeekrPlugin__SeekrForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__AmoebaVdwForce, _p_OpenMM__AmoebaVdwForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__MonteCarloMembraneBarostat, _p_OpenMM__MonteCarloMembraneBarostatTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__RPMDMonteCarloBarostat, _p_OpenMM__RPMDMonteCarloBarostatTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__MonteCarloBarostat, _p_OpenMM__MonteCarloBarostatTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__MonteCarloAnisotropicBarostat, _p_OpenMM__MonteCarloAnisotropicBarostatTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__GayBerneForce, _p_OpenMM__GayBerneForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__DrudeForce, _p_OpenMM__DrudeForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__CustomAngleForce, _p_OpenMM__CustomAngleForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__AmoebaAngleForce, _p_OpenMM__AmoebaAngleForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__HarmonicAngleForce, _p_OpenMM__HarmonicAngleForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__AmoebaMultipoleForce, _p_OpenMM__AmoebaMultipoleForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__AmoebaInPlaneAngleForce, _p_OpenMM__AmoebaInPlaneAngleForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__CustomManyParticleForce, _p_OpenMM__CustomManyParticleForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__AmoebaGeneralizedKirkwoodForce, _p_OpenMM__AmoebaGeneralizedKirkwoodForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__CustomNonbondedForce, _p_OpenMM__CustomNonbondedForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__HippoNonbondedForce, _p_OpenMM__HippoNonbondedForceTo_p_OpenMM__Force, 0, 0},  {&_swigt__p_OpenMM__NonbondedForce, _p_OpenMM__NonbondedForceTo_p_OpenMM__Force, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_SeekrPlugin__SeekrForce[] = {  {&_swigt__p_SeekrPlugin__SeekrForce, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_allocator_type[] = {  {&_swigt__p_allocator_type, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_char[] = {  {&_swigt__p_char, 0, 0, 0},{0, 0, 0, 0}};
@@ -11089,6 +11096,7 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_OpenMM__GayBerneForce,
   _swigc__p_OpenMM__HarmonicAngleForce,
   _swigc__p_OpenMM__HarmonicBondForce,
+  _swigc__p_OpenMM__HippoNonbondedForce,
   _swigc__p_OpenMM__MonteCarloAnisotropicBarostat,
   _swigc__p_OpenMM__MonteCarloBarostat,
   _swigc__p_OpenMM__MonteCarloMembraneBarostat,

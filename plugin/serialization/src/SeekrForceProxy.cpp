@@ -86,25 +86,40 @@ void SeekrForceProxy::serialize(const void* object, SerializationNode& node) con
         atomIndicesNode2.setIntProperty("index", atomIndex2);
       }
     }
+    
     SerializationNode& sphericalMilestones = node.createChildNode("SphericalMilestones");
     
+	cout << "getNumSphericalMilestones: " << force.getNumSphericalMilestones() << endl; 
+
     for (int i = 0; i < force.getNumSphericalMilestones(); i++) {
-      std::vector<int> atomIndices1;
-      std::vector<int> atomIndices2;
+      //std::vector<int> atomIndices1;
+      int atomIndex1;
+      //std::vector<int> atomIndices2;
+      int atomIndex2;
       SerializationNode& sphericalMilestone = sphericalMilestones.createChildNode("SphericalMilestone");
-      SerializationNode& atomIndicesNode = sphericalMilestone.setIntProperty("numIndices1", force.getSphericalNumIndices(i,1)).setIntProperty("numIndices2", force.getSphericalNumIndices(i,2)).setDoubleProperty("radius1", force.getSphericalRadius(i,1)).setDoubleProperty("radius2", force.getSphericalRadius(i,2)).setDoubleProperty("radius3", force.getSphericalRadius(i,3)).setDoubleProperty("endOnMiddleCrossing", force.getEndOnMiddleCrossing());
+      SerializationNode& atomIndicesNode = sphericalMilestone.setIntProperty("numIndices1", force.getSphericalNumIndices(i,1)).setIntProperty("numIndices2", force.getSphericalNumIndices(i,2)).setDoubleProperty("offset1", force.getSphericalRadius(i,1)).setDoubleProperty("offset2", force.getSphericalRadius(i,2)).setDoubleProperty("offset3", force.getSphericalRadius(i,3)).setDoubleProperty("endOnMiddleCrossing", force.getEndOnMiddleCrossing()); //
       sphericalMilestone.setStringProperty("dataFileName", force.getSphericalDataFileName(i));
+      cout << "mark50\n";
       SerializationNode& atomIndicesNode1 = atomIndicesNode.createChildNode("atomIndex1");
+      cout << "mark60\n";
       for (int j = 0; j < force.getSphericalNumIndices(i,1); j++) {
-        force.getSphericalMilestoneAtoms(i, j, atomIndices1[j], 1);
-        atomIndicesNode1.setIntProperty("index", atomIndices1[j]);
+		cout << "mark65" << endl;
+        //force.getSphericalMilestoneAtoms(i, j, atomIndices1[j], 1);
+        force.getSphericalMilestoneAtoms(i, j, atomIndex1, 1);
+        cout << "mark70\n";
+        //atomIndicesNode1.setIntProperty("index", atomIndices1[j]);
+        atomIndicesNode1.setIntProperty("index", atomIndex1);
       }
+      cout << "mark75\n";
       SerializationNode& atomIndicesNode2 = atomIndicesNode.createChildNode("atomIndex2");
       for (int j = 0; j < force.getSphericalNumIndices(i,2); j++) {
-        force.getSphericalMilestoneAtoms(i, j, atomIndices2[j], 2);
-        atomIndicesNode2.setIntProperty("index", atomIndices2[j]);
+        //force.getSphericalMilestoneAtoms(i, j, atomIndices2[j], 2);
+        force.getSphericalMilestoneAtoms(i, j, atomIndex2, 2);
+        //atomIndicesNode2.setIntProperty("index", atomIndices2[j]);
+        atomIndicesNode2.setIntProperty("index", atomIndex2);
       }
     }
+    cout << "mark99\n";
 }
 
 void* SeekrForceProxy::deserialize(const SerializationNode& node) const {
@@ -145,12 +160,15 @@ void* SeekrForceProxy::deserialize(const SerializationNode& node) const {
           
         }
     }
-    catch (...) {
+    
+     catch (...) {
         delete force;
         throw;
     }
+    cout << "mark200\n";
+    return force;
     
-    try {
+     try {
         const SerializationNode& sphericalMilestones = node.getChildNode("SphericalMilestones");
         
         for (int i = 0; i < sphericalMilestones.getChildren().size(); i++) {
@@ -165,18 +183,20 @@ void* SeekrForceProxy::deserialize(const SerializationNode& node) const {
           const SerializationNode& atomIndexNode1 = sphericalMilestone.getChildNode("atomIndex1");
           const SerializationNode& atomIndexNode2 = sphericalMilestone.getChildNode("atomIndex2");
           bool endOnMiddleCrossing = sphericalMilestone.getBoolProperty("endOnMiddleCrossing");
+          cout << "mark150\n";
           //TODO: this is a problem
           //std::string dataFileName = "/tmp/test.txt";
           const std::string dataFileName = sphericalMilestone.getStringProperty("dataFileName"); // This might not work, resort to above if necessary
-          
+          cout << "mark160\n";
           for (int j = 0; j < numIndices1; j++) {
+            cout << "long command: " << atomIndexNode1.getChildren()[j].getIntProperty("index");
             atomIndices1.push_back(atomIndexNode1.getChildren()[j].getIntProperty("index"));
           }
-          
+          cout << "mark170\n";
           for (int j = 0; j < numIndices2; j++) {
             atomIndices2.push_back(atomIndexNode2.getChildren()[j].getIntProperty("index"));
           }
-          
+
           force->addSphericalMilestone(numIndices1, numIndices2, radius1, radius2, radius3, atomIndices1, atomIndices2, endOnMiddleCrossing, dataFileName);
           
         }
@@ -185,6 +205,7 @@ void* SeekrForceProxy::deserialize(const SerializationNode& node) const {
         delete force;
         throw;
     }
+    cout << "mark200\n";
     return force;
 }
 

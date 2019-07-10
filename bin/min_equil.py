@@ -40,6 +40,9 @@ def run_min_equil(seekrcalc):
       for i, temperature in enumerate(seekrcalc.min_equil.temp_equil_temperatures):
         simulation.context.setVelocitiesToTemperature(temperature*kelvin)
         simulation.integrator.setTemperature(temperature*kelvin)
+        
+        print "simulation_box_vectors:", simulation.context.getState().getPeriodicBoxVectors()
+        
         simulation.step(seekrcalc.min_equil.temp_equil_steps)
         if verbose: print "Ran temperature equilibration:", simulation.integrator.getTemperature()
         

@@ -80,10 +80,10 @@ void testForce() { /*
     
     double expectedEnergy = 0;
     for (int i = 0; i < numBonds; i++) {
-        double offset = 1.0+sin(0.8*i);
+        double length = 1.0+sin(0.8*i);
         double k = cos(0.3*i);
         Vec3 delta = positions[i+1]-positions[i];
-        double dr = sqrt(delta.dot(delta))-offset;
+        double dr = sqrt(delta.dot(delta))-length;
         expectedEnergy += k*dr*dr*dr*dr;
     }
     ASSERT_EQUAL_TOL(expectedEnergy, state.getPotentialEnergy(), 1e-5);
@@ -106,7 +106,7 @@ void testForce() { /*
 
 void testChangingParameters() { /*
     const double k = 1.5;
-    const double offset = 0.5;
+    const double length = 0.5;
     Platform& platform = Platform::getPlatformByName("CUDA");
     
     // Create a system with one bond.
@@ -115,7 +115,7 @@ void testChangingParameters() { /*
     system.addParticle(1.0);
     system.addParticle(1.0);
     SeekrForce* force = new SeekrForce();
-    force->addBond(0, 1, offset, k);
+    force->addBond(0, 1, length, k);
     system.addForce(force);
     vector<Vec3> positions(2);
     positions[0] = Vec3(1, 0, 0);
@@ -127,16 +127,16 @@ void testChangingParameters() { /*
     Context context(system, integ, platform);
     context.setPositions(positions);
     State state = context.getState(State::Energy);
-    ASSERT_EQUAL_TOL(k*pow(1.0-offset, 4), state.getPotentialEnergy(), 1e-5);
+    ASSERT_EQUAL_TOL(k*pow(1.0-length, 4), state.getPotentialEnergy(), 1e-5);
     
     // Modify the parameters.
     
     const double k2 = 2.2;
-    const double offset2 = 0.9;
-    force->setBondParameters(0, 0, 1, offset2, k2);
+    const double length2 = 0.9;
+    force->setBondParameters(0, 0, 1, length2, k2);
     force->updateParametersInContext(context);
     state = context.getState(State::Energy);
-    ASSERT_EQUAL_TOL(k2*pow(1.0-offset2, 4), state.getPotentialEnergy(), 1e-5); */
+    ASSERT_EQUAL_TOL(k2*pow(1.0-length2, 4), state.getPotentialEnergy(), 1e-5); */
 }
 
 int main(int argc, char* argv[]) {

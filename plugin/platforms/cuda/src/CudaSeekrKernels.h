@@ -126,9 +126,7 @@ private:
     OpenMM::CudaArray* planarZOldCom2;
     std::vector<float4> h_planarZOldCom2;
     
-    // ANDY end copy/paste
-    
-    CUfunction computeSphericalMilestonesKernel;
+     CUfunction computeSphericalMilestonesKernel;
     
     int numSphericalMilestones;
     int numSphericalAtomIndices;
@@ -166,18 +164,21 @@ private:
     OpenMM::CudaArray* sphericalOldCom2;
     std::vector<float4> h_sphericalOldCom2;
     
-    OpenMM::CudaArray* collectionReturnCode;
-    std::vector<float> h_collectionReturnCode;
-    //std::vector<int> h_collectionReturnCode;
+    // ANDY end copy/paste
 
     OpenMM::CudaArray* planarZCollectionReturnCode;
     std::vector<float> h_planarZCollectionReturnCode;
     //std::vector<int> h_planarZCollectionReturnCode;
     
+     OpenMM::CudaArray* sphericalCollectionReturnCode;
+    std::vector<float> h_sphericalCollectionReturnCode;
+    //std::vector<int> h_sphericalCollectionReturnCode;
+    
     bool endSimulation;
     bool endOnMiddleCrossing;
     bool crossedStartingMilestone;
-    std::vector<std::string> dataFileNames;
+    std::vector<std::string> dataPlanarZFileNames;
+    std::vector<std::string> dataSphericalFileNames;
     
     bool hasInitializedKernel;
     OpenMM::CudaContext& cu;

@@ -4,18 +4,23 @@ Created on June 7, 2018
 @author: lvotapka
 @author: astokely
 
+
 Functions and objects for running Umbrella sampling
 '''
+
+#change all amber_system/charmm_system = True/False seekrcalc.building.ff...finds charmm/amber string
 
 from simtk.openmm.app import *
 from simtk.openmm import *
 from simtk.unit import *
 import os, time, glob, re
 from sys import stdout
-from seekr import amber
+from seekr import amber, charmm
 import mdtraj
+from simtk.openmm.app.internal.unitcell import computePeriodicBoxVectors
 
 verbose = True
+
 
 def load_last_mdtraj_frame(dcd_filename, prmtop_filename, atom_indices=None):
   '''
@@ -100,7 +105,7 @@ def create_planar_forces(seekrcalc, milestone, system):
    - milestone: the Milestone() object to run the simulation for
    - system: the OpenMM system object to add the force to
   Output:
-   - None
+   - new_force: the index of the new umbrella force
   '''
   new_force = CustomCentroidBondForce(2, '0.5*k*(z2-z1-offset)^2')
   k = new_force.addGlobalParameter('k', seekrcalc.umbrella_stage.force_constant)
@@ -126,7 +131,7 @@ def create_planar_z_forces(seekrcalc, milestone, system):
    - milestone: the Milestone() object to run the simulation for
    - system: the OpenMM system object to add the force to
   Output:
-   - None
+   - new_force: the index of the new umbrella force
   '''
   new_force = CustomCentroidBondForce(2, '0.5*k*(z2-z1-offset)^2')
   k = new_force.addGlobalParameter('k', seekrcalc.umbrella_stage.force_constant)
@@ -141,6 +146,34 @@ def create_planar_z_forces(seekrcalc, milestone, system):
   if verbose: print "new_force.getNumGlobalParameters():", new_force.getNumGlobalParameters()
   if verbose: print "new_force.getNumPerBondParameters():", new_force.getNumPerBondParameters()
   return new_force
+
+def create_receptor_restrain_force(seekrcalc, milestone, system):
+  '''
+  Add a restraint to keep the receptor in place.
+  Input:
+   - seekrcalc: The SeekrCalculation object that contains all the settings for 
+       the SEEKR calculation.
+   - milestone: the Milestone() object to run the simulation for
+   - system: the OpenMM system object to add the force to
+  Output:
+   - new_force: the index of the force
+  '''
+  new_force = CustomCentroidBondForce(1, '0.5*k*((x1-x_center)^2 + (y1-y_center)^2 + (z1-z_center)^2)')
+  k = new_force.addGlobalParameter('k', seekrcalc.umbrella_stage.force_constant)
+  x_center = new_force.addGlobalParameter('x_center', milestone.center_vec[0]*angstrom)
+  y_center = new_force.addGlobalParameter('y_center', milestone.center_vec[1]*angstrom)
+  z_center = new_force.addGlobalParameter('z_center', milestone.center_vec[2]*angstrom)
+  g1 = new_force.addGroup(milestone.atom_selection_1)
+  if verbose: print("k:", seekrcalc.umbrella_stage.force_constant, 
+                    "x_center:", milestone.center_vec[0],
+                    "y_center:", milestone.center_vec[1],
+                    "z_center:", milestone.center_vec[2],
+                    "g1:", milestone.atom_selection_1)
+  new_force.addBond([g1], [])
+  if verbose: print "new_force.getNumGlobalParameters():", new_force.getNumGlobalParameters()
+  if verbose: print "new_force.getNumPerBondParameters():", new_force.getNumPerBondParameters()
+  return new_force
+  
 
 def prep_umbrella_amber(seekrcalc, milestone):
   '''Prepare a system that will use the AMBER forcefield
@@ -160,7 +193,7 @@ def prep_umbrella_amber(seekrcalc, milestone):
                                constraints=HBonds)
   return system
   
-def prep_umbrella_charmm(seekrcalc, milestone):
+def prep_umbrella_charmm(seekrcalc, milestone, box_vectors):
   '''Prepare a system that will use the CHARMM forcefield
   Input:
    - seekrcalc: The SeekrCalculation object that contains all the settings for 
@@ -175,15 +208,13 @@ def prep_umbrella_charmm(seekrcalc, milestone):
   pdb = PDBFile(milestone.openmm.umbrella_pdb_filename)
 
   # Load the parameter set.
-  params = CharmmParameterSet(milestone.openmm.rtf_filename, 
-                              milestone.openmm.par_filename)
-
-  system = psf.createSystem(params, 
-                            nonbondedMethod=nonbondedCutoff=1.2*nanometer,
-                            nonbondedCutoff=None)
+  params = CharmmParameterSet(*milestone.openmm.charmm_params_filename_list)
+  psf.setBox(*box_vectors) 
+  system = psf.createSystem(params,nonbondedMethod=PME, nonbondedCutoff=1.2*nanometer,
+                            constraints=HBonds)
   return system
 
-def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umbrella1.dcd'):
+def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umbrella1.dcd', restrain_rec=False):
   '''launch an umbrella sampling job.
   Input:
    - seekrcalc: The SeekrCalculation object that contains all the settings for 
@@ -198,15 +229,19 @@ def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umb
    have changed through the course of a constant pressure simulation.
    - umbrella_traj: The absolute path to the file of the umbrella trajectory.
   '''
+
   if seekrcalc.building.ff.lower() == 'amber':
     system = prep_umbrella_amber(seekrcalc, milestone)
   elif seekrcalc.building.ff.lower() == 'charmm':
-    system = prep_umbrella_charmm(seekrcalc, milestone)
+    system = prep_umbrella_charmm(seekrcalc, milestone, box_vectors)
   else:
     raise Exception, "Forcefield %s not yet implemented in openseekr" % seekrcalc.building.ff
   
   
   pdb_filename = milestone.openmm.umbrella_pdb_filename
+  
+  print "pdb_filename:", pdb_filename
+  
   if os.path.exists(pdb_filename):
     pdb = PDBFile(pdb_filename)
     my_positions = pdb.positions
@@ -233,17 +268,38 @@ def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umb
   else:
     raise Exception, "milestone.type = %s not implemented." % milestone.type
   
+  if restrain_rec:
+    rec_restrain_force = create_receptor_restrain_force(seekrcalc, milestone, system)
+  
   system.addForce(new_force)
+  
+ 
+  
   if seekrcalc.umbrella_stage.barostat:
     barostat = MonteCarloBarostat(seekrcalc.umbrella_stage.barostat_pressure, seekrcalc.master_temperature*kelvin, seekrcalc.umbrella_stage.barostat_freq)
     system.addForce(barostat)
+
+    
+  elif seekrcalc.umbrella_stage.membrane_barostat: 
+    barostat = MonteCarloMembraneBarostat(seekrcalc.umbrella_stage.barostat_pressure, seekrcalc.master_temperature*kelvin, seekrcalc.umbrella_stage.barostat_freq, MonteCarloMembraneBarostat.XYIsotropic, MonteCarloMembraneBarostat.ZFree , 25)
+    system.addForce(barostat)
+   
+    
   
-  simulation = Simulation(prmtop.topology, system, integrator, platform, properties)
+  if seekrcalc.building.ff == 'amber':
+  	simulation = Simulation(prmtop.topology, system, integrator, platform, properties)
+  elif seekrcalc.building.ff == 'charmm':
+    psf = CharmmPsfFile(milestone.openmm.psf_filename)
+    simulation = Simulation(psf.topology, system, integrator, platform, properties)
   simulation.context.setPositions(my_positions)
   simulation.context.setVelocitiesToTemperature(seekrcalc.master_temperature*kelvin)
   if box_vectors:
-    simulation.context.setPeriodicBoxVectors(*box_vectors)
-  elif inpcrd.boxVectors is not None:
+    computed_box_vectors = computePeriodicBoxVectors(*box_vectors)
+    print "computed_box_vectors:", computed_box_vectors
+    simulation.context.setPeriodicBoxVectors(*computed_box_vectors)
+  elif seekrcalc.building.ff == 'amber':
+    prmtop = AmberPrmtopFile(prmtop_filename)
+    inpcrd = AmberInpcrdFile(inpcrd_filename)
     simulation.context.setPeriodicBoxVectors(*inpcrd.boxVectors)
   
   if verbose: print "Running energy minimization on milestone:", milestone.index
@@ -260,15 +316,18 @@ def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umb
   milestone.openmm.simulation = simulation
   return ending_box_vectors, umbrella_traj
 
-def generate_umbrella_filenames(seekr_calc, milestone):
+def generate_spherical_umbrella_filenames(seekr_calc, milestone, use_temp_equil=True):
   umbrella_file_glob = os.path.join(seekr_calc.project.rootdir, milestone.directory, 'md', 'umbrella', 'umbrella*.dcd')
   existing_umbrella_files = glob.glob(umbrella_file_glob)
-  if not existing_umbrella_files: # then the directory is empty, we are starting over
-    milestone.openmm.umbrella_pdb_filename = os.path.join(seekr_calc.project.rootdir, milestone.directory, 'md', 'temp_equil', 'equilibrated.pdb')
+  if not existing_umbrella_files: 
+    if use_temp_equil:
+      milestone.openmm.umbrella_pdb_filename = os.path.join(seekr_calc.project.rootdir, milestone.directory, 'md', 'temp_equil', 'equilibrated.pdb')
+    else:
+      milestone.openmm.umbrella_pdb_filename = os.path.join(seekr_calc.project.rootdir, milestone.directory, 'md', 'holo_wet.pdb')
     new_dcd_filename = 'umbrella1.dcd'
     new_pdb_filename = 'umbrella1.pdb'
     milestone.box_vectors = None
-  else: # then some already exist
+  else: 
     number_list = []
     for existing_file in existing_umbrella_files:
       number_list.append(int(re.findall(r".+(\d+).dcd", existing_file)[0]))
@@ -279,4 +338,5 @@ def generate_umbrella_filenames(seekr_calc, milestone):
     new_pdb_filename = 'umbrella%d.pdb' % next_num
   
   return new_dcd_filename, new_pdb_filename
-    
+  
+

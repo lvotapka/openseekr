@@ -77,8 +77,8 @@ vector<pair<int, int> > SeekrForceImpl::getBondedParticles() const {
     int numBonds = owner.getNumBonds();
     vector<pair<int, int> > bonds(numBonds);
     for (int i = 0; i < numBonds; i++) {
-        double offset, k;
-        owner.getBondParameters(i, bonds[i].first, bonds[i].second, offset, k);
+        double length, k;
+        owner.getBondParameters(i, bonds[i].first, bonds[i].second, length, k);
     }
     return bonds;
 } */

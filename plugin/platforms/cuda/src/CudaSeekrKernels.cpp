@@ -107,6 +107,9 @@ CudaCalcSeekrForceKernel::CudaCalcSeekrForceKernel(std::string name, const Platf
     planarZAtomBounds2 = nullptr;
     planarZOldCom1 = nullptr;
     planarZOldCom2 = nullptr;
+    
+    planarZCollectionReturnCode = nullptr;
+    
     numSphericalMilestones = 0;
     numSphericalAtomIndices = 0;
     
@@ -122,8 +125,8 @@ CudaCalcSeekrForceKernel::CudaCalcSeekrForceKernel(std::string name, const Platf
     sphericalOldCom1 = nullptr;
     sphericalOldCom2 = nullptr;
     
-    collectionReturnCode = nullptr;
-    planarZCollectionReturnCode = nullptr;
+    sphericalCollectionReturnCode = nullptr;
+    
     
     endSimulation = false;
     endOnMiddleCrossing = false;
@@ -156,7 +159,7 @@ CudaCalcSeekrForceKernel::~CudaCalcSeekrForceKernel() {
     delete sphericalAtomBounds2;
     delete sphericalOldCom1;
     delete sphericalOldCom2;
-    delete collectionReturnCode;
+    delete sphericalCollectionReturnCode;
     //if (params != NULL)
     //    delete params;
 }
@@ -196,8 +199,7 @@ void CudaCalcSeekrForceKernel::allocateMemory(const SeekrForce& force) {
   
   h_planarZCollectionReturnCode  = std::vector<float> (numPlanarZMilestones, 0);
   //h_planarZCollectionReturnCode  = std::vector<int> (1, 0);
-
-
+  
   numSphericalMilestones = force.getNumSphericalMilestones();
   numSphericalAtomIndices = force.getNumSphericalAtomIndices();
   
@@ -212,8 +214,8 @@ void CudaCalcSeekrForceKernel::allocateMemory(const SeekrForce& force) {
   sphericalAtomBounds2  = CudaArray::create<int2> (cu, numSphericalMilestones, "sphericalAtomBounds2");
   sphericalOldCom1      = CudaArray::create<float4> (cu, numSphericalMilestones, "sphericalOldCom1");
   sphericalOldCom2      = CudaArray::create<float4> (cu, numSphericalMilestones, "sphericalOldCom2");
-  collectionReturnCode  =  CudaArray::create<float> (cu, numSphericalMilestones, "collectionReturnCode");
-  //collectionReturnCode =  CudaArray::create<int> (cu, numSphericalMilestones, "collectionReturnCode");
+  sphericalCollectionReturnCode  =  CudaArray::create<float> (cu, numSphericalMilestones, "sphericalCollectionReturnCode");
+  //sphericalCollectionReturnCode =  CudaArray::create<int> (cu, numSphericalMilestones, "sphericalCollectionReturnCode");
   
   // host memory
   
@@ -229,10 +231,12 @@ void CudaCalcSeekrForceKernel::allocateMemory(const SeekrForce& force) {
   h_sphericalOldCom1      = std::vector<float4> (numSphericalMilestones, make_float4(-9.0e5, -9.0e5, -9.0e5, -9.0e5));
   h_sphericalOldCom2      = std::vector<float4> (numSphericalMilestones, make_float4(-9.0e5, -9.0e5, -9.0e5, -9.0e5));
   
-  h_collectionReturnCode  = std::vector<float> (numSphericalMilestones, 0);
-  //h_collectionReturnCode  = std::vector<int> (1, 0);
+  h_sphericalCollectionReturnCode  = std::vector<float> (numSphericalMilestones, 0);
+  //h_sphericalCollectionReturnCode  = std::vector<int> (1, 0);
 }
-
+  //endSimulation = false;
+  //endOnMiddleCrossing = force.getEndOnMiddleCrossing();
+// Run some error collection routines
 
 void checkAtomIndex(int numAtoms, const std::string& milestoneType, const int atomIndex) {
   bool error = false;
@@ -268,23 +272,22 @@ void checkPlanarZMilestone(float Offsets1, float Offsets2, float Offsets3) { // 
   }
 }
 
-void checkSphericalMilestone(float radius1, float radius2, float radius3) {
+void checkSphericalMilestone(float Radii1, float Radii2, float Radii3) { // TODO: ANDY make one for planarZ 
   bool error = false;
-  if (radius1 >= radius2) {
+  if (Radii1 >= Radii2) {
     error = true;
   }
-  if (radius2 >= radius3) {
+  if (Radii2 >= Radii3) {
     error = true;
   }
   
   if (error){
     std::stringstream m;
-    m<<"Error: bad radii for milestone of type: spherical milestone";
-    m<<". radius1 (inner): "<<radius1<<" radius2 (middle): "<<radius2<<" radius3 (outer): "<<radius3;
+    m<<"Error: bad Offsetss for milestone of type: planarZ milestone";
+    m<<". Offsets1 (inner): "<<Radii1<<" Offsets2 (middle): "<<Radii2<<" Offsets3 (outer): "<<Radii3;
     throw OpenMMException(m.str());
   }
 }
-
 
 void CudaCalcSeekrForceKernel::setupPlanarZMilestones(const SeekrForce& force){ //TODO: ANDY create your own DONE
   int numAtoms = system.getNumParticles();
@@ -344,11 +347,11 @@ void CudaCalcSeekrForceKernel::setupPlanarZMilestones(const SeekrForce& force){ 
       cout << h_planarZAtomIndices2[j] << " ";
     }
     cout << "]\n";*/
-    dataFileNames.push_back(force.getSphericalDataFileName(i));
+    dataSphericalFileNames.push_back(force.getPlanarZDataFileName(i));
   }
 }
 
-void CudaCalcSeekrForceKernel::setupSphericalMilestones(const SeekrForce& force){
+void CudaCalcSeekrForceKernel::setupSphericalMilestones(const SeekrForce& force){ 
   int numAtoms = system.getNumParticles();
   std::string milestoneType = "spherical milestone";
   int currentAtomIndex1 = 0;
@@ -365,7 +368,7 @@ void CudaCalcSeekrForceKernel::setupSphericalMilestones(const SeekrForce& force)
     h_sphericalRadii2[i] = force.getSphericalRadius(i, 2);
     h_sphericalRadii3[i] = force.getSphericalRadius(i, 3);
     
-    // check the radii to make sure that they make sense
+    // check the Radiis to make sure that they make sense
     checkSphericalMilestone(h_sphericalRadii1[i], h_sphericalRadii2[i], h_sphericalRadii3[i]); 
     
     // Retrieve the individual atoms from the API
@@ -406,9 +409,14 @@ void CudaCalcSeekrForceKernel::setupSphericalMilestones(const SeekrForce& force)
       cout << h_sphericalAtomIndices2[j] << " ";
     }
     cout << "]\n";*/
-    dataFileNames.push_back(force.getPlanarZDataFileName(i));
+    dataSphericalFileNames.push_back(force.getSphericalDataFileName(i));
   }
 }
+
+
+
+
+
 
 void CudaCalcSeekrForceKernel::validateAndUpload() {
   cout << "Attempting to upload host arrays to device.\n";
@@ -429,7 +437,7 @@ void CudaCalcSeekrForceKernel::validateAndUpload() {
   sphericalRadii2->upload(h_sphericalRadii2);
   sphericalRadii3->upload(h_sphericalRadii3);
   sphericalAtomIndices1->upload(h_sphericalAtomIndices1);
-  sphericalAtomIndices2->upload(h_sphericalAtomIndices2);
+  sphericalAtomIndices2->upload(h_sphericalAtomIndices2); // TODO: ANDY-->RESOLVED
   sphericalAtomBounds1->upload(h_sphericalAtomBounds1);
   sphericalAtomBounds2->upload(h_sphericalAtomBounds2);
   sphericalOldCom1->upload(h_sphericalOldCom1);
@@ -442,13 +450,17 @@ void CudaCalcSeekrForceKernel::initialize(const System& system, const SeekrForce
     
     allocateMemory(force);
     setupPlanarZMilestones(force); // TODO:ANDY add yours here--RESOLVED
-    setupSphericalMilestones(force);
     validateAndUpload();
     
     CUmodule module = cu.createModule(CudaSeekrKernelSources::vectorOps + CudaSeekrKernelSources::seekrForce);
     computePlanarZMilestonesKernel = cu.getKernel(module, "monitorPlanarZMilestones");
     computeSphericalMilestonesKernel = cu.getKernel(module, "monitorSphericalMilestones");
     cu.addForce(new CudaSeekrForceInfo(force));
+    
+    setupSphericalMilestones(force); // TODO:ANDY add yours here--RESOLVED
+    validateAndUpload();
+    
+
 }
 
 double CudaCalcSeekrForceKernel::execute(ContextImpl& context, bool includeForces, bool includeEnergy) {
@@ -458,7 +470,7 @@ double CudaCalcSeekrForceKernel::execute(ContextImpl& context, bool includeForce
       h_planarZOldCom2      = std::vector<float4> (numPlanarZMilestones, make_float4(-9.0e5, -9.0e5, -9.0e5, -9.0e5));
       planarZOldCom1->upload(h_planarZOldCom1);
       planarZOldCom2->upload(h_planarZOldCom2);
-       h_sphericalOldCom1      = std::vector<float4> (numSphericalMilestones, make_float4(-9.0e5, -9.0e5, -9.0e5, -9.0e5));
+      h_sphericalOldCom1      = std::vector<float4> (numSphericalMilestones, make_float4(-9.0e5, -9.0e5, -9.0e5, -9.0e5));
       h_sphericalOldCom2      = std::vector<float4> (numSphericalMilestones, make_float4(-9.0e5, -9.0e5, -9.0e5, -9.0e5));
       sphericalOldCom1->upload(h_sphericalOldCom1);
       sphericalOldCom2->upload(h_sphericalOldCom2);
@@ -483,11 +495,8 @@ double CudaCalcSeekrForceKernel::execute(ContextImpl& context, bool includeForce
     };
     cu.executeKernel(computePlanarZMilestonesKernel, planarZMilestoneArgs, numPlanarZMilestones);
     planarZCollectionReturnCode->download(h_planarZCollectionReturnCode); 
-    //cout << "planarZCollectionReturnCode: " << h_planarZCollectionReturnCode[0] << endl;
-    
-    //cout << "step:" << context.getTime() << "\n";
- 
-      void* sphericalMilestoneArgs[] = {
+  
+  	 void* sphericalMilestoneArgs[] = {
       &cu.getPosq().getDevicePointer(),
       &cu.getVelm().getDevicePointer(),
       &sphericalNumIndices1->getDevicePointer(),
@@ -499,16 +508,13 @@ double CudaCalcSeekrForceKernel::execute(ContextImpl& context, bool includeForce
       &sphericalAtomIndices2->getDevicePointer(),
       &sphericalAtomBounds1->getDevicePointer(),
       &sphericalAtomBounds2->getDevicePointer(),
-      &collectionReturnCode->getDevicePointer(),
+      &sphericalCollectionReturnCode->getDevicePointer(),
       &sphericalOldCom1->getDevicePointer(),
       &sphericalOldCom2->getDevicePointer(),
       &numSphericalMilestones
     };
     cu.executeKernel(computeSphericalMilestonesKernel, sphericalMilestoneArgs, numSphericalMilestones);
-    collectionReturnCode->download(h_collectionReturnCode); 
-    //cout << "collectionReturnCode: " << h_collectionReturnCode[0] << endl;
-    
-    //cout << "step:" << context.getTime() << "\n";
+    sphericalCollectionReturnCode->download(h_sphericalCollectionReturnCode); 
     
     
     for (int i=0; i<numPlanarZMilestones; i++) {
@@ -517,7 +523,7 @@ double CudaCalcSeekrForceKernel::execute(ContextImpl& context, bool includeForce
           cout<<"Inner milestone crossed. Time:" << context.getTime() << " ps\n"; // output info to user
           endSimulation = true; // make sure we end after this point
           ofstream datafile; // open datafile for writing
-          datafile.open(dataFileNames[i], std::ios_base::app); // append to file
+          datafile.open(dataPlanarZFileNames[i], std::ios_base::app); // append to file
           if (crossedStartingMilestone == true || endOnMiddleCrossing == true) { // if it's the reversal stage or we've crossed the starting milestone
             datafile << "1 " << context.getTime() << "\n";
           } else { // if its the forward stage and the starting milestone isn't crossed
@@ -532,7 +538,7 @@ double CudaCalcSeekrForceKernel::execute(ContextImpl& context, bool includeForce
             cout<<"Middle milestone crossed. Time:" << context.getTime() << " ps\n";
             endSimulation = true;
             ofstream datafile;
-            datafile.open(dataFileNames[i], std::ios_base::app);
+            datafile.open(dataPlanarZFileNames[i], std::ios_base::app);
             datafile << "2 " << context.getTime() << "\n";
             datafile.close();
           } else { // Then its the forward stage, so assert that this milestone is crossed
@@ -547,7 +553,7 @@ double CudaCalcSeekrForceKernel::execute(ContextImpl& context, bool includeForce
           cout<<"Outer milestone crossed. Time:" << context.getTime() << " ps\n";
           endSimulation = true;
           ofstream datafile;
-          datafile.open(dataFileNames[i], std::ios_base::app);
+          datafile.open(dataPlanarZFileNames[i], std::ios_base::app);
           if (crossedStartingMilestone == true || endOnMiddleCrossing == true) {
             datafile << "3 " << context.getTime() << "\n";
           } else {
@@ -560,12 +566,12 @@ double CudaCalcSeekrForceKernel::execute(ContextImpl& context, bool includeForce
     }
     
     for (int i=0; i<numSphericalMilestones; i++) {
-      if (h_collectionReturnCode[0] == 1) {
+      if (h_sphericalCollectionReturnCode[i] == 1) {
         if (endSimulation == false) { // if we haven't already crossed an ending milestone
           cout<<"Inner milestone crossed. Time:" << context.getTime() << " ps\n"; // output info to user
           endSimulation = true; // make sure we end after this point
           ofstream datafile; // open datafile for writing
-          datafile.open(dataFileNames[i], std::ios_base::app); // append to file
+          datafile.open(dataSphericalFileNames[i], std::ios_base::app); // append to file
           if (crossedStartingMilestone == true || endOnMiddleCrossing == true) { // if it's the reversal stage or we've crossed the starting milestone
             datafile << "1 " << context.getTime() << "\n";
           } else { // if its the forward stage and the starting milestone isn't crossed
@@ -574,13 +580,13 @@ double CudaCalcSeekrForceKernel::execute(ContextImpl& context, bool includeForce
           crossedStartingMilestone = false; // reset whether we've crossed the starting milestone for the next simulation
           datafile.close(); // close data file
         }
-      } else if (h_collectionReturnCode[0] == 2) {
+      } else if (h_sphericalCollectionReturnCode[i] == 2) {
         if (endSimulation == false) { // if we haven't already crossed an ending milestone
           if (endOnMiddleCrossing == true) { // then it's a reversal stage
             cout<<"Middle milestone crossed. Time:" << context.getTime() << " ps\n";
             endSimulation = true;
             ofstream datafile;
-            datafile.open(dataFileNames[i], std::ios_base::app);
+            datafile.open(dataSphericalFileNames[i], std::ios_base::app);
             datafile << "2 " << context.getTime() << "\n";
             datafile.close();
           } else { // Then its the forward stage, so assert that this milestone is crossed
@@ -590,12 +596,12 @@ double CudaCalcSeekrForceKernel::execute(ContextImpl& context, bool includeForce
             }
           }
         }
-      } else if (h_collectionReturnCode[0] == 3) { // This should be a fairly identical procedure to inner milestone crossing above
+      } else if (h_sphericalCollectionReturnCode[i] == 3) { // This should be a fairly identical procedure to inner milestone crossing above
         if (endSimulation == false) {
           cout<<"Outer milestone crossed. Time:" << context.getTime() << " ps\n";
           endSimulation = true;
           ofstream datafile;
-          datafile.open(dataFileNames[i], std::ios_base::app);
+          datafile.open(dataSphericalFileNames[i], std::ios_base::app);
           if (crossedStartingMilestone == true || endOnMiddleCrossing == true) {
             datafile << "3 " << context.getTime() << "\n";
           } else {

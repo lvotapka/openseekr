@@ -50,14 +50,30 @@ using namespace std;
 
 extern "C" void registerSeekrSerializationProxies();
 
-void testPlanarZSerialization() {
+void testSerialization() {
     // Create a Force.
 	
+cout << "mark 3" << endl;
+		
+
     std::vector<int> atomIndices1 {23, 34};
+
+	cout << "mark 4" << endl;
+
     std::vector<int> atomIndices2 {45, 56, 67};
+	cout << "mark 5" << endl;
+
     SeekrForce force;
+	
+	cout << "mark 6" << endl;
+
     std::string testDataFileName = "/tmp/test.dat";
+
+	cout << "mark 7" << endl;
+
     force.addPlanarZMilestone(2, 3, 2.71, 3.01, 3.14, atomIndices1, atomIndices2, false, testDataFileName);
+
+cout << "mark 8" << endl;
 
     /*
     force.addBond(0, 1, 1.0, 2.0);
@@ -69,7 +85,13 @@ void testPlanarZSerialization() {
     // Serialize and then deserialize it.
 
     stringstream buffer;
+
+cout << "mark 9" << endl;
+
     XmlSerializer::serialize<SeekrForce>(&force, "Force", buffer);
+
+cout << "mark 100" << endl;
+
     SeekrForce* copy = XmlSerializer::deserialize<SeekrForce>(buffer);
 
     // Compare the two forces to see if they are identical.
@@ -93,32 +115,8 @@ void testPlanarZSerialization() {
         force2.getPlanarZMilestoneAtoms(0, i, atomIndexCopy, 2);
         ASSERT_EQUAL(atomIndex, atomIndexCopy);
     }
-}
-
-void testSphericalSerialization() {
-    // Create a Force.
-    std::vector<int> atomIndices1 {23, 34};
-    std::vector<int> atomIndices2 {45, 56, 67};
-    SeekrForce force;
-    std::string testDataFileName = "/tmp/test.dat";
-    force.addSphericalMilestone(2, 3, 2.71, 3.01, 3.14, atomIndices1, atomIndices2, false, testDataFileName);
-    /*
-    force.addBond(0, 1, 1.0, 2.0);
-    force.addBond(0, 2, 2.0, 2.1);
-    force.addBond(2, 3, 3.0, 2.2);
-    force.addBond(5, 1, 4.0, 2.3);
-    */
-
-    // Serialize and then deserialize it.
-
-    stringstream buffer;
-    XmlSerializer::serialize<SeekrForce>(&force, "Force", buffer);
-    SeekrForce* copy = XmlSerializer::deserialize<SeekrForce>(buffer);
-
-    // Compare the two forces to see if they are identical.
-
-    SeekrForce& force2 = *copy;
-    ASSERT_EQUAL(force.getSphericalNumIndices(0,1), force2.getSphericalNumIndices(0,1));
+    
+        ASSERT_EQUAL(force.getSphericalNumIndices(0,1), force2.getSphericalNumIndices(0,1));
     ASSERT_EQUAL(force.getSphericalNumIndices(0,2), force2.getSphericalNumIndices(0,2));
     ASSERT_EQUAL(force.getSphericalRadius(0,1), force2.getSphericalRadius(0,1));
     ASSERT_EQUAL(force.getSphericalRadius(0,2), force2.getSphericalRadius(0,2));
@@ -137,22 +135,10 @@ void testSphericalSerialization() {
     }
 }
 
-
-
 int main() {
     try {
         registerSeekrSerializationProxies(); 
-        testPlanarZSerialization();
-    }
-    catch(const exception& e) {
-        cout << "exception: " << e.what() << endl;
-        return 1;
-    }
-    cout << "Done" << endl;
-    
-    try {
-        registerSeekrSerializationProxies();
-        testSphericalSerialization();
+        testSerialization();
     }
     catch(const exception& e) {
         cout << "exception: " << e.what() << endl;

@@ -65,10 +65,6 @@ cout << "Get PlanarZ Num Indicies: " << getPlanarZNumIndices(forceIndex, molecul
   }
 }
 
-bool SeekrForce::getEndOnMiddleCrossing() const {
-  return endOnMiddleCrossing;
-}
-
 int SeekrForce::getNumSphericalMilestones() const {
   return sphericalMilestones.size();
 }
@@ -115,6 +111,10 @@ void SeekrForce::getSphericalMilestoneAtoms(int forceIndex, int atomIndex, int& 
   }
 }
 
+bool SeekrForce::getEndOnMiddleCrossing() const {
+  return endOnMiddleCrossing;
+}
+
 std::string SeekrForce::getPlanarZDataFileName(int forceIndex) const {
   return planarZMilestones[forceIndex].dataFileName;
 }
@@ -148,11 +148,26 @@ void SeekrForce::modifyPlanarZMilestone(int forceIndex, int numIndices1, int num
                               std::vector<int> atomIndices2, bool endOnMiddleCrossingArg,
                               std::string dataFileName) 
 {
-
+  /*int i;
+  planarZMilestone.numIndices1 = numIndices1;
+  planarZMilestone.numIndices2 = numIndices2;
+  planarZMilestone.offset1 = offset1;
+  planarZMilestone.offset2 = offset2;
+  planarZMilestone.offset3 = offset3;
+  for (i=0; i<numIndices1; i++) {
+    planarZMilestone.atomIndices1[i] = atomIndices1[i];
+  }
+  for (i=0; i<numIndices2; i++) {
+    planarZMilestone.atomIndices2[i] = atomIndices2[i];
+  }
+  std::cout << "Modifying planarZ milestone. Indices: " << numIndices1 << ", " << numIndices2;
+  std::cout << ". Radii: " << offset1 << ", " << offset2 << ", " << offset3 << ".\n";
+  */
   planarZMilestones[forceIndex] = PlanarZMilestoneInfo(numIndices1, numIndices2, offset1, offset2, offset3, atomIndices1, atomIndices2, dataFileName);
   endOnMiddleCrossing = endOnMiddleCrossingArg;
   
 }
+
 
 std::string SeekrForce::getSphericalDataFileName(int forceIndex) const {
   return sphericalMilestones[forceIndex].dataFileName;

@@ -64,6 +64,16 @@ public:
     
     void getPlanarZMilestoneAtoms(int forceIndex, int atomIndex, int& atom_id, int molecule) const;
     
+    int getNumSphericalMilestones() const;
+    
+    int getNumSphericalAtomIndices() const;
+    
+    int getSphericalNumIndices(int forceIndex, int molecule) const;
+    
+    float getSphericalRadius(int forceIndex, int milestone_id) const;
+    
+    void getSphericalMilestoneAtoms(int forceIndex, int atomIndex, int& atom_id, int molecule) const;
+    
     bool getEndOnMiddleCrossing() const;
     
     std::string getSphericalDataFileName(int forceIndex) const;
@@ -80,16 +90,6 @@ public:
                               std::vector<int> atomIndices2, bool endOnMiddleCrossingArg,
                               std::string dataFileName);
                               
-    int getNumSphericalMilestones() const;
-    
-    int getNumSphericalAtomIndices() const;
-    
-    int getSphericalNumIndices(int forceIndex, int molecule) const;
-    
-    float getSphericalRadius(int forceIndex, int milestone_id) const;
-    
-    void getSphericalMilestoneAtoms(int forceIndex, int atomIndex, int& atom_id, int molecule) const;
-    
     void addSphericalMilestone(int numIndices1, int numIndices2, float radius1, 
                               float radius2, float radius3, std::vector<int> atomIndices1,
                               std::vector<int> atomIndices2, bool endOnMiddleCrossingArg,
@@ -99,7 +99,6 @@ public:
                               float radius2, float radius3, std::vector<int> atomIndices1,
                               std::vector<int> atomIndices2, bool endOnMiddleCrossingArg,
                               std::string dataFileName);
-    
     
     /**
      * Update the per-bond parameters in a Context to match those stored in this Force object.  This method provides
@@ -147,33 +146,38 @@ private:
           }
     };
     
+    std::vector<PlanarZMilestoneInfo> planarZMilestones;
+    
+private:
     class SphericalMilestoneInfo;
-
-	class SphericalMilestoneInfo {
-	  public:
-	      int numIndices1, numIndices2;
-	      float radius1, radius2, radius3;
-	      std::vector<int> atomIndices1;
-	      std::vector<int> atomIndices2;
-	      std::string dataFileName;
-	      
-	      SphericalMilestoneInfo() {
-	        numIndices1 = numIndices2 = 0;
-	        radius1 = radius2 = radius3 = 0.0;
-	        // vectors?
-	      }
-	      
-	      SphericalMilestoneInfo(int numIndices1, int numIndices2, float radius1, float radius2, float radius3, std::vector<int> atomIndices1, std::vector<int> atomIndices2, std::string dataFileName) : 
-	                             numIndices1(numIndices1), numIndices2(numIndices2), radius1(radius1),
-	                             radius2(radius2), radius3(radius3), atomIndices1(atomIndices1), 
-	                             atomIndices2(atomIndices2), dataFileName(dataFileName) {
-	      }
-	};
-	std::vector<PlanarZMilestoneInfo> planarZMilestones;	
-	std::vector<SphericalMilestoneInfo> sphericalMilestones;
+    
+    class SphericalMilestoneInfo {
+      public:
+          int numIndices1, numIndices2;
+          float radius1, radius2, radius3;
+          std::vector<int> atomIndices1;
+          std::vector<int> atomIndices2;
+          std::string dataFileName;
+          
+          SphericalMilestoneInfo() {
+            numIndices1 = numIndices2 = 0;
+            radius1 = radius2 = radius3 = 0.0;
+            // vectors?
+          }
+          
+          SphericalMilestoneInfo(int numIndices1, int numIndices2, float radius1, float radius2, float radius3, std::vector<int> atomIndices1, std::vector<int> atomIndices2, std::string dataFileName) : 
+                                 numIndices1(numIndices1), numIndices2(numIndices2), radius1(radius1),
+                                 radius2(radius2), radius3(radius3), atomIndices1(atomIndices1), 
+                                 atomIndices2(atomIndices2), dataFileName(dataFileName) {
+          }
+    };
+    
+    std::vector<SphericalMilestoneInfo> sphericalMilestones;
     bool endOnMiddleCrossing;
     
+    
 };
+
 
 } // namespace SeekrPlugin
 

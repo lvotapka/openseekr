@@ -70,14 +70,10 @@ import simtk.unit as unit
     
 %}
 
-%pythonappend SeekrPlugin::SeekrForce::getEndOnMiddleCrossing() const %{
-
-%}
 
 %pythonappend SeekrPlugin::SeekrForce::getPlanarZDataFileName(int forceIndex) const %{
 
 %}
-
 
 namespace SeekrPlugin {
 
@@ -94,6 +90,19 @@ public:
     bool getEndOnMiddleCrossing() const;
     
     std::string getSphericalDataFileName(int foceIndex) const;
+    
+    
+    
+    int getPlanarZNumIndices(int forceIndex, int molecule) const;
+    
+    float getPlanarZOffset(int forceIndex, int milestone_id) const;
+    
+    void getPlanarZMilestoneAtoms(int forceIndex, int atomIndex, int& index, int molecule) const;
+    
+
+    
+    std::string getPlanarZDataFileName(int foceIndex) const;
+    
     //void getDataFileName(int forceIndex) const;
     
     void updateParametersInContext(OpenMM::Context& context);
@@ -111,31 +120,20 @@ public:
     void modifySphericalMilestone(int forceIndex, int numIndices1, int numIndices2, float radius1,
           float radius2, float radius3, std::vector<int>atomIndices1, std::vector<int>atomIndices2,
           bool argEndOnMiddleCrossing, std::string dataFileName);
-    int getPlanarZNumIndices(int forceIndex, int molecule) const;
+          
+
+
+
+
+
+
     
-    float getPlanarZOffset(int forceIndex, int milestone_id) const;
-    
-    void getPlanarZMilestoneAtoms(int forceIndex, int atomIndex, int& index, int molecule) const;
-    
-    bool getEndOnMiddleCrossing() const;
-    
-    std::string getPlanarZDataFileName(int foceIndex) const;
-    //void getDataFileName(int forceIndex) const;
-    
-    void updateParametersInContext(OpenMM::Context& context);
-    
-    
-    /*
-     * The reference parameters to this function are output values.
-     * Marking them as such will cause swig to return a tuple.
-    */
-    
-    void addPlanarZMilestone(int numIndices1, int numIndices2, float offset1,
-          float offset2, float offset3, std::vector<int>atomIndices1, std::vector<int>atomIndices2,
+    void addPlanarZMilestone(int numIndices1, int numIndices2, float radius1,
+          float radius2, float radius3, std::vector<int>atomIndices1, std::vector<int>atomIndices2,
           bool argEndOnMiddleCrossing, std::string dataFileName);
     
-    void modifyPlanarZMilestone(int forceIndex, int numIndices1, int numIndices2, float offset1,
-          float offset2, float offset3, std::vector<int>atomIndices1, std::vector<int>atomIndices2,
+    void modifyPlanarZMilestone(int forceIndex, int numIndices1, int numIndices2, float radius1,
+          float radius2, float radius3, std::vector<int>atomIndices1, std::vector<int>atomIndices2,
           bool argEndOnMiddleCrossing, std::string dataFileName);
 };
 

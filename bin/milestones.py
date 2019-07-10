@@ -27,8 +27,9 @@ class Milestone_System():
     self.prmtop_filename = '' # AMBER inputs
     self.inpcrd_filename = ''
     self.psf_filename = ''
-    self.rtf_filename = '' # CHARMM inputs
+    #self.rtf_filename = '' # CHARMM inputs # TODO: remove
     self.par_filename = ''
+    self.charmm_params_filename_list = []
     self.umbrella_pdb_filename = ''
     self.system = None
     self.simulation = None
@@ -238,7 +239,7 @@ def print_spherical_milestone_info(milestones):
   return
 
 def generate_planar_z_milestones(seekrcalc, atom_indices, origin, offset_list, 
-                                 siteid, vectors=[[0.0, 0.0, 1.0]], 
+                                 siteid, vectors=[np.array([0.0, 0.0, 1.0])], 
                                  absolute=False):
   '''Create a list of stacked planar milestones around an atom selection.
   Input:

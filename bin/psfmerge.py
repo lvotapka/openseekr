@@ -10,15 +10,27 @@ import re, os, sys
 
 class Atom():
   def __init__(self, line):
-    self.atomid = int(line[:8].strip())
-    self.segname = line[9:13].strip()
-    self.resid = line[14:18].strip()
-    self.resname = line[19:23].strip()
-    self.atomname = line[24:28].strip()
-    self.atomtype = line[29:35].strip()
-    self.charge = line[35:48]
-    self.mass = line[51:58].strip()
-    self.unused = line[59:].strip()
+    '''try:
+        self.atomid = int(line[:8].strip())
+        self.segname = line[9:13].strip()
+        self.resid = line[14:18].strip()
+        self.resname = line[19:23].strip()
+        self.atomname = line[24:28].strip()
+        self.atomtype = line[29:35].strip()
+        self.charge = line[35:48]
+        self.mass = line[51:58].strip()
+        self.unused = line[59:].strip()
+    except ValueError:'''
+    line = line.strip().split()
+    self.atomid = int(line[0])
+    self.segname = line[1]
+    self.resid = line[2]
+    self.resname = line[3]
+    self.atomname = line[4]
+    self.atomtype = line[5]
+    self.charge = line[6]
+    self.mass = line[7]
+    self.unused = line[8]
 
   def write(self):
     line = "\n{0:>8} {1:>4} {2:<4} {3:<4} {4:<4} {5:<5} {6:}   {7:<7}           {8:}".format(self.atomid, self.segname, self.resid, self.resname, self.atomname, self.atomtype, self.charge, self.mass, self.unused)
@@ -166,6 +178,7 @@ def parse_psf(psf_file):
   section = "" # the section of PSF file we are in
   bangN = re.compile('!N([A-Z]*)')
   for line in psf_file.xreadlines():
+    if not line: continue
     sectionsearch = re.search(bangN, line)
     if sectionsearch: # then we are entering a new section
       section = sectionsearch.group(1)
