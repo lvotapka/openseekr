@@ -123,10 +123,10 @@ def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umb
   
   state_filename = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'umbrella', 'backup.state')
   current_step = 0
+  print "running %d steps" % seekrcalc.umbrella_stage.steps
   while current_step < seekrcalc.umbrella_stage.steps:
     try:
       simulation.saveState(state_filename)
-      print "running %d steps" % seekrcalc.umbrella_stage.traj_freq
       simulation.step(seekrcalc.umbrella_stage.traj_freq)
       current_step = current_step + seekrcalc.umbrella_stage.traj_freq
     except ValueError:
