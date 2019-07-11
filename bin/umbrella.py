@@ -124,14 +124,14 @@ def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umb
   state_filename = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'umbrella', 'backup.state')
   current_step = 0
   while current_step < seekrcalc.umbrella_stage.steps:
-  try:
-    simulation.saveState(state_filename)
-    print "running %d steps" % seekrcalc.umbrella_stage.traj_freq
-    simulation.step(seekrcalc.umbrella_stage.traj_freq)
-    current_step = current_step + seekrcalc.umbrella_stage.traj_freq
-  except ValueError:
-    print "Alert! NaN error detected. Restarting from saved state."
-    simulation.loadState(state_filename)
+    try:
+      simulation.saveState(state_filename)
+      print "running %d steps" % seekrcalc.umbrella_stage.traj_freq
+      simulation.step(seekrcalc.umbrella_stage.traj_freq)
+      current_step = current_step + seekrcalc.umbrella_stage.traj_freq
+    except ValueError:
+      print "Alert! NaN error detected. Restarting from saved state."
+      simulation.loadState(state_filename)
     
   #simulation.step(seekrcalc.umbrella_stage.steps) # old way: simulate steps directly
   print "time:", time.time() - starttime, "s"
