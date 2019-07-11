@@ -1,8 +1,8 @@
-# Install script for directory: /home/astokely/SEEKR/openseekr/plugin
+# Install script for directory: /home/lvotapka/openseekr/plugin
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/home/astokely/bin/openmm")
+  set(CMAKE_INSTALL_PREFIX "/home/lvotapka/bin/openmm")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -32,39 +32,34 @@ if(NOT DEFINED CMAKE_INSTALL_SO_NO_EXE)
   set(CMAKE_INSTALL_SO_NO_EXE "1")
 endif()
 
-# Is this installation the result of a crosscompile?
-if(NOT DEFINED CMAKE_CROSSCOMPILING)
-  set(CMAKE_CROSSCOMPILING "FALSE")
-endif()
-
-if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
+if(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include" TYPE FILE FILES
-    "/home/astokely/SEEKR/openseekr/plugin/openmmapi/include/SeekrForce.h"
-    "/home/astokely/SEEKR/openseekr/plugin/openmmapi/include/SeekrKernels.h"
+    "/home/lvotapka/openseekr/plugin/openmmapi/include/SeekrKernels.h"
+    "/home/lvotapka/openseekr/plugin/openmmapi/include/SeekrForce.h"
     )
 endif()
 
-if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
+if(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include/internal" TYPE FILE FILES
-    "/home/astokely/SEEKR/openseekr/plugin/openmmapi/include/internal/SeekrForceImpl.h"
-    "/home/astokely/SEEKR/openseekr/plugin/openmmapi/include/internal/oldSeekrForceImpl.h"
-    "/home/astokely/SEEKR/openseekr/plugin/openmmapi/include/internal/windowsExportSeekr.h"
+    "/home/lvotapka/openseekr/plugin/openmmapi/include/internal/oldSeekrForceImpl.h"
+    "/home/lvotapka/openseekr/plugin/openmmapi/include/internal/SeekrForceImpl.h"
+    "/home/lvotapka/openseekr/plugin/openmmapi/include/internal/windowsExportSeekr.h"
     )
 endif()
 
-if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
+if(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
   if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libSeekrPlugin.so" AND
      NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libSeekrPlugin.so")
     file(RPATH_CHECK
          FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libSeekrPlugin.so"
          RPATH "")
   endif()
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE SHARED_LIBRARY FILES "/home/astokely/SEEKR/openseekr/plugin/build/libSeekrPlugin.so")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE SHARED_LIBRARY FILES "/home/lvotapka/openseekr/plugin/build/libSeekrPlugin.so")
   if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libSeekrPlugin.so" AND
      NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libSeekrPlugin.so")
     file(RPATH_CHANGE
          FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libSeekrPlugin.so"
-         OLD_RPATH "/home/astokely/bin/openmm/lib:/home/astokely/bin/openmm/lib/plugins:"
+         OLD_RPATH "/home/lvotapka/bin/openmm/lib:/home/lvotapka/bin/openmm/lib/plugins:"
          NEW_RPATH "")
     if(CMAKE_INSTALL_DO_STRIP)
       execute_process(COMMAND "/usr/bin/strip" "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libSeekrPlugin.so")
@@ -74,9 +69,9 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/home/astokely/SEEKR/openseekr/plugin/build/serialization/tests/cmake_install.cmake")
-  include("/home/astokely/SEEKR/openseekr/plugin/build/platforms/cuda/cmake_install.cmake")
-  include("/home/astokely/SEEKR/openseekr/plugin/build/python/cmake_install.cmake")
+  include("/home/lvotapka/openseekr/plugin/build/serialization/tests/cmake_install.cmake")
+  include("/home/lvotapka/openseekr/plugin/build/platforms/cuda/cmake_install.cmake")
+  include("/home/lvotapka/openseekr/plugin/build/python/cmake_install.cmake")
 
 endif()
 
@@ -88,5 +83,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/astokely/SEEKR/openseekr/plugin/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/lvotapka/openseekr/plugin/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

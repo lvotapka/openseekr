@@ -1,24 +1,24 @@
 Determining if the pthread_create exist failed with the following output:
-Change Dir: /home/astokely/SEEKR/openseekr/plugin/build/CMakeFiles/CMakeTmp
+Change Dir: /home/lvotapka/openseekr/plugin/build/CMakeFiles/CMakeTmp
 
-Run Build Command:"/usr/bin/make" "cmTC_1eee6/fast"
-/usr/bin/make -f CMakeFiles/cmTC_1eee6.dir/build.make CMakeFiles/cmTC_1eee6.dir/build
-make[1]: Entering directory '/home/astokely/SEEKR/openseekr/plugin/build/CMakeFiles/CMakeTmp'
-Building C object CMakeFiles/cmTC_1eee6.dir/CheckSymbolExists.c.o
-/usr/bin/cc   -fPIC    -o CMakeFiles/cmTC_1eee6.dir/CheckSymbolExists.c.o   -c /home/astokely/SEEKR/openseekr/plugin/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c
-Linking C executable cmTC_1eee6
-/usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_1eee6.dir/link.txt --verbose=1
-/usr/bin/cc -fPIC     -rdynamic CMakeFiles/cmTC_1eee6.dir/CheckSymbolExists.c.o  -o cmTC_1eee6 
-CMakeFiles/cmTC_1eee6.dir/CheckSymbolExists.c.o: In function `main':
+Run Build Command:"/usr/bin/make" "cmTC_25a7c/fast"
+/usr/bin/make -f CMakeFiles/cmTC_25a7c.dir/build.make CMakeFiles/cmTC_25a7c.dir/build
+make[1]: Entering directory '/home/lvotapka/openseekr/plugin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_25a7c.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -fPIC    -o CMakeFiles/cmTC_25a7c.dir/CheckSymbolExists.c.o   -c /home/lvotapka/openseekr/plugin/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_25a7c
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_25a7c.dir/link.txt --verbose=1
+/usr/bin/cc  -fPIC     CMakeFiles/cmTC_25a7c.dir/CheckSymbolExists.c.o  -o cmTC_25a7c -rdynamic 
+CMakeFiles/cmTC_25a7c.dir/CheckSymbolExists.c.o: In function `main':
 CheckSymbolExists.c:(.text+0x1b): undefined reference to `pthread_create'
 collect2: error: ld returned 1 exit status
-CMakeFiles/cmTC_1eee6.dir/build.make:86: recipe for target 'cmTC_1eee6' failed
-make[1]: *** [cmTC_1eee6] Error 1
-make[1]: Leaving directory '/home/astokely/SEEKR/openseekr/plugin/build/CMakeFiles/CMakeTmp'
-Makefile:126: recipe for target 'cmTC_1eee6/fast' failed
-make: *** [cmTC_1eee6/fast] Error 2
+CMakeFiles/cmTC_25a7c.dir/build.make:97: recipe for target 'cmTC_25a7c' failed
+make[1]: *** [cmTC_25a7c] Error 1
+make[1]: Leaving directory '/home/lvotapka/openseekr/plugin/build/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_25a7c/fast' failed
+make: *** [cmTC_25a7c/fast] Error 2
 
-File /home/astokely/SEEKR/openseekr/plugin/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+File /home/lvotapka/openseekr/plugin/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
 /* */
 #include <pthread.h>
 
@@ -34,22 +34,22 @@ int main(int argc, char** argv)
 }
 
 Determining if the function pthread_create exists in the pthreads failed with the following output:
-Change Dir: /home/astokely/SEEKR/openseekr/plugin/build/CMakeFiles/CMakeTmp
+Change Dir: /home/lvotapka/openseekr/plugin/build/CMakeFiles/CMakeTmp
 
-Run Build Command:"/usr/bin/make" "cmTC_2ee10/fast"
-/usr/bin/make -f CMakeFiles/cmTC_2ee10.dir/build.make CMakeFiles/cmTC_2ee10.dir/build
-make[1]: Entering directory '/home/astokely/SEEKR/openseekr/plugin/build/CMakeFiles/CMakeTmp'
-Building C object CMakeFiles/cmTC_2ee10.dir/CheckFunctionExists.c.o
-/usr/bin/cc   -fPIC -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_2ee10.dir/CheckFunctionExists.c.o   -c /usr/local/share/cmake-3.11/Modules/CheckFunctionExists.c
-Linking C executable cmTC_2ee10
-/usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_2ee10.dir/link.txt --verbose=1
-/usr/bin/cc -fPIC -DCHECK_FUNCTION_EXISTS=pthread_create    -rdynamic CMakeFiles/cmTC_2ee10.dir/CheckFunctionExists.c.o  -o cmTC_2ee10 -lpthreads 
+Run Build Command:"/usr/bin/make" "cmTC_e4472/fast"
+/usr/bin/make -f CMakeFiles/cmTC_e4472.dir/build.make CMakeFiles/cmTC_e4472.dir/build
+make[1]: Entering directory '/home/lvotapka/openseekr/plugin/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_e4472.dir/CheckFunctionExists.c.o
+/usr/bin/cc    -fPIC -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_e4472.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-3.5/Modules/CheckFunctionExists.c
+Linking C executable cmTC_e4472
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_e4472.dir/link.txt --verbose=1
+/usr/bin/cc  -fPIC -DCHECK_FUNCTION_EXISTS=pthread_create    CMakeFiles/cmTC_e4472.dir/CheckFunctionExists.c.o  -o cmTC_e4472 -rdynamic -lpthreads 
 /usr/bin/ld: cannot find -lpthreads
 collect2: error: ld returned 1 exit status
-CMakeFiles/cmTC_2ee10.dir/build.make:86: recipe for target 'cmTC_2ee10' failed
-make[1]: *** [cmTC_2ee10] Error 1
-make[1]: Leaving directory '/home/astokely/SEEKR/openseekr/plugin/build/CMakeFiles/CMakeTmp'
-Makefile:126: recipe for target 'cmTC_2ee10/fast' failed
-make: *** [cmTC_2ee10/fast] Error 2
+CMakeFiles/cmTC_e4472.dir/build.make:97: recipe for target 'cmTC_e4472' failed
+make[1]: *** [cmTC_e4472] Error 1
+make[1]: Leaving directory '/home/lvotapka/openseekr/plugin/build/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_e4472/fast' failed
+make: *** [cmTC_e4472/fast] Error 2
 
 

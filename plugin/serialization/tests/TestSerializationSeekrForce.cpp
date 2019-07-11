@@ -51,30 +51,19 @@ using namespace std;
 extern "C" void registerSeekrSerializationProxies();
 
 void testSerialization() {
-    // Create a Force.
-	
-cout << "mark 3" << endl;
-		
+    // Create a Force.		
 
     std::vector<int> atomIndices1 {23, 34};
 
-	cout << "mark 4" << endl;
-
     std::vector<int> atomIndices2 {45, 56, 67};
-	cout << "mark 5" << endl;
 
     SeekrForce force;
 	
-	cout << "mark 6" << endl;
-
     std::string testDataFileName = "/tmp/test.dat";
-
-	cout << "mark 7" << endl;
-
-    force.addPlanarZMilestone(2, 3, 2.71, 3.01, 3.14, atomIndices1, atomIndices2, false, testDataFileName);
-
-cout << "mark 8" << endl;
-
+    
+    force.addSphericalMilestone(2, 3, 2.71, 3.01, 3.14, atomIndices1, atomIndices2, false);
+    force.addPlanarZMilestone(2, 3, 2.71, 3.01, 3.14, atomIndices1, atomIndices2, false);
+    force.setDataFileName(testDataFileName);
     /*
     force.addBond(0, 1, 1.0, 2.0);
     force.addBond(0, 2, 2.0, 2.1);
@@ -86,14 +75,9 @@ cout << "mark 8" << endl;
 
     stringstream buffer;
 
-cout << "mark 9" << endl;
-
     XmlSerializer::serialize<SeekrForce>(&force, "Force", buffer);
 
-cout << "mark 100" << endl;
-
     SeekrForce* copy = XmlSerializer::deserialize<SeekrForce>(buffer);
-
     // Compare the two forces to see if they are identical.
 	
     SeekrForce& force2 = *copy;
@@ -115,8 +99,7 @@ cout << "mark 100" << endl;
         force2.getPlanarZMilestoneAtoms(0, i, atomIndexCopy, 2);
         ASSERT_EQUAL(atomIndex, atomIndexCopy);
     }
-    
-        ASSERT_EQUAL(force.getSphericalNumIndices(0,1), force2.getSphericalNumIndices(0,1));
+    ASSERT_EQUAL(force.getSphericalNumIndices(0,1), force2.getSphericalNumIndices(0,1));
     ASSERT_EQUAL(force.getSphericalNumIndices(0,2), force2.getSphericalNumIndices(0,2));
     ASSERT_EQUAL(force.getSphericalRadius(0,1), force2.getSphericalRadius(0,1));
     ASSERT_EQUAL(force.getSphericalRadius(0,2), force2.getSphericalRadius(0,2));
@@ -133,6 +116,9 @@ cout << "mark 100" << endl;
         force2.getSphericalMilestoneAtoms(0, i, atomIndexCopy, 2);
         ASSERT_EQUAL(atomIndex, atomIndexCopy);
     }
+    ASSERT_EQUAL(force.getEndOnMiddleCrossing(), force2.getEndOnMiddleCrossing());
+    ASSERT_EQUAL(force.getDataFileName(), force2.getDataFileName());
+    ASSERT_EQUAL(force.getSaveStateFileName(), force2.getSaveStateFileName());
 }
 
 int main() {

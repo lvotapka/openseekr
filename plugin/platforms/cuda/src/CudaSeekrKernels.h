@@ -84,10 +84,7 @@ public:
      */
     void copyParametersToContext(OpenMM::ContextImpl& context, const SeekrForce& force);
 private:
-    //int numBonds;
     
-    // ANDY: start to copy/paste
-
     CUfunction computePlanarZMilestonesKernel;
     
     int numPlanarZMilestones;
@@ -164,8 +161,6 @@ private:
     OpenMM::CudaArray* sphericalOldCom2;
     std::vector<float4> h_sphericalOldCom2;
     
-    // ANDY end copy/paste
-
     OpenMM::CudaArray* planarZCollectionReturnCode;
     std::vector<float> h_planarZCollectionReturnCode;
     //std::vector<int> h_planarZCollectionReturnCode;
@@ -177,8 +172,10 @@ private:
     bool endSimulation;
     bool endOnMiddleCrossing;
     bool crossedStartingMilestone;
-    std::vector<std::string> dataPlanarZFileNames;
-    std::vector<std::string> dataSphericalFileNames;
+    std::string dataFileName;
+    bool saveStateBool = false;
+    std::string saveStateFileName;
+    int counter;
     
     bool hasInitializedKernel;
     OpenMM::CudaContext& cu;

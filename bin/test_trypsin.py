@@ -28,8 +28,8 @@ me.master_temperature = 298. #*kelvin # temperature of (most) all calculations
 me.project.name = 'test_tryp'
 me.project.rootdir = '/home/lvotapka/tryp_test'
 me.project.empty_rootdir = remove_old_filetree
-me.md = True
-me.bd = True
+me.project.md = True
+me.project.bd = False
 
 # OpenMM information
 me.openmm.platform = Platform.getPlatformByName('CUDA')
@@ -169,8 +169,8 @@ print "Saving all system settings for Umbrella stage and later stages."
 me.save()
 
 print "Preparing Brownian dynamics stages..."
-
-bd.build_bd(me)
+if me.project.bd:
+  bd.build_bd(me)
 
 print "Ligand heavy indices:", ligand_heavy_indices
 

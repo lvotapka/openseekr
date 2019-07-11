@@ -2,7 +2,7 @@
 #define OPENMM_SEEKRFORCE_H_
 
 /*
-   Copyright 2018 by Lane Votapka
+   Copyright 2019 by Lane Votapka
    All rights reserved
    
    -------------------------------------------------------------------------- *
@@ -55,50 +55,43 @@ public:
     SeekrForce();
     
     int getNumPlanarZMilestones() const;
-    
     int getNumPlanarZAtomIndices() const;
-    
     int getPlanarZNumIndices(int forceIndex, int molecule) const;
-    
     float getPlanarZOffset(int forceIndex, int milestone_id) const;
-    
     void getPlanarZMilestoneAtoms(int forceIndex, int atomIndex, int& atom_id, int molecule) const;
     
     int getNumSphericalMilestones() const;
-    
     int getNumSphericalAtomIndices() const;
-    
     int getSphericalNumIndices(int forceIndex, int molecule) const;
-    
     float getSphericalRadius(int forceIndex, int milestone_id) const;
-    
     void getSphericalMilestoneAtoms(int forceIndex, int atomIndex, int& atom_id, int molecule) const;
     
     bool getEndOnMiddleCrossing() const;
     
     std::string getSphericalDataFileName(int forceIndex) const;
-    
     std::string getPlanarZDataFileName(int forceIndex) const;
+    
+    std::string getDataFileName() const;
+    void setDataFileName(std::string dataFileName);
+    
+    std::string getSaveStateFileName() const;
+    void setSaveStateFileName(std::string saveStateFileName);
     
     void addPlanarZMilestone(int numIndices1, int numIndices2, float offset1, 
                               float offset2, float offset3, std::vector<int> atomIndices1,
-                              std::vector<int> atomIndices2, bool endOnMiddleCrossingArg,
-                              std::string dataFileName);
+                              std::vector<int> atomIndices2, bool endOnMiddleCrossingArg);
                               
     void modifyPlanarZMilestone(int forceIndex, int numIndices1, int numIndices2, float offset1, 
                               float offset2, float offset3, std::vector<int> atomIndices1,
-                              std::vector<int> atomIndices2, bool endOnMiddleCrossingArg,
-                              std::string dataFileName);
+                              std::vector<int> atomIndices2, bool endOnMiddleCrossingArg);
                               
     void addSphericalMilestone(int numIndices1, int numIndices2, float radius1, 
                               float radius2, float radius3, std::vector<int> atomIndices1,
-                              std::vector<int> atomIndices2, bool endOnMiddleCrossingArg,
-                              std::string dataFileName);
+                              std::vector<int> atomIndices2, bool endOnMiddleCrossingArg);
                               
     void modifySphericalMilestone(int forceIndex, int numIndices1, int numIndices2, float radius1, 
                               float radius2, float radius3, std::vector<int> atomIndices1,
-                              std::vector<int> atomIndices2, bool endOnMiddleCrossingArg,
-                              std::string dataFileName);
+                              std::vector<int> atomIndices2, bool endOnMiddleCrossingArg);
     
     /**
      * Update the per-bond parameters in a Context to match those stored in this Force object.  This method provides
@@ -131,7 +124,7 @@ private:
           float offset1, offset2, offset3;
           std::vector<int> atomIndices1;
           std::vector<int> atomIndices2;
-          std::string dataFileName;
+          //std::string dataFileName;
           
           PlanarZMilestoneInfo() {
             numIndices1 = numIndices2 = 0;
@@ -139,10 +132,10 @@ private:
             // vectors?
           }
           
-          PlanarZMilestoneInfo(int numIndices1, int numIndices2, float offset1, float offset2, float offset3, std::vector<int> atomIndices1, std::vector<int> atomIndices2, std::string dataFileName) : 
+          PlanarZMilestoneInfo(int numIndices1, int numIndices2, float offset1, float offset2, float offset3, std::vector<int> atomIndices1, std::vector<int> atomIndices2) : 
                                  numIndices1(numIndices1), numIndices2(numIndices2), offset1(offset1),
                                  offset2(offset2), offset3(offset3), atomIndices1(atomIndices1), 
-                                 atomIndices2(atomIndices2), dataFileName(dataFileName) {
+                                 atomIndices2(atomIndices2) {
           }
     };
     
@@ -157,7 +150,7 @@ private:
           float radius1, radius2, radius3;
           std::vector<int> atomIndices1;
           std::vector<int> atomIndices2;
-          std::string dataFileName;
+          //std::string dataFileName;
           
           SphericalMilestoneInfo() {
             numIndices1 = numIndices2 = 0;
@@ -165,16 +158,17 @@ private:
             // vectors?
           }
           
-          SphericalMilestoneInfo(int numIndices1, int numIndices2, float radius1, float radius2, float radius3, std::vector<int> atomIndices1, std::vector<int> atomIndices2, std::string dataFileName) : 
+          SphericalMilestoneInfo(int numIndices1, int numIndices2, float radius1, float radius2, float radius3, std::vector<int> atomIndices1, std::vector<int> atomIndices2) : 
                                  numIndices1(numIndices1), numIndices2(numIndices2), radius1(radius1),
                                  radius2(radius2), radius3(radius3), atomIndices1(atomIndices1), 
-                                 atomIndices2(atomIndices2), dataFileName(dataFileName) {
+                                 atomIndices2(atomIndices2) {
           }
     };
     
     std::vector<SphericalMilestoneInfo> sphericalMilestones;
     bool endOnMiddleCrossing;
-    
+    std::string dataFileName;
+    std::string stateFileName;
     
 };
 

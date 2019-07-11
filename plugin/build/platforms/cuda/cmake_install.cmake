@@ -1,8 +1,8 @@
-# Install script for directory: /home/astokely/SEEKR/openseekr/plugin/platforms/cuda
+# Install script for directory: /home/lvotapka/openseekr/plugin/platforms/cuda
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/home/astokely/bin/openmm")
+  set(CMAKE_INSTALL_PREFIX "/home/lvotapka/bin/openmm")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -32,42 +32,37 @@ if(NOT DEFINED CMAKE_INSTALL_SO_NO_EXE)
   set(CMAKE_INSTALL_SO_NO_EXE "1")
 endif()
 
-# Is this installation the result of a crosscompile?
-if(NOT DEFINED CMAKE_CROSSCOMPILING)
-  set(CMAKE_CROSSCOMPILING "FALSE")
-endif()
-
-if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  if(EXISTS "$ENV{DESTDIR}/home/astokely/bin/openmm/lib/plugins/libSeekrPluginCUDA.so" AND
-     NOT IS_SYMLINK "$ENV{DESTDIR}/home/astokely/bin/openmm/lib/plugins/libSeekrPluginCUDA.so")
+if(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
+  if(EXISTS "$ENV{DESTDIR}/home/lvotapka/bin/openmm/lib/plugins/libSeekrPluginCUDA.so" AND
+     NOT IS_SYMLINK "$ENV{DESTDIR}/home/lvotapka/bin/openmm/lib/plugins/libSeekrPluginCUDA.so")
     file(RPATH_CHECK
-         FILE "$ENV{DESTDIR}/home/astokely/bin/openmm/lib/plugins/libSeekrPluginCUDA.so"
+         FILE "$ENV{DESTDIR}/home/lvotapka/bin/openmm/lib/plugins/libSeekrPluginCUDA.so"
          RPATH "")
   endif()
   list(APPEND CMAKE_ABSOLUTE_DESTINATION_FILES
-   "/home/astokely/bin/openmm/lib/plugins/libSeekrPluginCUDA.so")
+   "/home/lvotapka/bin/openmm/lib/plugins/libSeekrPluginCUDA.so")
   if(CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(WARNING "ABSOLUTE path INSTALL DESTINATION : ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
   if(CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
-file(INSTALL DESTINATION "/home/astokely/bin/openmm/lib/plugins" TYPE SHARED_LIBRARY FILES "/home/astokely/SEEKR/openseekr/plugin/build/platforms/cuda/libSeekrPluginCUDA.so")
-  if(EXISTS "$ENV{DESTDIR}/home/astokely/bin/openmm/lib/plugins/libSeekrPluginCUDA.so" AND
-     NOT IS_SYMLINK "$ENV{DESTDIR}/home/astokely/bin/openmm/lib/plugins/libSeekrPluginCUDA.so")
+file(INSTALL DESTINATION "/home/lvotapka/bin/openmm/lib/plugins" TYPE SHARED_LIBRARY FILES "/home/lvotapka/openseekr/plugin/build/platforms/cuda/libSeekrPluginCUDA.so")
+  if(EXISTS "$ENV{DESTDIR}/home/lvotapka/bin/openmm/lib/plugins/libSeekrPluginCUDA.so" AND
+     NOT IS_SYMLINK "$ENV{DESTDIR}/home/lvotapka/bin/openmm/lib/plugins/libSeekrPluginCUDA.so")
     file(RPATH_CHANGE
-         FILE "$ENV{DESTDIR}/home/astokely/bin/openmm/lib/plugins/libSeekrPluginCUDA.so"
-         OLD_RPATH "/home/astokely/SEEKR/openseekr/plugin/build:/home/astokely/bin/openmm/lib:/home/astokely/bin/openmm/lib/plugins:"
+         FILE "$ENV{DESTDIR}/home/lvotapka/bin/openmm/lib/plugins/libSeekrPluginCUDA.so"
+         OLD_RPATH "/home/lvotapka/openseekr/plugin/build:/home/lvotapka/bin/openmm/lib:/home/lvotapka/bin/openmm/lib/plugins:"
          NEW_RPATH "")
     if(CMAKE_INSTALL_DO_STRIP)
-      execute_process(COMMAND "/usr/bin/strip" "$ENV{DESTDIR}/home/astokely/bin/openmm/lib/plugins/libSeekrPluginCUDA.so")
+      execute_process(COMMAND "/usr/bin/strip" "$ENV{DESTDIR}/home/lvotapka/bin/openmm/lib/plugins/libSeekrPluginCUDA.so")
     endif()
   endif()
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/home/astokely/SEEKR/openseekr/plugin/build/platforms/cuda/tests/cmake_install.cmake")
+  include("/home/lvotapka/openseekr/plugin/build/platforms/cuda/tests/cmake_install.cmake")
 
 endif()
 

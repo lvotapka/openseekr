@@ -54,10 +54,6 @@ import simtk.unit as unit
 
 %}
 
-%pythonappend SeekrPlugin::SeekrForce::getSphericalDataFileName(int forceIndex) const %{
-
-%}
-
 %pythonappend SeekrPlugin::SeekrForce::getPlanarZNumIndices(int forceIndex, int molecule) const %{
     
 %}
@@ -71,9 +67,22 @@ import simtk.unit as unit
 %}
 
 
-%pythonappend SeekrPlugin::SeekrForce::getPlanarZDataFileName(int forceIndex) const %{
+%pythonappend SeekrPlugin::SeekrForce::getSaveStateFileName() const %{
 
 %}
+
+%pythonappend SeekrPlugin::SeekrForce::setSaveStateFileName(std::string saveStateFileName) const %{
+
+%}
+
+%pythonappend SeekrPlugin::SeekrForce::getDataFileName() const %{
+
+%}
+
+%pythonappend SeekrPlugin::SeekrForce::setDataFileName(std::string dataFileNameArg) const %{
+
+%}
+
 
 namespace SeekrPlugin {
 
@@ -89,21 +98,19 @@ public:
     
     bool getEndOnMiddleCrossing() const;
     
-    std::string getSphericalDataFileName(int foceIndex) const;
-    
-    
-    
     int getPlanarZNumIndices(int forceIndex, int molecule) const;
     
     float getPlanarZOffset(int forceIndex, int milestone_id) const;
     
     void getPlanarZMilestoneAtoms(int forceIndex, int atomIndex, int& index, int molecule) const;
     
-
+    std::string getSaveStateFileName() const;
     
-    std::string getPlanarZDataFileName(int foceIndex) const;
+    void setSaveStateFileName(std::string saveStateFileName);
     
-    //void getDataFileName(int forceIndex) const;
+    std::string getDataFileName() const;
+    
+    void setDataFileName(std::string dataFileNameArg);
     
     void updateParametersInContext(OpenMM::Context& context);
     
@@ -115,26 +122,19 @@ public:
     
     void addSphericalMilestone(int numIndices1, int numIndices2, float radius1,
           float radius2, float radius3, std::vector<int>atomIndices1, std::vector<int>atomIndices2,
-          bool argEndOnMiddleCrossing, std::string dataFileName);
+          bool argEndOnMiddleCrossing);
     
     void modifySphericalMilestone(int forceIndex, int numIndices1, int numIndices2, float radius1,
           float radius2, float radius3, std::vector<int>atomIndices1, std::vector<int>atomIndices2,
-          bool argEndOnMiddleCrossing, std::string dataFileName);
+          bool argEndOnMiddleCrossing);
           
-
-
-
-
-
-
-    
     void addPlanarZMilestone(int numIndices1, int numIndices2, float radius1,
           float radius2, float radius3, std::vector<int>atomIndices1, std::vector<int>atomIndices2,
-          bool argEndOnMiddleCrossing, std::string dataFileName);
+          bool argEndOnMiddleCrossing);
     
     void modifyPlanarZMilestone(int forceIndex, int numIndices1, int numIndices2, float radius1,
           float radius2, float radius3, std::vector<int>atomIndices1, std::vector<int>atomIndices2,
-          bool argEndOnMiddleCrossing, std::string dataFileName);
+          bool argEndOnMiddleCrossing);
 };
 
 }

@@ -1,7 +1,7 @@
-/home/astokely/bin/openmm/include/SeekrForce.h
-/home/astokely/bin/openmm/include/SeekrKernels.h
-/home/astokely/bin/openmm/include/internal/SeekrForceImpl.h
-/home/astokely/bin/openmm/include/internal/oldSeekrForceImpl.h
-/home/astokely/bin/openmm/include/internal/windowsExportSeekr.h
-/home/astokely/bin/openmm/lib/libSeekrPlugin.so
-/home/astokely/bin/openmm/lib/plugins/libSeekrPluginCUDA.so
+/home/lvotapka/bin/openmm/include/SeekrKernels.h
+/home/lvotapka/bin/openmm/include/SeekrForce.h
+/home/lvotapka/bin/openmm/include/internal/oldSeekrForceImpl.h
+/home/lvotapka/bin/openmm/include/internal/SeekrForceImpl.h
+/home/lvotapka/bin/openmm/include/internal/windowsExportSeekr.h
+/home/lvotapka/bin/openmm/lib/libSeekrPlugin.so
+/home/lvotapka/bin/openmm/lib/plugins/libSeekrPluginCUDA.so

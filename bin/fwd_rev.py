@@ -79,7 +79,8 @@ quit
 
 def create_spherical_seekr_force(seekrcalc, milestone, system, 
                                  end_on_middle_crossing, 
-                                 transition_filename='transition.dat'):
+                                 transition_filename='transition.dat',
+                                 save_state_filename=''):
   '''create the SEEKR 'force' even though it's more of a monitor than a force.
   Input:
    - seekrcalc: The SeekrCalculation object that contains all the settings for 
@@ -109,14 +110,18 @@ def create_spherical_seekr_force(seekrcalc, milestone, system,
     raise Exception, "Only one or two milestone neighbors allowed at present. Number of neighbors: %d" % milestone.neighbors
   data_file_name = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'fwd_rev', transition_filename) # define the file to write transition information
   # Define all settings and parameters for the SEEKR force object
-  force.addsphericalMilestone(len(milestone.atom_selection_1), len(milestone.atom_selection_2), radius1, radius2, radius3, milestone.atom_selection_1, milestone.atom_selection_2, end_on_middle_crossing, data_file_name)
+  force.addSphericalMilestone(len(milestone.atom_selection_1), len(milestone.atom_selection_2), radius1, radius2, radius3, milestone.atom_selection_1, milestone.atom_selection_2, end_on_middle_crossing)
+  force.setDataFileName(data_file_name);
+  if save_state_filename:
+    force.setSaveStateFileName(save_state_filename);
   system.addForce(force) # Add the SEEKR force to the openMM system
   if verbose: print "SEEKR force added to system."
   return force, data_file_name
 
 def create_planar_z_seekr_force(seekrcalc, milestone, system, 
                                 end_on_middle_crossing, 
-                                transition_filename='transition.dat'):
+                                transition_filename='transition.dat',
+                                save_state_filename=''):
   '''create the SEEKR 'force' even though it's more of a monitor than a force.
   Input:
    - seekrcalc: The SeekrCalculation object that contains all the settings for spherical
@@ -150,7 +155,10 @@ def create_planar_z_seekr_force(seekrcalc, milestone, system,
     raise Exception, "Only two milestone neighbors allowed at present. Number of neighbors: %d" % milestone.neighbors
   data_file_name = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'fwd_rev', transition_filename) # define the file to write transition information
   # Define all settings and parameters for the SEEKR force object
-  force.addPlanarZMilestone(len(milestone.atom_selection_1), len(milestone.atom_selection_2), offset1, offset2, offset3, milestone.atom_selection_1, milestone.atom_selection_2, end_on_middle_crossing, data_file_name)
+  force.addPlanarZMilestone(len(milestone.atom_selection_1), len(milestone.atom_selection_2), offset1, offset2, offset3, milestone.atom_selection_1, milestone.atom_selection_2, end_on_middle_crossing)
+  force.setDataFileName(data_file_name);
+  if save_state_filename:
+    force.setSaveStateFileName(save_state_filename);
   system.addForce(force) # Add the SEEKR force to the openMM system
   if verbose: print "SEEKR force added to system."
   return force, data_file_name
@@ -284,7 +292,7 @@ def prep_fwd_rev_amber(seekrcalc, milestone):
   # create OpenMM NVE system
   system = prmtop.createSystem(nonbondedMethod=PME, nonbondedCutoff=1*nanometer,
                                constraints=HBonds)
-  return system
+  return system, prmtop, inpcrd
 
 def prep_umbrella_charmm(seekrcalc, milestone):
   '''Prepare a system that will use the CHARMM forcefield
@@ -305,7 +313,7 @@ def prep_umbrella_charmm(seekrcalc, milestone):
                               milestone.openmm.par_filename)
 
   system = psf.createSystem(params, 
-                            nonbondedMethod=nonbondedCutoff=1.2*nanometer,
+                            nonbondedMethod=1.2*nanometer,
                             nonbondedCutoff=None)
   return system
 
@@ -314,7 +322,8 @@ def launch_fwd_rev_stage(seekrcalc, milestone, traj_base,
                          dcd_iterator_chunk=9e9, input_vels=None, 
                          box_vectors=None, 
                          transition_filename='transition.dat', suffix='', 
-                         save_fwd_rev=False, save_last_frame=True):
+                         save_fwd_rev=False, save_last_frame=True,
+                         save_state_filename=''):
   # TODO: update the docstring to current inputs
   '''launch a reversal stage SEEKR calculation.
   Input:
@@ -334,7 +343,7 @@ def launch_fwd_rev_stage(seekrcalc, milestone, traj_base,
     raise Exception, "The variable 'fwd_rev_stage.launches_per_config' should be set to 1 for the forward stage. (or velocities should not be provided to this function)."
   
   if seekrcalc.building.ff.lower() == 'amber':
-    system = prep_fwd_rev_amber(seekrcalc, milestone)
+    system, prmtop, inpcrd = prep_fwd_rev_amber(seekrcalc, milestone)
   elif seekrcalc.building.ff.lower() == 'charmm':
     system = prep_fwd_rev_charmm(seekrcalc, milestone)
   else:
@@ -349,12 +358,14 @@ def launch_fwd_rev_stage(seekrcalc, milestone, traj_base,
     myforce, data_file_name = create_spherical_seekr_force(seekrcalc, milestone,
                                                            system, 
                                                            end_on_middle_crossing, 
-                                                           transition_filename)
+                                                           transition_filename,
+                                                           save_state_filename)
   elif milestone.type == 'planar_z':
     myforce, data_file_name = create_planar_z_seekr_force(seekrcalc, milestone,
                                                            system, 
                                                            end_on_middle_crossing, 
-                                                           transition_filename)
+                                                           transition_filename,
+                                                           save_state_filename)
   else:
     raise Exception, 'Milestone type not yet implemented: %s' % milestone.type
   

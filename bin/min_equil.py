@@ -35,9 +35,14 @@ def run_min_equil(seekrcalc):
       print(state.getPeriodicBoxVectors())
       
       if verbose: print "Running energy minimization on milestone:", milestone.index
-      simulation.minimizeEnergy()
+      
       
       reporter_output = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'temp_equil', 'temp_equil.dcd')
+      if os.path.exists(reporter_output):
+        print "Temperature equilibration trajectories found. Skipping minimization and temperature equilibration."
+        return
+      
+      simulation.minimizeEnergy()
       simulation.reporters.append(DCDReporter(reporter_output, 1000)) # TODO: allow users to modify this quantity
       
       if verbose: print "Running temperature equilibration."

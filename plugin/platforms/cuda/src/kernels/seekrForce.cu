@@ -13,7 +13,6 @@
 extern "C" __global__ void monitorPlanarZMilestones(
                             const real4* __restrict__ posq,             // positions and charges
                             const mixed4* __restrict__ velm,             // velocities and masses
-                            //const float* __restrict__ masses,           // the masses of all of the atoms
                             const int* __restrict__ numIndices1,         // number of atoms in receptor
                             const int* __restrict__ numIndices2,         // number of atoms in ligand
                             const float* __restrict__ offset1,           // offset of inner planarZ milestone
@@ -28,12 +27,7 @@ extern "C" __global__ void monitorPlanarZMilestones(
                             float4* __restrict__ old_com2,              // old ligand COM
                             const int numPlanarZMilestones) {           // offset of outer planarZ milestone
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   //													DIDN'T CHANGE ANY OF THIS CODE
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
     for (int index=blockIdx.x*blockDim.x+threadIdx.x; index<numPlanarZMilestones; index+=blockDim.x*gridDim.x) { // Dedicate a given GPU to the milestone object
-        //int atomid;
         returncode[index] = 0; // Initialize a nominal message to return to the CPU regarding milestone crossing
         
         real4 com1; // center of mass of the 'receptor'
@@ -61,45 +55,37 @@ extern "C" __global__ void monitorPlanarZMilestones(
             totalmass2 += mass;
         }
         com2 = com2 / totalmass2; 
-        //old_com2 = old_com2 / totalmass2;
         
         // TODO: find a less hacky way to deal with this
         if (old_com1[index].x == -9.0e5) { // then this is the first step, so initialize old_posq to equal posq 
-          returncode[index] = 4; //TODO **NO CHANGE***
+          returncode[index] = 4;
           old_com1[index].x = com1.x; old_com1[index].y = com1.y; old_com1[index].z = com1.z; 
           old_com2[index].x = com2.x; old_com2[index].y = com2.y; old_com2[index].z = com2.z; 
         }
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-                
-        real delta = com2.z - com1.z; // ANDY: com2.z - com1.z TODO **DONE** 
-        float old_delta = old_com2[index].z - old_com1[index].z; // ANDY: use .z here too TODO **DONE** 
+              
+        real delta = com2.z - com1.z;
+        float old_delta = old_com2[index].z - old_com1[index].z;
        
-        old_com1[index].x = com1.x; old_com1[index].y = com1.y; old_com1[index].z = com1.z; // save current COM to be the next timestep's old_COM TODO **NO CHANGE**
-        old_com2[index].x = com2.x; old_com2[index].y = com2.y; old_com2[index].z = com2.z; // TODO **NO CHANGE***
+        old_com1[index].x = com1.x; old_com1[index].y = com1.y; old_com1[index].z = com1.z; // save current COM to be the next timestep's old_COM
+        old_com2[index].x = com2.x; old_com2[index].y = com2.y; old_com2[index].z = com2.z;
         
-        if (delta < offset1) { // crossed inner milestone ANDY: change offset1 to z1 TODO **DONE**
+        if (delta < offset1[index]) { // crossed inner milestone
             returncode[index] = 1;			
         } 
-        else if ((delta - offset2[index]*(old_delta - offset2[index]) < 0) { // This will return true if the particle has crossed the middle milestone since the last timestep ANDY TODO **DONE**
+        else if ((delta - offset2[index]*(old_delta - offset2[index]) < 0) { // This will return true if the particle has crossed the middle milestone since the last timestep
             returncode[index] = 2;
         }
-        else if (DELTA > offset3[index]) { // crossed outer milestone ANDY TODO **DONE**
+        else if (delta > offset3[index]) { // crossed outer milestone ANDY TODO **DONE**
             returncode[index] = 3;
         
         }
         
-        //returncode[index] = offset2[index]*offset2[index];
     }
 }
 
 extern "C" __global__ void monitorSphericalMilestones(
                             const real4* __restrict__ posq,             // positions and charges
                             const mixed4* __restrict__ velm,             // velocities and masses
-                            //const float* __restrict__ masses,           // the masses of all of the atoms
                             const int* __restrict__ numIndices1,         // number of atoms in receptor
                             const int* __restrict__ numIndices2,         // number of atoms in ligand
                             const float* __restrict__ radius1,           // radius of inner spherical milestone
@@ -115,7 +101,6 @@ extern "C" __global__ void monitorSphericalMilestones(
                             const int numSphericalMilestones) {           // radius of outer spherical milestone
     
     for (int index=blockIdx.x*blockDim.x+threadIdx.x; index<numSphericalMilestones; index+=blockDim.x*gridDim.x) {
-        //int atomid;
         returncode[index] = 0;
         
         real4 com1;
@@ -143,7 +128,6 @@ extern "C" __global__ void monitorSphericalMilestones(
             totalmass2 += mass;
         }
         com2 = com2 / totalmass2;
-        //old_com2 = old_com2 / totalmass2;
         
         if (old_com1[index].x == -9.0e5) { // then this is the first step, so initialize old_posq to equal posq
           returncode[index] = 4;
@@ -171,7 +155,6 @@ extern "C" __global__ void monitorSphericalMilestones(
         
         }
         
-        //returncode[index] = radius2[index]*radius2[index];
     }
 }
 

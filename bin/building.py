@@ -148,7 +148,7 @@ def generate_configs(seekrcalc):
       holo_config_wet.save(wet_holo_filename, amber=True, standard=False) # write the holo structure into the md directory
       last_insert_index = insert_index
       last_last_ligand_index = last_ligand_index
-    if milestone.bd:
+    if milestone.bd and seekrcalc.project.bd:
       holo_config_dry, insert_index, last_ligand_index = pdb.ligmerge(lig_config, receptor_dry, verbose=False)
       holo_config_dry.struct_id = lig_config.struct_id # set the structure description to the same as the ligand
       holo_config_dry.renumber_indeces() # to number the indeces consecutively
