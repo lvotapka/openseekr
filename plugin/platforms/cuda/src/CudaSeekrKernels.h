@@ -123,7 +123,7 @@ private:
     OpenMM::CudaArray* planarZOldCom2;
     std::vector<float4> h_planarZOldCom2;
     
-     CUfunction computeSphericalMilestonesKernel;
+    CUfunction computeSphericalMilestonesKernel;
     
     int numSphericalMilestones;
     int numSphericalAtomIndices;
@@ -161,13 +161,50 @@ private:
     OpenMM::CudaArray* sphericalOldCom2;
     std::vector<float4> h_sphericalOldCom2;
     
+    CUfunction computeRmsdMilestonesKernel;
+    
+    int numRmsdMilestones;
+    int numRmsdAtomIndices;
+    
+    OpenMM::CudaArray* rmsdNumIndices1;
+    std::vector<int> h_rmsdNumIndices1;
+    
+    OpenMM::CudaArray* rmsdNumIndices2;
+    std::vector<int> h_rmsdNumIndices2;
+    
+    OpenMM::CudaArray* rmsdRadii1;
+    std::vector<float> h_rmsdRadii1;
+    
+    OpenMM::CudaArray* rmsdRadii2;
+    std::vector<float> h_rmsdRadii2;
+    
+    OpenMM::CudaArray* rmsdRadii3;
+    std::vector<float> h_rmsdRadii3;
+    
+    OpenMM::CudaArray* rmsdAtomIndices1;
+    std::vector<int> h_rmsdAtomIndices1;
+    
+    OpenMM::CudaArray* rmsdAtomIndices2;
+    std::vector<int> h_rmsdAtomIndices2;
+    
+    OpenMM::CudaArray* rmsdAtomBounds1;
+    std::vector<int2> h_rmsdAtomBounds1;
+    
+    OpenMM::CudaArray* rmsdAtomBounds2;
+    std::vector<int2> h_rmsdAtomBounds2;
+    
+    OpenMM::CudaArray* rmsdOldRadiusSq;
+    std::vector<float> h_rmsdOldRadiusSq;
+    
+    
     OpenMM::CudaArray* planarZCollectionReturnCode;
     std::vector<float> h_planarZCollectionReturnCode;
-    //std::vector<int> h_planarZCollectionReturnCode;
     
-     OpenMM::CudaArray* sphericalCollectionReturnCode;
+    OpenMM::CudaArray* sphericalCollectionReturnCode;
     std::vector<float> h_sphericalCollectionReturnCode;
-    //std::vector<int> h_sphericalCollectionReturnCode;
+    
+    OpenMM::CudaArray* rmsdCollectionReturnCode;
+    std::vector<float> h_rmsdCollectionReturnCode;
     
     bool endSimulation;
     bool endOnMiddleCrossing;
@@ -185,6 +222,7 @@ private:
     void allocateMemory(const SeekrForce& force);
     void setupPlanarZMilestones(const SeekrForce& force);
     void setupSphericalMilestones(const SeekrForce& force);
+    void setupRmsdMilestones(const SeekrForce& force);
     void validateAndUpload();
 };
 

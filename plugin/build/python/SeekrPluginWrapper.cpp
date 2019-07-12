@@ -5130,6 +5130,20 @@ SWIG_From_float  (float value)
 }
 
 
+SWIGINTERN int
+SWIG_AsVal_bool (PyObject *obj, bool *val)
+{
+  int r;
+  if (!PyBool_Check(obj))
+    return SWIG_ERROR;
+  r = PyObject_IsTrue(obj);
+  if (r == -1)
+    return SWIG_ERROR;
+  if (val) *val = r ? true : false;
+  return SWIG_OK;
+}
+
+
 /* Getting isfinite working pre C99 across multiple platforms is non-trivial. Users can provide SWIG_isfinite on older platforms. */
 #ifndef SWIG_isfinite
 /* isfinite() is a macro for C99 */
@@ -5181,20 +5195,6 @@ SWIG_AsVal_float (PyObject * obj, float *val)
     }
   }  
   return res;
-}
-
-
-SWIGINTERN int
-SWIG_AsVal_bool (PyObject *obj, bool *val)
-{
-  int r;
-  if (!PyBool_Check(obj))
-    return SWIG_ERROR;
-  r = PyObject_IsTrue(obj);
-  if (r == -1)
-    return SWIG_ERROR;
-  if (val) *val = r ? true : false;
-  return SWIG_OK;
 }
 
 #ifdef __cplusplus
@@ -10039,28 +10039,6 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_SeekrForce_getEndOnMiddleCrossing(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  SeekrPlugin::SeekrForce *arg1 = (SeekrPlugin::SeekrForce *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  bool result;
-  
-  if (!PyArg_ParseTuple(args,(char *)"O:SeekrForce_getEndOnMiddleCrossing",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_SeekrPlugin__SeekrForce, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SeekrForce_getEndOnMiddleCrossing" "', argument " "1"" of type '" "SeekrPlugin::SeekrForce const *""'"); 
-  }
-  arg1 = reinterpret_cast< SeekrPlugin::SeekrForce * >(argp1);
-  result = (bool)((SeekrPlugin::SeekrForce const *)arg1)->getEndOnMiddleCrossing();
-  resultobj = SWIG_From_bool(static_cast< bool >(result));
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
 SWIGINTERN PyObject *_wrap_SeekrForce_getPlanarZNumIndices(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   SeekrPlugin::SeekrForce *arg1 = (SeekrPlugin::SeekrForce *) 0 ;
@@ -10194,6 +10172,198 @@ SWIGINTERN PyObject *_wrap_SeekrForce_getPlanarZMilestoneAtoms(PyObject *SWIGUNU
   } 
   arg5 = static_cast< int >(val5);
   ((SeekrPlugin::SeekrForce const *)arg1)->getPlanarZMilestoneAtoms(arg2,arg3,*arg4,arg5);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SeekrForce_getRmsdNumIndices(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SeekrPlugin::SeekrForce *arg1 = (SeekrPlugin::SeekrForce *) 0 ;
+  int arg2 ;
+  int arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  int val3 ;
+  int ecode3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  int result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:SeekrForce_getRmsdNumIndices",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_SeekrPlugin__SeekrForce, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SeekrForce_getRmsdNumIndices" "', argument " "1"" of type '" "SeekrPlugin::SeekrForce const *""'"); 
+  }
+  arg1 = reinterpret_cast< SeekrPlugin::SeekrForce * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "SeekrForce_getRmsdNumIndices" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  ecode3 = SWIG_AsVal_int(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "SeekrForce_getRmsdNumIndices" "', argument " "3"" of type '" "int""'");
+  } 
+  arg3 = static_cast< int >(val3);
+  result = (int)((SeekrPlugin::SeekrForce const *)arg1)->getRmsdNumIndices(arg2,arg3);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SeekrForce_getRmsdRadius(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SeekrPlugin::SeekrForce *arg1 = (SeekrPlugin::SeekrForce *) 0 ;
+  int arg2 ;
+  int arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  int val3 ;
+  int ecode3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  float result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:SeekrForce_getRmsdRadius",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_SeekrPlugin__SeekrForce, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SeekrForce_getRmsdRadius" "', argument " "1"" of type '" "SeekrPlugin::SeekrForce const *""'"); 
+  }
+  arg1 = reinterpret_cast< SeekrPlugin::SeekrForce * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "SeekrForce_getRmsdRadius" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  ecode3 = SWIG_AsVal_int(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "SeekrForce_getRmsdRadius" "', argument " "3"" of type '" "int""'");
+  } 
+  arg3 = static_cast< int >(val3);
+  result = (float)((SeekrPlugin::SeekrForce const *)arg1)->getRmsdRadius(arg2,arg3);
+  resultobj = SWIG_From_float(static_cast< float >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SeekrForce_getRmsdMilestoneAtoms(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SeekrPlugin::SeekrForce *arg1 = (SeekrPlugin::SeekrForce *) 0 ;
+  int arg2 ;
+  int arg3 ;
+  int *arg4 = 0 ;
+  int arg5 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  int val3 ;
+  int ecode3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  int val5 ;
+  int ecode5 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOO:SeekrForce_getRmsdMilestoneAtoms",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_SeekrPlugin__SeekrForce, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SeekrForce_getRmsdMilestoneAtoms" "', argument " "1"" of type '" "SeekrPlugin::SeekrForce const *""'"); 
+  }
+  arg1 = reinterpret_cast< SeekrPlugin::SeekrForce * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "SeekrForce_getRmsdMilestoneAtoms" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  ecode3 = SWIG_AsVal_int(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "SeekrForce_getRmsdMilestoneAtoms" "', argument " "3"" of type '" "int""'");
+  } 
+  arg3 = static_cast< int >(val3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4, SWIGTYPE_p_int,  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "SeekrForce_getRmsdMilestoneAtoms" "', argument " "4"" of type '" "int &""'"); 
+  }
+  if (!argp4) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "SeekrForce_getRmsdMilestoneAtoms" "', argument " "4"" of type '" "int &""'"); 
+  }
+  arg4 = reinterpret_cast< int * >(argp4);
+  ecode5 = SWIG_AsVal_int(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "SeekrForce_getRmsdMilestoneAtoms" "', argument " "5"" of type '" "int""'");
+  } 
+  arg5 = static_cast< int >(val5);
+  ((SeekrPlugin::SeekrForce const *)arg1)->getRmsdMilestoneAtoms(arg2,arg3,*arg4,arg5);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SeekrForce_getEndOnMiddleCrossing(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SeekrPlugin::SeekrForce *arg1 = (SeekrPlugin::SeekrForce *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:SeekrForce_getEndOnMiddleCrossing",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_SeekrPlugin__SeekrForce, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SeekrForce_getEndOnMiddleCrossing" "', argument " "1"" of type '" "SeekrPlugin::SeekrForce const *""'"); 
+  }
+  arg1 = reinterpret_cast< SeekrPlugin::SeekrForce * >(argp1);
+  result = (bool)((SeekrPlugin::SeekrForce const *)arg1)->getEndOnMiddleCrossing();
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SeekrForce_setEndOnMiddleCrossing(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SeekrPlugin::SeekrForce *arg1 = (SeekrPlugin::SeekrForce *) 0 ;
+  bool arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  bool val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:SeekrForce_setEndOnMiddleCrossing",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_SeekrPlugin__SeekrForce, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SeekrForce_setEndOnMiddleCrossing" "', argument " "1"" of type '" "SeekrPlugin::SeekrForce *""'"); 
+  }
+  arg1 = reinterpret_cast< SeekrPlugin::SeekrForce * >(argp1);
+  ecode2 = SWIG_AsVal_bool(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "SeekrForce_setEndOnMiddleCrossing" "', argument " "2"" of type '" "bool""'");
+  } 
+  arg2 = static_cast< bool >(val2);
+  (arg1)->setEndOnMiddleCrossing(arg2);
   resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
@@ -10388,7 +10558,6 @@ SWIGINTERN PyObject *_wrap_SeekrForce_addSphericalMilestone(PyObject *SWIGUNUSED
   float arg6 ;
   SwigValueWrapper< std::vector< int,std::allocator< int > > > arg7 ;
   SwigValueWrapper< std::vector< int,std::allocator< int > > > arg8 ;
-  bool arg9 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   int val2 ;
@@ -10401,8 +10570,6 @@ SWIGINTERN PyObject *_wrap_SeekrForce_addSphericalMilestone(PyObject *SWIGUNUSED
   int ecode5 = 0 ;
   float val6 ;
   int ecode6 = 0 ;
-  bool val9 ;
-  int ecode9 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
@@ -10411,9 +10578,8 @@ SWIGINTERN PyObject *_wrap_SeekrForce_addSphericalMilestone(PyObject *SWIGUNUSED
   PyObject * obj5 = 0 ;
   PyObject * obj6 = 0 ;
   PyObject * obj7 = 0 ;
-  PyObject * obj8 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOOO:SeekrForce_addSphericalMilestone",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7,&obj8)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOO:SeekrForce_addSphericalMilestone",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_SeekrPlugin__SeekrForce, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SeekrForce_addSphericalMilestone" "', argument " "1"" of type '" "SeekrPlugin::SeekrForce *""'"); 
@@ -10462,12 +10628,7 @@ SWIGINTERN PyObject *_wrap_SeekrForce_addSphericalMilestone(PyObject *SWIGUNUSED
     arg8 = *ptr;
     if (SWIG_IsNewObj(res)) delete ptr;
   }
-  ecode9 = SWIG_AsVal_bool(obj8, &val9);
-  if (!SWIG_IsOK(ecode9)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode9), "in method '" "SeekrForce_addSphericalMilestone" "', argument " "9"" of type '" "bool""'");
-  } 
-  arg9 = static_cast< bool >(val9);
-  (arg1)->addSphericalMilestone(arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9);
+  (arg1)->addSphericalMilestone(arg2,arg3,arg4,arg5,arg6,arg7,arg8);
   resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
@@ -10486,7 +10647,6 @@ SWIGINTERN PyObject *_wrap_SeekrForce_modifySphericalMilestone(PyObject *SWIGUNU
   float arg7 ;
   SwigValueWrapper< std::vector< int,std::allocator< int > > > arg8 ;
   SwigValueWrapper< std::vector< int,std::allocator< int > > > arg9 ;
-  bool arg10 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   int val2 ;
@@ -10501,8 +10661,6 @@ SWIGINTERN PyObject *_wrap_SeekrForce_modifySphericalMilestone(PyObject *SWIGUNU
   int ecode6 = 0 ;
   float val7 ;
   int ecode7 = 0 ;
-  bool val10 ;
-  int ecode10 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
@@ -10512,9 +10670,8 @@ SWIGINTERN PyObject *_wrap_SeekrForce_modifySphericalMilestone(PyObject *SWIGUNU
   PyObject * obj6 = 0 ;
   PyObject * obj7 = 0 ;
   PyObject * obj8 = 0 ;
-  PyObject * obj9 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOOOO:SeekrForce_modifySphericalMilestone",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7,&obj8,&obj9)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOOO:SeekrForce_modifySphericalMilestone",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7,&obj8)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_SeekrPlugin__SeekrForce, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SeekrForce_modifySphericalMilestone" "', argument " "1"" of type '" "SeekrPlugin::SeekrForce *""'"); 
@@ -10568,12 +10725,7 @@ SWIGINTERN PyObject *_wrap_SeekrForce_modifySphericalMilestone(PyObject *SWIGUNU
     arg9 = *ptr;
     if (SWIG_IsNewObj(res)) delete ptr;
   }
-  ecode10 = SWIG_AsVal_bool(obj9, &val10);
-  if (!SWIG_IsOK(ecode10)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode10), "in method '" "SeekrForce_modifySphericalMilestone" "', argument " "10"" of type '" "bool""'");
-  } 
-  arg10 = static_cast< bool >(val10);
-  (arg1)->modifySphericalMilestone(arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10);
+  (arg1)->modifySphericalMilestone(arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9);
   resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
@@ -10591,7 +10743,6 @@ SWIGINTERN PyObject *_wrap_SeekrForce_addPlanarZMilestone(PyObject *SWIGUNUSEDPA
   float arg6 ;
   SwigValueWrapper< std::vector< int,std::allocator< int > > > arg7 ;
   SwigValueWrapper< std::vector< int,std::allocator< int > > > arg8 ;
-  bool arg9 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   int val2 ;
@@ -10604,8 +10755,6 @@ SWIGINTERN PyObject *_wrap_SeekrForce_addPlanarZMilestone(PyObject *SWIGUNUSEDPA
   int ecode5 = 0 ;
   float val6 ;
   int ecode6 = 0 ;
-  bool val9 ;
-  int ecode9 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
@@ -10614,9 +10763,8 @@ SWIGINTERN PyObject *_wrap_SeekrForce_addPlanarZMilestone(PyObject *SWIGUNUSEDPA
   PyObject * obj5 = 0 ;
   PyObject * obj6 = 0 ;
   PyObject * obj7 = 0 ;
-  PyObject * obj8 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOOO:SeekrForce_addPlanarZMilestone",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7,&obj8)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOO:SeekrForce_addPlanarZMilestone",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_SeekrPlugin__SeekrForce, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SeekrForce_addPlanarZMilestone" "', argument " "1"" of type '" "SeekrPlugin::SeekrForce *""'"); 
@@ -10665,12 +10813,7 @@ SWIGINTERN PyObject *_wrap_SeekrForce_addPlanarZMilestone(PyObject *SWIGUNUSEDPA
     arg8 = *ptr;
     if (SWIG_IsNewObj(res)) delete ptr;
   }
-  ecode9 = SWIG_AsVal_bool(obj8, &val9);
-  if (!SWIG_IsOK(ecode9)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode9), "in method '" "SeekrForce_addPlanarZMilestone" "', argument " "9"" of type '" "bool""'");
-  } 
-  arg9 = static_cast< bool >(val9);
-  (arg1)->addPlanarZMilestone(arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9);
+  (arg1)->addPlanarZMilestone(arg2,arg3,arg4,arg5,arg6,arg7,arg8);
   resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
@@ -10689,7 +10832,6 @@ SWIGINTERN PyObject *_wrap_SeekrForce_modifyPlanarZMilestone(PyObject *SWIGUNUSE
   float arg7 ;
   SwigValueWrapper< std::vector< int,std::allocator< int > > > arg8 ;
   SwigValueWrapper< std::vector< int,std::allocator< int > > > arg9 ;
-  bool arg10 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   int val2 ;
@@ -10704,8 +10846,6 @@ SWIGINTERN PyObject *_wrap_SeekrForce_modifyPlanarZMilestone(PyObject *SWIGUNUSE
   int ecode6 = 0 ;
   float val7 ;
   int ecode7 = 0 ;
-  bool val10 ;
-  int ecode10 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
@@ -10715,9 +10855,8 @@ SWIGINTERN PyObject *_wrap_SeekrForce_modifyPlanarZMilestone(PyObject *SWIGUNUSE
   PyObject * obj6 = 0 ;
   PyObject * obj7 = 0 ;
   PyObject * obj8 = 0 ;
-  PyObject * obj9 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOOOO:SeekrForce_modifyPlanarZMilestone",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7,&obj8,&obj9)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOOO:SeekrForce_modifyPlanarZMilestone",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7,&obj8)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_SeekrPlugin__SeekrForce, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SeekrForce_modifyPlanarZMilestone" "', argument " "1"" of type '" "SeekrPlugin::SeekrForce *""'"); 
@@ -10771,12 +10910,192 @@ SWIGINTERN PyObject *_wrap_SeekrForce_modifyPlanarZMilestone(PyObject *SWIGUNUSE
     arg9 = *ptr;
     if (SWIG_IsNewObj(res)) delete ptr;
   }
-  ecode10 = SWIG_AsVal_bool(obj9, &val10);
-  if (!SWIG_IsOK(ecode10)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode10), "in method '" "SeekrForce_modifyPlanarZMilestone" "', argument " "10"" of type '" "bool""'");
+  (arg1)->modifyPlanarZMilestone(arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SeekrForce_addRmsdMilestone(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SeekrPlugin::SeekrForce *arg1 = (SeekrPlugin::SeekrForce *) 0 ;
+  int arg2 ;
+  int arg3 ;
+  float arg4 ;
+  float arg5 ;
+  float arg6 ;
+  SwigValueWrapper< std::vector< int,std::allocator< int > > > arg7 ;
+  SwigValueWrapper< std::vector< int,std::allocator< int > > > arg8 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  int val3 ;
+  int ecode3 = 0 ;
+  float val4 ;
+  int ecode4 = 0 ;
+  float val5 ;
+  int ecode5 = 0 ;
+  float val6 ;
+  int ecode6 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  PyObject * obj7 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOO:SeekrForce_addRmsdMilestone",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_SeekrPlugin__SeekrForce, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SeekrForce_addRmsdMilestone" "', argument " "1"" of type '" "SeekrPlugin::SeekrForce *""'"); 
+  }
+  arg1 = reinterpret_cast< SeekrPlugin::SeekrForce * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "SeekrForce_addRmsdMilestone" "', argument " "2"" of type '" "int""'");
   } 
-  arg10 = static_cast< bool >(val10);
-  (arg1)->modifyPlanarZMilestone(arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10);
+  arg2 = static_cast< int >(val2);
+  ecode3 = SWIG_AsVal_int(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "SeekrForce_addRmsdMilestone" "', argument " "3"" of type '" "int""'");
+  } 
+  arg3 = static_cast< int >(val3);
+  ecode4 = SWIG_AsVal_float(obj3, &val4);
+  if (!SWIG_IsOK(ecode4)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "SeekrForce_addRmsdMilestone" "', argument " "4"" of type '" "float""'");
+  } 
+  arg4 = static_cast< float >(val4);
+  ecode5 = SWIG_AsVal_float(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "SeekrForce_addRmsdMilestone" "', argument " "5"" of type '" "float""'");
+  } 
+  arg5 = static_cast< float >(val5);
+  ecode6 = SWIG_AsVal_float(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "SeekrForce_addRmsdMilestone" "', argument " "6"" of type '" "float""'");
+  } 
+  arg6 = static_cast< float >(val6);
+  {
+    std::vector< int,std::allocator< int > > *ptr = (std::vector< int,std::allocator< int > > *)0;
+    int res = swig::asptr(obj6, &ptr);
+    if (!SWIG_IsOK(res) || !ptr) {
+      SWIG_exception_fail(SWIG_ArgError((ptr ? res : SWIG_TypeError)), "in method '" "SeekrForce_addRmsdMilestone" "', argument " "7"" of type '" "std::vector< int,std::allocator< int > >""'"); 
+    }
+    arg7 = *ptr;
+    if (SWIG_IsNewObj(res)) delete ptr;
+  }
+  {
+    std::vector< int,std::allocator< int > > *ptr = (std::vector< int,std::allocator< int > > *)0;
+    int res = swig::asptr(obj7, &ptr);
+    if (!SWIG_IsOK(res) || !ptr) {
+      SWIG_exception_fail(SWIG_ArgError((ptr ? res : SWIG_TypeError)), "in method '" "SeekrForce_addRmsdMilestone" "', argument " "8"" of type '" "std::vector< int,std::allocator< int > >""'"); 
+    }
+    arg8 = *ptr;
+    if (SWIG_IsNewObj(res)) delete ptr;
+  }
+  (arg1)->addRmsdMilestone(arg2,arg3,arg4,arg5,arg6,arg7,arg8);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SeekrForce_modifyRmsdMilestone(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SeekrPlugin::SeekrForce *arg1 = (SeekrPlugin::SeekrForce *) 0 ;
+  int arg2 ;
+  int arg3 ;
+  int arg4 ;
+  float arg5 ;
+  float arg6 ;
+  float arg7 ;
+  SwigValueWrapper< std::vector< int,std::allocator< int > > > arg8 ;
+  SwigValueWrapper< std::vector< int,std::allocator< int > > > arg9 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  int val3 ;
+  int ecode3 = 0 ;
+  int val4 ;
+  int ecode4 = 0 ;
+  float val5 ;
+  int ecode5 = 0 ;
+  float val6 ;
+  int ecode6 = 0 ;
+  float val7 ;
+  int ecode7 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  PyObject * obj7 = 0 ;
+  PyObject * obj8 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOOO:SeekrForce_modifyRmsdMilestone",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7,&obj8)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_SeekrPlugin__SeekrForce, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SeekrForce_modifyRmsdMilestone" "', argument " "1"" of type '" "SeekrPlugin::SeekrForce *""'"); 
+  }
+  arg1 = reinterpret_cast< SeekrPlugin::SeekrForce * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "SeekrForce_modifyRmsdMilestone" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  ecode3 = SWIG_AsVal_int(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "SeekrForce_modifyRmsdMilestone" "', argument " "3"" of type '" "int""'");
+  } 
+  arg3 = static_cast< int >(val3);
+  ecode4 = SWIG_AsVal_int(obj3, &val4);
+  if (!SWIG_IsOK(ecode4)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "SeekrForce_modifyRmsdMilestone" "', argument " "4"" of type '" "int""'");
+  } 
+  arg4 = static_cast< int >(val4);
+  ecode5 = SWIG_AsVal_float(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "SeekrForce_modifyRmsdMilestone" "', argument " "5"" of type '" "float""'");
+  } 
+  arg5 = static_cast< float >(val5);
+  ecode6 = SWIG_AsVal_float(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "SeekrForce_modifyRmsdMilestone" "', argument " "6"" of type '" "float""'");
+  } 
+  arg6 = static_cast< float >(val6);
+  ecode7 = SWIG_AsVal_float(obj6, &val7);
+  if (!SWIG_IsOK(ecode7)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode7), "in method '" "SeekrForce_modifyRmsdMilestone" "', argument " "7"" of type '" "float""'");
+  } 
+  arg7 = static_cast< float >(val7);
+  {
+    std::vector< int,std::allocator< int > > *ptr = (std::vector< int,std::allocator< int > > *)0;
+    int res = swig::asptr(obj7, &ptr);
+    if (!SWIG_IsOK(res) || !ptr) {
+      SWIG_exception_fail(SWIG_ArgError((ptr ? res : SWIG_TypeError)), "in method '" "SeekrForce_modifyRmsdMilestone" "', argument " "8"" of type '" "std::vector< int,std::allocator< int > >""'"); 
+    }
+    arg8 = *ptr;
+    if (SWIG_IsNewObj(res)) delete ptr;
+  }
+  {
+    std::vector< int,std::allocator< int > > *ptr = (std::vector< int,std::allocator< int > > *)0;
+    int res = swig::asptr(obj8, &ptr);
+    if (!SWIG_IsOK(res) || !ptr) {
+      SWIG_exception_fail(SWIG_ArgError((ptr ? res : SWIG_TypeError)), "in method '" "SeekrForce_modifyRmsdMilestone" "', argument " "9"" of type '" "std::vector< int,std::allocator< int > >""'"); 
+    }
+    arg9 = *ptr;
+    if (SWIG_IsNewObj(res)) delete ptr;
+  }
+  (arg1)->modifyRmsdMilestone(arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9);
   resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
@@ -10904,10 +11223,14 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"SeekrForce_getSphericalNumIndices", _wrap_SeekrForce_getSphericalNumIndices, METH_VARARGS, NULL},
 	 { (char *)"SeekrForce_getSphericalRadius", _wrap_SeekrForce_getSphericalRadius, METH_VARARGS, NULL},
 	 { (char *)"SeekrForce_getSphericalMilestoneAtoms", _wrap_SeekrForce_getSphericalMilestoneAtoms, METH_VARARGS, NULL},
-	 { (char *)"SeekrForce_getEndOnMiddleCrossing", _wrap_SeekrForce_getEndOnMiddleCrossing, METH_VARARGS, NULL},
 	 { (char *)"SeekrForce_getPlanarZNumIndices", _wrap_SeekrForce_getPlanarZNumIndices, METH_VARARGS, NULL},
 	 { (char *)"SeekrForce_getPlanarZOffset", _wrap_SeekrForce_getPlanarZOffset, METH_VARARGS, NULL},
 	 { (char *)"SeekrForce_getPlanarZMilestoneAtoms", _wrap_SeekrForce_getPlanarZMilestoneAtoms, METH_VARARGS, NULL},
+	 { (char *)"SeekrForce_getRmsdNumIndices", _wrap_SeekrForce_getRmsdNumIndices, METH_VARARGS, NULL},
+	 { (char *)"SeekrForce_getRmsdRadius", _wrap_SeekrForce_getRmsdRadius, METH_VARARGS, NULL},
+	 { (char *)"SeekrForce_getRmsdMilestoneAtoms", _wrap_SeekrForce_getRmsdMilestoneAtoms, METH_VARARGS, NULL},
+	 { (char *)"SeekrForce_getEndOnMiddleCrossing", _wrap_SeekrForce_getEndOnMiddleCrossing, METH_VARARGS, NULL},
+	 { (char *)"SeekrForce_setEndOnMiddleCrossing", _wrap_SeekrForce_setEndOnMiddleCrossing, METH_VARARGS, NULL},
 	 { (char *)"SeekrForce_getSaveStateFileName", _wrap_SeekrForce_getSaveStateFileName, METH_VARARGS, NULL},
 	 { (char *)"SeekrForce_setSaveStateFileName", _wrap_SeekrForce_setSaveStateFileName, METH_VARARGS, NULL},
 	 { (char *)"SeekrForce_getDataFileName", _wrap_SeekrForce_getDataFileName, METH_VARARGS, NULL},
@@ -10917,6 +11240,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"SeekrForce_modifySphericalMilestone", _wrap_SeekrForce_modifySphericalMilestone, METH_VARARGS, NULL},
 	 { (char *)"SeekrForce_addPlanarZMilestone", _wrap_SeekrForce_addPlanarZMilestone, METH_VARARGS, NULL},
 	 { (char *)"SeekrForce_modifyPlanarZMilestone", _wrap_SeekrForce_modifyPlanarZMilestone, METH_VARARGS, NULL},
+	 { (char *)"SeekrForce_addRmsdMilestone", _wrap_SeekrForce_addRmsdMilestone, METH_VARARGS, NULL},
+	 { (char *)"SeekrForce_modifyRmsdMilestone", _wrap_SeekrForce_modifyRmsdMilestone, METH_VARARGS, NULL},
 	 { (char *)"delete_SeekrForce", _wrap_delete_SeekrForce, METH_VARARGS, NULL},
 	 { (char *)"SeekrForce_swigregister", SeekrForce_swigregister, METH_VARARGS, NULL},
 	 { NULL, NULL, 0, NULL }

@@ -15,10 +15,10 @@ from simtk.unit import *
 import sys, os, time
 from sys import stdout
 from seekr import amber
+from amber import autoimage_traj, make_box_info
 from copy import deepcopy
 
 from seekrplugin import SeekrForce
-from adv_template import Adv_template
 
 import cPickle as pickle
 
@@ -27,55 +27,7 @@ verbose = True
 MAX_REVERSE_ITER = 100000 # 200 ns
 MAX_FORWARD_ITER = 100000 # 200 ns
 
-def make_box_info(box_vectors):
-  '''Converts a 3x3 matrix of box vectors to x,y,z,alpha,beta,gamma format for 
-  CPPTRAJ input.
-  Input:
-   - box_vectors: A 3x3 matrix representing the triclinic box vectors
-  Output:
-   - box_info_string: a string formatted for CPPTRAJ 'box' command
-  '''
-  box_length = box_vectors[0][0].value_in_unit(angstroms) # extract the number without units
-  box_info_string = 'x %f y %f z %f alpha 109.4712190 beta 109.4712190 gamma 109.4712190' % (box_length, box_length, box_length)
-  return box_info_string
 
-def autoimage_traj(parm_name, trajin_name, trajout_name, box_info, cpptraj_script_location, cpptraj_exe='cpptraj', writing_frames=()):
-  '''Runs the CPPTRAJ autoimage command for a triclinic box simulation.
-  Input:
-   - parm_name: a string representing the filename of a .prmtop or .parm7 AMBER
-       parameter/topology file
-   - trajin_name: a non-imaged trajectory to load for imaging
-   - box_info: a string representing the triclinic box in x,y,z,alpha,beta,gamma
-       format
-   - cpptraj_script_location: string for the location to write the cpptraj script
-   - cpptraj_exe: an optional string representing the OS command to run CPPTRAJ
-  Output:
-   - None
-   '''
-  cpptraj_template = '''parm $PARMFILE
-box $BOX_INFO
-trajin $TRAJIN
-autoimage
-trajout $TRAJOUT $FRAME_STR
-go
-quit
-'''
-  assert len(writing_frames) < 4, 'When writing the autoimaged trajectory, the format of the writing_frames variable must be: (start, stop, offset)'
-  if len(writing_frames) == 0: # then write all frames
-    frame_str = ''
-  elif len(writing_frames) == 1:
-    frame_str = 'start %d' % writing_frames[0] # only include the start
-  elif len(writing_frames) == 2:
-    frame_str = 'start %d stop %d' % (writing_frames[0], writing_frames[1])
-  else: # the length is 3
-    frame_str = 'start %d stop %d offset %d' % (writing_frames[0], writing_frames[1], writing_frames[2])
-  cpptraj_dict = {'PARMFILE':parm_name, 'TRAJIN':trajin_name, 'TRAJOUT':trajout_name, 'BOX_INFO':box_info, 'FRAME_STR':frame_str} # define template dictionary
-  cpptraj_script = Adv_template(cpptraj_template, cpptraj_dict) # fill in the values into the template from the dictionary
-  extract_file = open(cpptraj_script_location, 'w') # open the script for writing
-  extract_file.write(cpptraj_script.get_output()) # write a cpptraj script
-  extract_file.close()
-  os.system("%s < %s" % (cpptraj_exe, cpptraj_script_location)) # run cpptraj
-  return
 
 def create_spherical_seekr_force(seekrcalc, milestone, system, 
                                  end_on_middle_crossing, 
@@ -110,7 +62,56 @@ def create_spherical_seekr_force(seekrcalc, milestone, system,
     raise Exception, "Only one or two milestone neighbors allowed at present. Number of neighbors: %d" % milestone.neighbors
   data_file_name = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'fwd_rev', transition_filename) # define the file to write transition information
   # Define all settings and parameters for the SEEKR force object
-  force.addSphericalMilestone(len(milestone.atom_selection_1), len(milestone.atom_selection_2), radius1, radius2, radius3, milestone.atom_selection_1, milestone.atom_selection_2, end_on_middle_crossing)
+  force.addSphericalMilestone(len(milestone.atom_selection_1), 
+                              len(milestone.atom_selection_2), radius1, radius2,
+                              radius3, milestone.atom_selection_1, 
+                              milestone.atom_selection_2)
+  force.setEndOnMiddleCrossing(end_on_middle_crossing)
+  force.setDataFileName(data_file_name);
+  if save_state_filename:
+    force.setSaveStateFileName(save_state_filename);
+  system.addForce(force) # Add the SEEKR force to the openMM system
+  if verbose: print "SEEKR force added to system."
+  return force, data_file_name
+
+def create_rmsd_seekr_force(seekrcalc, milestone, system, 
+                                 end_on_middle_crossing, 
+                                 transition_filename='transition.dat',
+                                 save_state_filename=''):
+  '''create the SEEKR 'force' even though it's more of a monitor than a force.
+  Input:
+   - seekrcalc: The SeekrCalculation object that contains all the settings for 
+       the SEEKR calculation.
+   - milestone: the Milestone() object to run the simulation for
+   - system: the OpenMM system to add the SEEKR 'force' to
+   - end_on_middle_crossing: boolean to whether to end the simulation on a crossing of the
+       middle milestone
+  Output:
+   - force: the SEEKR force object
+   - data_file_name: the data file that will be monitored for crossing events.
+   '''
+  force = SeekrForce() # create the SEEKR force object
+  if len(milestone.neighbors) == 2:
+    neighbor1 = seekrcalc.milestones[milestone.neighbors[0]] # find the neighbor milestones
+    neighbor2 = seekrcalc.milestones[milestone.neighbors[1]]
+    radius1 = neighbor1.radius / 10.0 # extract neighbor milestone radii
+    radius2 = milestone.radius / 10.0 # convert to nm. TODO: better way to deal with these units?
+    radius3 = neighbor2.radius / 10.0
+  elif len(milestone.neighbors) == 1: # this is an endpoint milestone HACKY...
+    neighbor1 = seekrcalc.milestones[milestone.neighbors[0]] # find the neighbor milestones
+    neighbor2 = seekrcalc.milestones[milestone.neighbors[0]]
+    radius1 = 0.0 # extract neighbor milestone radii
+    radius2 = milestone.radius / 10.0 # convert to nm. TODO: better way to deal with these units?
+    radius3 = neighbor2.radius / 10.0
+  else:
+    raise Exception, "Only one or two milestone neighbors allowed at present. Number of neighbors: %d" % milestone.neighbors
+  data_file_name = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'fwd_rev', transition_filename) # define the file to write transition information
+  # Define all settings and parameters for the SEEKR force object
+  force.addRmsdMilestone(len(milestone.atom_selection_1), 
+                              len(milestone.atom_selection_2), radius1, radius2,
+                              radius3, milestone.atom_selection_1, 
+                              milestone.atom_selection_2)
+  force.setEndOnMiddleCrossing(end_on_middle_crossing)
   force.setDataFileName(data_file_name);
   if save_state_filename:
     force.setSaveStateFileName(save_state_filename);
@@ -155,7 +156,11 @@ def create_planar_z_seekr_force(seekrcalc, milestone, system,
     raise Exception, "Only two milestone neighbors allowed at present. Number of neighbors: %d" % milestone.neighbors
   data_file_name = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'fwd_rev', transition_filename) # define the file to write transition information
   # Define all settings and parameters for the SEEKR force object
-  force.addPlanarZMilestone(len(milestone.atom_selection_1), len(milestone.atom_selection_2), offset1, offset2, offset3, milestone.atom_selection_1, milestone.atom_selection_2, end_on_middle_crossing)
+  force.addPlanarZMilestone(len(milestone.atom_selection_1), 
+                            len(milestone.atom_selection_2), offset1, offset2, 
+                            offset3, milestone.atom_selection_1, 
+                            milestone.atom_selection_2)
+  force.setEndOnMiddleCrossing(end_on_middle_crossing)
   force.setDataFileName(data_file_name);
   if save_state_filename:
     force.setSaveStateFileName(save_state_filename);
@@ -322,7 +327,7 @@ def launch_fwd_rev_stage(seekrcalc, milestone, traj_base,
                          dcd_iterator_chunk=9e9, input_vels=None, 
                          box_vectors=None, 
                          transition_filename='transition.dat', suffix='', 
-                         save_fwd_rev=False, save_last_frame=True,
+                         save_fwd_rev=False, #save_last_frame=True,
                          save_state_filename=''):
   # TODO: update the docstring to current inputs
   '''launch a reversal stage SEEKR calculation.
@@ -354,6 +359,7 @@ def launch_fwd_rev_stage(seekrcalc, milestone, traj_base,
   properties = seekrcalc.openmm.properties
   
   # create and prepare the SEEKR milestones
+  
   if milestone.type == 'spherical':
     myforce, data_file_name = create_spherical_seekr_force(seekrcalc, milestone,
                                                            system, 
@@ -362,6 +368,12 @@ def launch_fwd_rev_stage(seekrcalc, milestone, traj_base,
                                                            save_state_filename)
   elif milestone.type == 'planar_z':
     myforce, data_file_name = create_planar_z_seekr_force(seekrcalc, milestone,
+                                                           system, 
+                                                           end_on_middle_crossing, 
+                                                           transition_filename,
+                                                           save_state_filename)
+  if milestone.type == 'rmsd':
+    myforce, data_file_name = create_rmsd_seekr_force(seekrcalc, milestone,
                                                            system, 
                                                            end_on_middle_crossing, 
                                                            transition_filename,
@@ -420,13 +432,13 @@ def launch_fwd_rev_stage(seekrcalc, milestone, traj_base,
       counter = 0
       while get_data_file_length(data_file_name) == data_file_length:
         data_file_length = get_data_file_length(data_file_name)
-        try:
-          simulation.step(seekrcalc.fwd_rev_stage.steps)
-        except Exception: # if there was a NAN error
+        #try:
+        simulation.step(seekrcalc.fwd_rev_stage.steps)
+        '''except Exception: # if there was a NAN error
           print "Error encountered. Continuing with the next frame."
           num_errors += 1
           had_error = True
-          break # don't want to log this as a success
+          break # don't want to log this as a success'''
           
         counter += 1
         if counter > MAX_REVERSE_ITER: 
@@ -437,12 +449,14 @@ def launch_fwd_rev_stage(seekrcalc, milestone, traj_base,
       if read_reversal_data_file_last(data_file_name):
         success_positions.append(positions)
         success_velocities.append(velocities)
+        '''
         if save_last_frame:
           pdb_last_frame_base_name = traj_base+"%d_%d%s.pdb" % (i, j, suffix) #"fwd_rev%d_%d.dcd" % (i, j)
           pdb_last_frame_name = os.path.join(seekrcalc.project.rootdir, 
                                   milestone.directory, 'md', 'fwd_rev', 
                                   pdb_last_frame_base_name)
           amber.save_restart(seekrcalc, milestone, pdb_last_frame_name)
+        '''
         
     i += 1
     

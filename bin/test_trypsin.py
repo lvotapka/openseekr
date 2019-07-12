@@ -14,7 +14,7 @@ from simtk.openmm import *
 from simtk.unit import *
 import numpy as np
 import parmed as pmd
-import sys
+import sys, os
 
 remove_old_filetree = False
 if 'remove' in sys.argv[1:]:
@@ -49,11 +49,11 @@ me.building.reject_clashes = True
 
 # Minimization / Temperature Equilibration info
 me.min_equil.constrained += range(3220)
-me.min_equil.min_num_steps = 5000
-me.min_equil.min_reporter_freq = 500 #[PDBReporter('dummy', 500)] # SEEKR will automatically change the filename
+me.min_equil.min_num_steps = 500
+me.min_equil.min_reporter_freq = 5000 #[PDBReporter('dummy', 500)] # SEEKR will automatically change the filename
 me.min_equil.temp_equil_integrator = LangevinIntegrator(me.master_temperature*kelvin, 5/picosecond, 0.002*picoseconds)
 me.min_equil.temp_equil_reporters = [PDBReporter('dummy', 100)] # SEEKR will automatically change the filename
-me.min_equil.temp_equil_steps = 1000 # number of simulation steps per temperature
+me.min_equil.temp_equil_steps = 10 # number of simulation steps per temperature
 me.min_equil.temp_equil_temperatures = [300., 310., 320., 330., 340., 350., 340., 330., 320., 310., 300.] # progression of the temperature equilibration
 
 # BrownDye information
@@ -141,8 +141,8 @@ for milestone in me.milestones:
     parm = pmd.load_file(milestone.openmm.prmtop_filename, xyz=milestone.openmm.inpcrd_filename)
     
     #TODO: straighten out these units
-    parm.box = np.array([64.9127105, 64.9127105, 64.9127105,109.471219, 109.471219,109.471219])
-    box_vector = Quantity([[64.912710500000003, 0.0, 0.0], [-21.637568420791037, 61.200290990259163, 0.0], [-21.637568420791037, -30.600141791568205, 53.00100885481632]], unit=angstrom)
+    parm.box = np.array([61.4027367627, 61.4027367627, 61.4027367627,109.471219, 109.471219,109.471219])
+    box_vector = Quantity([[61.4027367627, 0.0, 0.0], [-20.4675786011, 57.89105669, 0.0], [-20.4675786011, -28.9455283411, 50.1351234948]], unit=angstrom)
     parm.box_vectors = box_vector
     print "parm.box:", parm.box
     print "parm.box_vectors:", parm.box_vectors
@@ -151,8 +151,8 @@ for milestone in me.milestones:
     print "saving inpcrd for milestone:", milestone.index
     parm.save(milestone.openmm.inpcrd_filename, overwrite = True)
     
-    amber.create_simulation(me, milestone)
-    milestone.openmm.simulation.context.setPeriodicBoxVectors([6.4912710500000003, 0.0, 0.0], [-2.1637568420791037, 6.1200290990259163, 0.0], [-2.1637568420791037, -3.0600141791568205, 5.300100885481632])
+    amber.create_simulation(me, milestone, box_vector)
+    milestone.openmm.simulation.context.setPeriodicBoxVectors([6.14027367627, 0.0, 0.0], [-2.04675786010, 5.789105669, 0.0], [-2.04675786011, -2.89455283411, 5.01351234948])
     
     if not me.openmm.simulation: # create a sample of a simulation file for future use
       me.openmm.simulation = milestone.openmm.simulation
@@ -162,7 +162,8 @@ seekr.run_min_equil(me)
 # save equilibration output
 for milestone in me.milestones:
   if milestone.md:
-    filename = amber.save_restart(me, milestone)
+    state_file_name = os.path.join(me.project.rootdir, milestone.directory, 'md', 'temp_equil', 'equilibrated.state')
+    filename = amber.save_restart(me, milestone, state_file_name=state_file_name)
     milestone.openmm.umbrella_pdb_filename = filename
 
 print "Saving all system settings for Umbrella stage and later stages."

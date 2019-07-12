@@ -429,15 +429,6 @@ class SeekrForce(simtk.openmm.Force):
     def getSphericalMilestoneAtoms(self, forceIndex, atomIndex, index, molecule):
         return _seekrplugin.SeekrForce_getSphericalMilestoneAtoms(self, forceIndex, atomIndex, index, molecule)
 
-    def getEndOnMiddleCrossing(self):
-        val = _seekrplugin.SeekrForce_getEndOnMiddleCrossing(self)
-
-
-
-
-        return val
-
-
     def getPlanarZNumIndices(self, forceIndex, molecule):
         val = _seekrplugin.SeekrForce_getPlanarZNumIndices(self, forceIndex, molecule)
 
@@ -458,6 +449,39 @@ class SeekrForce(simtk.openmm.Force):
 
     def getPlanarZMilestoneAtoms(self, forceIndex, atomIndex, index, molecule):
         return _seekrplugin.SeekrForce_getPlanarZMilestoneAtoms(self, forceIndex, atomIndex, index, molecule)
+
+    def getRmsdNumIndices(self, forceIndex, molecule):
+        val = _seekrplugin.SeekrForce_getRmsdNumIndices(self, forceIndex, molecule)
+
+
+
+
+        return val
+
+
+    def getRmsdRadius(self, forceIndex, milestone_id):
+        val = _seekrplugin.SeekrForce_getRmsdRadius(self, forceIndex, milestone_id)
+
+
+
+
+        return val
+
+
+    def getRmsdMilestoneAtoms(self, forceIndex, atomIndex, index, molecule):
+        return _seekrplugin.SeekrForce_getRmsdMilestoneAtoms(self, forceIndex, atomIndex, index, molecule)
+
+    def getEndOnMiddleCrossing(self):
+        val = _seekrplugin.SeekrForce_getEndOnMiddleCrossing(self)
+
+
+
+
+        return val
+
+
+    def setEndOnMiddleCrossing(self, endOnMiddleCrossingArg):
+        return _seekrplugin.SeekrForce_setEndOnMiddleCrossing(self, endOnMiddleCrossingArg)
 
     def getSaveStateFileName(self):
         val = _seekrplugin.SeekrForce_getSaveStateFileName(self)
@@ -486,17 +510,23 @@ class SeekrForce(simtk.openmm.Force):
     def updateParametersInContext(self, context):
         return _seekrplugin.SeekrForce_updateParametersInContext(self, context)
 
-    def addSphericalMilestone(self, numIndices1, numIndices2, radius1, radius2, radius3, atomIndices1, atomIndices2, argEndOnMiddleCrossing):
-        return _seekrplugin.SeekrForce_addSphericalMilestone(self, numIndices1, numIndices2, radius1, radius2, radius3, atomIndices1, atomIndices2, argEndOnMiddleCrossing)
+    def addSphericalMilestone(self, numIndices1, numIndices2, radius1, radius2, radius3, atomIndices1, atomIndices2):
+        return _seekrplugin.SeekrForce_addSphericalMilestone(self, numIndices1, numIndices2, radius1, radius2, radius3, atomIndices1, atomIndices2)
 
-    def modifySphericalMilestone(self, forceIndex, numIndices1, numIndices2, radius1, radius2, radius3, atomIndices1, atomIndices2, argEndOnMiddleCrossing):
-        return _seekrplugin.SeekrForce_modifySphericalMilestone(self, forceIndex, numIndices1, numIndices2, radius1, radius2, radius3, atomIndices1, atomIndices2, argEndOnMiddleCrossing)
+    def modifySphericalMilestone(self, forceIndex, numIndices1, numIndices2, radius1, radius2, radius3, atomIndices1, atomIndices2):
+        return _seekrplugin.SeekrForce_modifySphericalMilestone(self, forceIndex, numIndices1, numIndices2, radius1, radius2, radius3, atomIndices1, atomIndices2)
 
-    def addPlanarZMilestone(self, numIndices1, numIndices2, radius1, radius2, radius3, atomIndices1, atomIndices2, argEndOnMiddleCrossing):
-        return _seekrplugin.SeekrForce_addPlanarZMilestone(self, numIndices1, numIndices2, radius1, radius2, radius3, atomIndices1, atomIndices2, argEndOnMiddleCrossing)
+    def addPlanarZMilestone(self, numIndices1, numIndices2, radius1, radius2, radius3, atomIndices1, atomIndices2):
+        return _seekrplugin.SeekrForce_addPlanarZMilestone(self, numIndices1, numIndices2, radius1, radius2, radius3, atomIndices1, atomIndices2)
 
-    def modifyPlanarZMilestone(self, forceIndex, numIndices1, numIndices2, radius1, radius2, radius3, atomIndices1, atomIndices2, argEndOnMiddleCrossing):
-        return _seekrplugin.SeekrForce_modifyPlanarZMilestone(self, forceIndex, numIndices1, numIndices2, radius1, radius2, radius3, atomIndices1, atomIndices2, argEndOnMiddleCrossing)
+    def modifyPlanarZMilestone(self, forceIndex, numIndices1, numIndices2, radius1, radius2, radius3, atomIndices1, atomIndices2):
+        return _seekrplugin.SeekrForce_modifyPlanarZMilestone(self, forceIndex, numIndices1, numIndices2, radius1, radius2, radius3, atomIndices1, atomIndices2)
+
+    def addRmsdMilestone(self, numIndices1, numIndices2, radius1, radius2, radius3, atomIndices1, atomIndices2):
+        return _seekrplugin.SeekrForce_addRmsdMilestone(self, numIndices1, numIndices2, radius1, radius2, radius3, atomIndices1, atomIndices2)
+
+    def modifyRmsdMilestone(self, forceIndex, numIndices1, numIndices2, radius1, radius2, radius3, atomIndices1, atomIndices2):
+        return _seekrplugin.SeekrForce_modifyRmsdMilestone(self, forceIndex, numIndices1, numIndices2, radius1, radius2, radius3, atomIndices1, atomIndices2)
     __swig_destroy__ = _seekrplugin.delete_SeekrForce
     __del__ = lambda self: None
 SeekrForce_swigregister = _seekrplugin.SeekrForce_swigregister

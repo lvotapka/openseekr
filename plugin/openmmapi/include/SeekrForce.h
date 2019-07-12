@@ -66,32 +66,47 @@ public:
     float getSphericalRadius(int forceIndex, int milestone_id) const;
     void getSphericalMilestoneAtoms(int forceIndex, int atomIndex, int& atom_id, int molecule) const;
     
-    bool getEndOnMiddleCrossing() const;
-    
-    std::string getSphericalDataFileName(int forceIndex) const;
-    std::string getPlanarZDataFileName(int forceIndex) const;
+    int getNumRmsdMilestones() const;
+    int getNumRmsdAtomIndices() const;
+    int getRmsdNumIndices(int forceIndex, int molecule) const;
+    float getRmsdRadius(int forceIndex, int milestone_id) const;
+    void getRmsdMilestoneAtoms(int forceIndex, int atomIndex, int& atom_id, int molecule) const;
+        
+    //std::string getSphericalDataFileName(int forceIndex) const;
+    //std::string getPlanarZDataFileName(int forceIndex) const;
     
     std::string getDataFileName() const;
     void setDataFileName(std::string dataFileName);
+    
+    bool getEndOnMiddleCrossing() const;
+    void setEndOnMiddleCrossing(bool endOnMiddleCrossingArg);
     
     std::string getSaveStateFileName() const;
     void setSaveStateFileName(std::string saveStateFileName);
     
     void addPlanarZMilestone(int numIndices1, int numIndices2, float offset1, 
                               float offset2, float offset3, std::vector<int> atomIndices1,
-                              std::vector<int> atomIndices2, bool endOnMiddleCrossingArg);
+                              std::vector<int> atomIndices2);
                               
     void modifyPlanarZMilestone(int forceIndex, int numIndices1, int numIndices2, float offset1, 
                               float offset2, float offset3, std::vector<int> atomIndices1,
-                              std::vector<int> atomIndices2, bool endOnMiddleCrossingArg);
+                              std::vector<int> atomIndices2);
                               
     void addSphericalMilestone(int numIndices1, int numIndices2, float radius1, 
                               float radius2, float radius3, std::vector<int> atomIndices1,
-                              std::vector<int> atomIndices2, bool endOnMiddleCrossingArg);
+                              std::vector<int> atomIndices2);
                               
     void modifySphericalMilestone(int forceIndex, int numIndices1, int numIndices2, float radius1, 
                               float radius2, float radius3, std::vector<int> atomIndices1,
-                              std::vector<int> atomIndices2, bool endOnMiddleCrossingArg);
+                              std::vector<int> atomIndices2);
+                              
+    void addRmsdMilestone(int numIndices1, int numIndices2, float radius1, 
+                              float radius2, float radius3, std::vector<int> atomIndices1,
+                              std::vector<int> atomIndices2);
+                              
+    void modifyRmsdMilestone(int forceIndex, int numIndices1, int numIndices2, float radius1, 
+                              float radius2, float radius3, std::vector<int> atomIndices1,
+                              std::vector<int> atomIndices2);
     
     /**
      * Update the per-bond parameters in a Context to match those stored in this Force object.  This method provides
@@ -141,7 +156,6 @@ private:
     
     std::vector<PlanarZMilestoneInfo> planarZMilestones;
     
-private:
     class SphericalMilestoneInfo;
     
     class SphericalMilestoneInfo {
@@ -166,7 +180,33 @@ private:
     };
     
     std::vector<SphericalMilestoneInfo> sphericalMilestones;
-    bool endOnMiddleCrossing;
+    
+    class RmsdMilestoneInfo;
+    
+    class RmsdMilestoneInfo {
+      public:
+          int numIndices1, numIndices2;
+          float radius1, radius2, radius3;
+          std::vector<int> atomIndices1;
+          std::vector<int> atomIndices2;
+          //std::string dataFileName;
+          
+          RmsdMilestoneInfo() {
+            numIndices1 = numIndices2 = 0;
+            radius1 = radius2 = radius3 = 0.0;
+            // vectors?
+          }
+          
+          RmsdMilestoneInfo(int numIndices1, int numIndices2, float radius1, float radius2, float radius3, std::vector<int> atomIndices1, std::vector<int> atomIndices2) : 
+                                 numIndices1(numIndices1), numIndices2(numIndices2), radius1(radius1),
+                                 radius2(radius2), radius3(radius3), atomIndices1(atomIndices1), 
+                                 atomIndices2(atomIndices2) {
+          }
+    };
+    
+    std::vector<RmsdMilestoneInfo> rmsdMilestones;
+    
+    bool endOnMiddleCrossing = false;
     std::string dataFileName;
     std::string stateFileName;
     

@@ -72,7 +72,7 @@ extern "C" __global__ void monitorPlanarZMilestones(
         if (delta < offset1[index]) { // crossed inner milestone
             returncode[index] = 1;			
         } 
-        else if ((delta - offset2[index]*(old_delta - offset2[index]) < 0) { // This will return true if the particle has crossed the middle milestone since the last timestep
+        else if ((delta - offset2[index])*(old_delta - offset2[index]) < 0) { // This will return true if the particle has crossed the middle milestone since the last timestep
             returncode[index] = 2;
         }
         else if (delta > offset3[index]) { // crossed outer milestone ANDY TODO **DONE**
@@ -158,29 +158,59 @@ extern "C" __global__ void monitorSphericalMilestones(
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+extern "C" __global__ void monitorRmsdMilestones(
+                            const real4* __restrict__ posq,             // positions and charges
+                            const mixed4* __restrict__ velm,             // velocities and masses
+                            const int* __restrict__ numIndices1,         // number of atoms in receptor
+                            const int* __restrict__ numIndices2,         // number of atoms in ligand
+                            const float* __restrict__ radius1,           // radius of inner spherical milestone
+                            const float* __restrict__ radius2,           // radius of middle spherical milestone
+                            const float* __restrict__ radius3,           // radius of outer spherical milestone
+                            const int* __restrict__ atomIndices1,       // atom indices of receptor
+                            const int* __restrict__ atomIndices2,       // atom indices of ligand
+                            const int2* __restrict__ atomBounds1,
+                            const int2* __restrict__ atomBounds2,
+                            float* __restrict__ returncode,              // whether the milestone was crossed: 0 = uncrossed, 1 = crossed inner, 2 = crossed outer
+                            float* __restrict__ oldRmsdRadiusSq,
+                            const int numRmsdMilestones) {           // radius of outer spherical milestone
+    
+    for (int index=blockIdx.x*blockDim.x+threadIdx.x; index<numRmsdMilestones; index+=blockDim.x*gridDim.x) {
+        returncode[index] = 0;
+        
+        real rmsdRadiusSq = 0.0;
+        int atomIndex1;
+        int atomIndex2;
+        real4 delta;
+        real deltaSquared;
+        int i;
+        
+        for (i=atomBounds1[index].x; i<atomBounds1[index].y; i++) {
+            atomIndex1 = atomIndices1[i];
+            atomIndex2 = atomIndices2[i];
+            delta = posq[atomIndex1] - posq[atomIndex2];
+            deltaSquared = delta.x*delta.x + delta.y*delta.y + delta.z*delta.z;
+            rmsdRadiusSq += deltaSquared;
+            //rmsdRadiusSq += (posq[atomIndex1].x - posq[atomIndex2].x) * (posq[atomIndex1].x - posq[atomIndex2].x);
+            //rmsdRadiusSq += (posq[atomIndex1].y - posq[atomIndex2].y) * (posq[atomIndex1].y - posq[atomIndex2].y);
+            //rmsdRadiusSq += (posq[atomIndex1].z - posq[atomIndex2].z) * (posq[atomIndex1].z - posq[atomIndex2].z);
+        }
+        
+        if (oldRmsdRadiusSq[index] == -9.0e5) { // then this is the first step, so initialize old_posq to equal posq
+          returncode[index] = 4;
+          oldRmsdRadiusSq[index] = rmsdRadiusSq;
+        }
+        
+        if (rmsdRadiusSq < radius1[index]*radius1[index]) { // crossed inner milestone
+            returncode[index] = 1;
+        } 
+        else if ((rmsdRadiusSq - radius2[index]*radius2[index])*(oldRmsdRadiusSq[index] - radius2[index]*radius2[index]) < 0) { // This will return true if the particle has crossed the middle milestone since the last timestep
+            returncode[index] = 2;
+        }
+        else if (rmsdRadiusSq > radius3[index]*radius3[index]) { // crossed outer milestone
+            returncode[index] = 3;
+        
+        }
+        
+        oldRmsdRadiusSq[index] = rmsdRadiusSq;
+    }
+}

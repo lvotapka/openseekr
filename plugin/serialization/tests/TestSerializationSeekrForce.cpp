@@ -61,9 +61,10 @@ void testSerialization() {
 	
     std::string testDataFileName = "/tmp/test.dat";
     
-    force.addSphericalMilestone(2, 3, 2.71, 3.01, 3.14, atomIndices1, atomIndices2, false);
-    force.addPlanarZMilestone(2, 3, 2.71, 3.01, 3.14, atomIndices1, atomIndices2, false);
+    force.addSphericalMilestone(2, 3, 2.71, 3.01, 3.14, atomIndices1, atomIndices2);
+    force.addPlanarZMilestone(2, 3, 2.71, 3.01, 3.14, atomIndices1, atomIndices2);
     force.setDataFileName(testDataFileName);
+    force.setEndOnMiddleCrossing(true);
     /*
     force.addBond(0, 1, 1.0, 2.0);
     force.addBond(0, 2, 2.0, 2.1);

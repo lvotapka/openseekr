@@ -50,9 +50,10 @@ me.fwd_rev_stage.traj_freq = 1000
 me.fwd_rev_stage.launches_per_config = launches_per_config
 me.fwd_rev_stage.barostat = False # leave barostat off
 umbrella_glob = 'umbrella*.dcd'
-reversal_frames = (1010, 1020, 1)
+reversal_frames = (10, 30, 1)
 pos_vel_chunk_size = 400
-#reversal_frames = (1010, 1020, 1)
+save_crossing_states = False
+#reversal_frames = (1010, 10010, 1)
 #pos_vel_chunk_size = 5
 
 ##################################################################
@@ -80,6 +81,7 @@ for milestone in all_milestones:
         continue
     print "launching constant energy reverse stage for milestone:", which
     if milestone.box_vectors:
+      print "Using milestone.box_vectors:", milestone.box_vectors
       box_vectors = milestone.box_vectors
     else:
       inpcrd_path = os.path.join(me.project.rootdir, milestone.directory, 'md', 'building', 'holo.rst7')
@@ -93,6 +95,10 @@ for milestone in all_milestones:
     parm_file_name = os.path.join(me.project.rootdir, milestone.directory, 'md', 'building', 'holo.parm7')
     trajout = os.path.join(me.project.rootdir, milestone.directory, 'md', 'umbrella', 'imaged.dcd')
     cpptraj_script_location = os.path.join(me.project.rootdir, milestone.directory, 'md', 'umbrella', 'image_umbrella.cpptraj')
+    if save_crossing_states == True:
+      reversal_state_name = os.path.join(me.project.rootdir, milestone.directory, 'md', 'fwd_rev', 'reversal')
+    else
+      reversal_state_name = ''
     box_info = seekr.make_box_info(box_vectors)
     if os.path.exists(trajout):
       print "Imaged trajectories already generated. Skipping autoimaging."
@@ -115,8 +121,7 @@ for milestone in all_milestones:
     save_fwd_rev = False
     while not complete:
       print "Running chunk %d" % i
-      success_positions, success_velocities, data_file_name, indices_list, complete = seekr.launch_fwd_rev_stage(me, milestone, traj_base, True, dcd, pos_vel_chunk_size, 
-                                                                                                     box_vectors=box_vectors, suffix='_%d' % i, save_fwd_rev=save_fwd_rev)
+      success_positions, success_velocities, data_file_name, indices_list, complete = seekr.launch_fwd_rev_stage(me, milestone, traj_base, True, dcd, pos_vel_chunk_size, box_vectors=box_vectors, suffix='_%d' % i, save_fwd_rev=save_fwd_rev, save_state_filename=reversal_state_name)
       save_fwd_rev = True
       if len(success_positions) == 0:
         print "Reversal stage failed for this chunk: No successful reversal trajectories completed."

@@ -10,6 +10,7 @@ from simtk.openmm.app import *
 from simtk.openmm import *
 from simtk.unit import *
 from sys import stdout
+import amber
 
 import os
 
@@ -38,11 +39,14 @@ def run_min_equil(seekrcalc):
       
       
       reporter_output = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'temp_equil', 'temp_equil.dcd')
+      '''
       if os.path.exists(reporter_output):
         print "Temperature equilibration trajectories found. Skipping minimization and temperature equilibration."
         return
-      
+      '''
       simulation.minimizeEnergy()
+      after_min_structure_name = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'min', 'after_min.pdb')
+      amber.save_restart(seekrcalc, milestone, pdb_save_filename=after_min_structure_name)
       simulation.reporters.append(DCDReporter(reporter_output, 1000)) # TODO: allow users to modify this quantity
       
       if verbose: print "Running temperature equilibration."
@@ -50,7 +54,9 @@ def run_min_equil(seekrcalc):
         simulation.context.setVelocitiesToTemperature(temperature*kelvin)
         simulation.integrator.setTemperature(temperature*kelvin)
         
-        print "simulation_box_vectors:", simulation.context.getState().getPeriodicBoxVectors()
+        box_vectors = simulation.context.getState().getPeriodicBoxVectors()
+        milestone.box_vectors = box_vectors
+        print "simulation_box_vectors:", box_vectors
         
         simulation.step(seekrcalc.min_equil.temp_equil_steps)
         if verbose: print "Ran temperature equilibration:", simulation.integrator.getTemperature()
