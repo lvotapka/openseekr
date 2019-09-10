@@ -47,8 +47,8 @@ picklename = '/home/lvotapka/tryp_test/seekr_calc.pickle'
 me = seekr.openSeekrCalc(picklename)
 me.umbrella_stage.force_constant = 90.0*kilocalories_per_mole/angstroms**2
 me.umbrella_stage.steps = num_steps # in 2*fs
-me.umbrella_stage.energy_freq = 10000
-me.umbrella_stage.traj_freq = 10000
+me.umbrella_stage.energy_freq = 50000
+me.umbrella_stage.traj_freq = 50000
 if ensemble == 'npt':
   me.umbrella_stage.barostat = True # turn on barostat, run in NPT
   me.umbrella_stage.barostat_freq = 25
@@ -59,6 +59,7 @@ else:
 # Make sure you use a VMD selection by index (not serial) to find these numbers
 lig_selection = [3221, 3222, 3223, 3224, 3225, 3226, 3227, 3228, 3229]
 rec_selection = [2478, 2489, 2499, 2535, 2718, 2745, 2769, 2787, 2794, 2867, 2926]
+me.openmm.properties = {'CudaDeviceIndex':'1', 'CudaPrecision':'mixed'}
 
 ##################################################################
 # DON'T MODIFY THE SECTION BELOW UNLESS YOU KNOW WHAT YOU'RE DOING
