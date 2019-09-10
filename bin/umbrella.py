@@ -129,7 +129,7 @@ def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umb
       simulation.saveState(state_filename)
       simulation.step(seekrcalc.umbrella_stage.traj_freq)
       current_step = current_step + seekrcalc.umbrella_stage.traj_freq
-    except ValueError:
+    except:
       print "Alert! NaN error detected. Restarting from saved state."
       simulation.loadState(state_filename)
     
