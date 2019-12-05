@@ -99,6 +99,10 @@ if command == 'add':
     me.milestones[i].directory = new_dirname
     old_path = os.path.join(me.project.rootdir, old_dirname)
     new_path = os.path.join(me.project.rootdir, new_dirname)
+    if me.milestones[i].openmm.prmtop_filename:
+      me.milestones[i].openmm.prmtop_filename = os.path.join(new_path, 'md', 'building','holo.parm7')
+    if me.milestones[i].openmm.inpcrd_filename:
+      me.milestones[i].openmm.inpcrd_filename = os.path.join(new_path, 'md', 'building','holo.rst7')
     os.rename(old_path, new_path)
     print "renaming", old_path, "to", new_path
   
