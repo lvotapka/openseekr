@@ -98,13 +98,29 @@ if command == 'add':
     me.milestones[i].fullname = new_fullname
     me.milestones[i].directory = new_dirname
     old_path = os.path.join(me.project.rootdir, old_dirname)
+    old_path_tmp = old_path+"temp"
     new_path = os.path.join(me.project.rootdir, new_dirname)
+    new_path_tmp = new_path+"temp"
     if me.milestones[i].openmm.prmtop_filename:
       me.milestones[i].openmm.prmtop_filename = os.path.join(new_path, 'md', 'building','holo.parm7')
     if me.milestones[i].openmm.inpcrd_filename:
       me.milestones[i].openmm.inpcrd_filename = os.path.join(new_path, 'md', 'building','holo.rst7')
-    os.rename(old_path, new_path)
-    print "renaming", old_path, "to", new_path
+    if os.path.exists(new_path):
+      #tmp_name = os.path.join(me.project.rootdir, 'temp_dir')
+      if os.path.exists(old_path_tmp):
+        print "temporarily renaming", old_path_tmp, "to", new_path_tmp
+        os.rename(old_path_tmp, new_path_tmp)
+      else:
+        print "temporarily renaming", old_path, "to", new_path_tmp
+        os.rename(old_path, new_path_tmp)
+    else:
+      if os.path.exists(old_path_tmp):
+        print "renaming files:", old_path_tmp, "to", new_path
+        os.rename(old_path_tmp, new_path)
+      else:
+        print "renaming files:", old_path, "to", new_path
+        os.rename(old_path, new_path)
+
   
   # insert new milestone into the milestone list in order
   me.milestones.insert(insert_index, new_milestone)
