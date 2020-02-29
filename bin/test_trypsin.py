@@ -18,7 +18,7 @@ import sys
 
 remove_old_filetree = False
 if 'remove' in sys.argv[1:]:
-  remove_old_filetree = True
+    remove_old_filetree = True
 
 # Define settings object for all simulations
 me = seekr.SeekrCalculation() # create a new SEEKR calculation object
@@ -129,41 +129,41 @@ quit
 
 me.min_equil.constrained += range(insert_index)
 me.min_equil.constrained += ligand_heavy_indices
-    
+
 for milestone in me.milestones:
-  milestone.atom_selection_1 = me.selections.site_com_indices
-  milestone.atom_selection_2 = ligand_heavy_indices
-  if milestone.md:
-    amber.amber_building(me, milestone, amber_settings)
-    
-    if not milestone.openmm.prmtop_filename: continue
-    # modify the file to have the correct solvent octahedron box
-    parm = pmd.load_file(milestone.openmm.prmtop_filename, xyz=milestone.openmm.inpcrd_filename)
-    
-    #TODO: straighten out these units
-    parm.box = np.array([64.9127105, 64.9127105, 64.9127105,109.471219, 109.471219,109.471219])
-    box_vector = Quantity([[64.912710500000003, 0.0, 0.0], [-21.637568420791037, 61.200290990259163, 0.0], [-21.637568420791037, -30.600141791568205, 53.00100885481632]], unit=angstrom)
-    parm.box_vectors = box_vector
-    print "parm.box:", parm.box
-    print "parm.box_vectors:", parm.box_vectors
-    print "saving prmtop for milestone:", milestone.index
-    parm.save(milestone.openmm.prmtop_filename, overwrite = True)
-    print "saving inpcrd for milestone:", milestone.index
-    parm.save(milestone.openmm.inpcrd_filename, overwrite = True)
-    
-    amber.create_simulation(me, milestone)
-    milestone.openmm.simulation.context.setPeriodicBoxVectors([6.4912710500000003, 0.0, 0.0], [-2.1637568420791037, 6.1200290990259163, 0.0], [-2.1637568420791037, -3.0600141791568205, 5.300100885481632])
-    
-    if not me.openmm.simulation: # create a sample of a simulation file for future use
-      me.openmm.simulation = milestone.openmm.simulation
-    
+    milestone.atom_selection_1 = me.selections.site_com_indices
+    milestone.atom_selection_2 = ligand_heavy_indices
+    if milestone.md:
+        amber.amber_building(me, milestone, amber_settings)
+
+        if not milestone.openmm.prmtop_filename: continue
+        # modify the file to have the correct solvent octahedron box
+        parm = pmd.load_file(milestone.openmm.prmtop_filename, xyz=milestone.openmm.inpcrd_filename)
+
+        #TODO: straighten out these units
+        parm.box = np.array([64.9127105, 64.9127105, 64.9127105,109.471219, 109.471219,109.471219])
+        box_vector = Quantity([[64.912710500000003, 0.0, 0.0], [-21.637568420791037, 61.200290990259163, 0.0], [-21.637568420791037, -30.600141791568205, 53.00100885481632]], unit=angstrom)
+        parm.box_vectors = box_vector
+        print "parm.box:", parm.box
+        print "parm.box_vectors:", parm.box_vectors
+        print "saving prmtop for milestone:", milestone.index
+        parm.save(milestone.openmm.prmtop_filename, overwrite = True)
+        print "saving inpcrd for milestone:", milestone.index
+        parm.save(milestone.openmm.inpcrd_filename, overwrite = True)
+
+        amber.create_simulation(me, milestone)
+        milestone.openmm.simulation.context.setPeriodicBoxVectors([6.4912710500000003, 0.0, 0.0], [-2.1637568420791037, 6.1200290990259163, 0.0], [-2.1637568420791037, -3.0600141791568205, 5.300100885481632])
+
+        if not me.openmm.simulation: # create a sample of a simulation file for future use
+            me.openmm.simulation = milestone.openmm.simulation
+
 seekr.run_min_equil(me)
 
 # save equilibration output
 for milestone in me.milestones:
-  if milestone.md:
-    filename = amber.save_restart(me, milestone)
-    milestone.openmm.umbrella_pdb_filename = filename
+    if milestone.md:
+        filename = amber.save_restart(me, milestone)
+        milestone.openmm.umbrella_pdb_filename = filename
 
 print "Saving all system settings for Umbrella stage and later stages."
 me.save()
@@ -173,4 +173,3 @@ print "Preparing Brownian dynamics stages..."
 bd.build_bd(me)
 
 print "Ligand heavy indices:", ligand_heavy_indices
-
