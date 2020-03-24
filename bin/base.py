@@ -9,7 +9,20 @@ Created on May 8, 2018
 import pickle as pickle
 import os
 import unittest
+import xml.etree.ElementTree as ET
+from xml.dom import minidom
 
+'''
+class _BaseClass():
+    def serialize(self):
+        ''
+        Convert parameters of the class into XML format
+        ''
+        
+        
+    def deserialize(self):
+'''
+        
 class _Project():
     '''An object for generic project-level information of a SEEKR run'''
     def __init__(self):
@@ -20,14 +33,28 @@ class _Project():
         self.bd = True # whether BD is run in this calculation
         #self.k_off = False # whether files to prepare k-off calculations are generated
         self.empty_rootdir = False # if set to True will empty the contents of the rootdir when the new file tree is made
-
-        ''' Save these for the umbrella object
-        self.umbrella 100000000 # number of timesteps
-        self.number_of_ens_equil_frames 10000 # number of frames to write after the ens_equil_simulations
-        self.number_of_ens_equil_frames_skipped 3000
-        self.extract_stride 10
-        '''
-
+    
+    def serialize(self):
+        xmlProject = ET.Element('project')
+        xmlProjectName = ET.SubElement(xmlProject, 'name')
+        xmlProjectName.text = self.name
+        xmlProjectRootdir = ET.SubElement(xmlProject, 'rootdir')
+        xmlProjectRootdir.text = self.rootdir
+        xmlProjectTestMode = ET.SubElement(xmlProject, 'test_mode')
+        xmlProjectTestMode.text = str(self.test_mode)
+        xmlProjectMd = ET.SubElement(xmlProject, 'md')
+        xmlProjectMd.text = str(self.md)
+        xmlProjectBd = ET.SubElement(xmlProject, 'bd')
+        xmlProjectBd.text = str(self.bd)
+        xmlProjectEmptyRootdir = ET.SubElement(xmlProject, 'empty_rootdir')
+        xmlProjectEmptyRootdir.text = str(self.empty_rootdir)
+        xmlString = ET.tostring(xmlProject)
+        xmlTree = ET.ElementTree(element=xmlProject)
+        
+        xmlstr = minidom.parseString(ET.tostring(xmlProject)).toprettyxml(indent="   ")
+        print('xml test:', xmlstr)
+        return xmlstr
+        
 class _OpenMM():
     '''An object to represent all information about the molecules. Particularly structural information.'''
     def __init__(self):
@@ -173,10 +200,17 @@ class SeekrCalculation():
         self.min_equil = _Min_Equil()
         self.umbrella_stage = _Umbrella()
         self.fwd_rev_stage = _Fwd_rev()
+        
+    def deserialize(self, root):
+        self.master_temperature = int(root.find('master_temperature'))
+        #self.milestones = root.find('milestones')
 
     def save(self, picklename=''):
         '''Save a copy of this SEEKR calculation and all its milestone information.'''
-
+        
+        self.project.serialize()
+        exit()
+        
         # need to step through the object and set all unpicklable objects to None
         self.openmm.system = None
         self.openmm.simulation = None
@@ -212,12 +246,20 @@ class SeekrCalculation():
         our_file = open(picklename, 'wb')
         pickle.dump(milestone)
     '''
-
+'''
 def openSeekrCalc(picklename):
     our_file=open(picklename, 'rb')
     seekr_obj=pickle.load(our_file)
     our_file.close()
     return seekr_obj
+'''
+def openSeekrCalc(xmlFileName):
+    tree = ET.parse(xmlFileName)
+    root = tree.getroot()
+    seekrCalc = SeekrCalculation()
+    seekrCalc.deSerialize(root)
+    return seekrCalc
+    
 
 class Test_base(unittest.TestCase):
     # several test cases to ensure the functions in this module are working properly
