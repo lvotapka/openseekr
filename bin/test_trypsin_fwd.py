@@ -11,12 +11,12 @@ from seekr import amber
 import sys, os, glob, re
 from simtk.unit import *
 import mdtraj
-import cPickle as pickle
+import pickle as pickle
 from pprint import pprint
 import numpy as np
 from simtk.openmm.app import AmberInpcrdFile
 
-print "Parse arguments"
+print("Parse arguments")
 which = None
 if len(sys.argv) < 2: # then assume all
     which = 'all'
@@ -25,7 +25,7 @@ elif sys.argv[1] == 'all':
 else:
     which = int(sys.argv[1])
 
-print "Loading SEEKR calculation."
+print("Loading SEEKR calculation.")
 
 ##################################################################
 # VARIABLES WITHIN SECTION BELOW SHOULD BE MODIFIED TO YOUR SYSTEM
@@ -57,8 +57,8 @@ def add_dictionaries(dict1, dict2):
     NOTE: dict1 is updated and returned BY REFERENCE
     '''
     new_dict = dict1
-    for key in dict2.keys():
-        if key in dict1.keys():
+    for key in list(dict2.keys()):
+        if key in list(dict1.keys()):
             dict1[key] += dict2[key]
         else:
             dict1[key] = dict2[key]
@@ -83,12 +83,12 @@ for milestone in all_milestones:
                 milestone.openmm.inpcrd_filename = inpcrd_path
                 inpcrd = AmberInpcrdFile(inpcrd_path)
                 milestone.box_vectors = inpcrd.boxVectors
-                print "box_vectors:", milestone.box_vectors
+                print("box_vectors:", milestone.box_vectors)
             else:
-                print "prmtop or inpcrd file not found for milestone %d. Skipping..." % milestone.index
+                print("prmtop or inpcrd file not found for milestone %d. Skipping..." % milestone.index)
                 continue
 
-        print "launching constant energy forward stage for milestone:", which
+        print("launching constant energy forward stage for milestone:", which)
         box_vectors = milestone.box_vectors
         milestone.atom_selection_1 = rec_selection
         milestone.atom_selection_2 = lig_selection
@@ -108,7 +108,7 @@ for milestone in all_milestones:
             vels_pickle = os.path.join(me.project.rootdir, milestone.directory, 'md', 'fwd_rev', 'success_vels%d.pickle' % i)
             assert os.path.exists(vels_pickle), coords_pickle+' file exists, but corresponding velocity file: '+vels_pickle+' does not.'
             #me.fwd_rev_stage.success_coords_pickle = os.path.join(me.project.rootdir, milestone.directory, 'md', 'fwd_rev', 'success_coords.pickle') # TODO: remove line
-            print "Opening pickles:", coords_pickle, vels_pickle
+            print("Opening pickles:", coords_pickle, vels_pickle)
             success_coords_pickle =  open(coords_pickle, 'rb')
             #success_coords_pickle_file = open(success_coords_pickle, 'rb')
             positions = pickle.load(success_coords_pickle)
@@ -121,18 +121,18 @@ for milestone in all_milestones:
             success_vels_pickle.close()
 
             reversed_vels = []
-            print "Reversing Velocities"
+            print("Reversing Velocities")
             for vel in velocities:
                 reversed_vels.append(-1.0 * vel)
 
             assert len(positions) == len(velocities), "The length of provided velocities and positions must be equal."
             positions = iter(positions)
 
-            print "Running Forwards"
+            print("Running Forwards")
             complete = False
 
             while not complete:
-                print "Running chunk %d" % i
+                print("Running chunk %d" % i)
 
                 success_positions, success_velocities, data_file_name, indices_list, complete = seekr.launch_fwd_rev_stage(me, milestone,
                               traj_base, False, positions, input_vels=reversed_vels, box_vectors=box_vectors,
@@ -147,13 +147,13 @@ for milestone in all_milestones:
                 transition_dict, avg_incubation_time, incubation_time_list = seekr.read_data_file_transitions(data_file_name, me, milestone)
                 incubation_time_list_total += incubation_time_list
                 transition_dict_total = add_dictionaries(transition_dict_total, transition_dict)
-                print "TRANSITION DICT:"
+                print("TRANSITION DICT:")
                 pprint(transition_dict)
 
-        print "Transition Data:"
-        print "transition dictionary:"
+        print("Transition Data:")
+        print("transition dictionary:")
         pprint(transition_dict_total)
-        print "average incubation time:"
+        print("average incubation time:")
         avg_incubation_time = np.mean(incubation_time_list_total)
         pprint(avg_incubation_time)
 

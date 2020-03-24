@@ -8,6 +8,7 @@ Created on May 8, 2018
 
 import pickle as pickle
 import os
+import unittest
 
 class _Project():
     '''An object for generic project-level information of a SEEKR run'''
@@ -186,12 +187,22 @@ class SeekrCalculation():
             milestone.openmm.system = None
             milestone.openmm.simulation = None
 
+        #self.milestones = None
+        #self.project = None
+        self.openmm = None
+        self.browndye = None
+        self.selections = None
+        self.building = None
+        self.min_equil = None
+        self.umbrella_stage = None
+        self.fwd_rev_stage = None
+
         if not picklename:
             picklename = os.path.join(self.project.rootdir, 'seekr_calc.pickle')
         #dill.detect.trace(True)
         #dill.detect.errors(self)
         our_file=open(picklename, 'wb')
-        pickle.dump(self, our_file, protocol=-1) # protocol=-1 means to use the fastest available protocol method
+        pickle.dump(self, our_file) # protocol=-1 means to use the fastest available protocol method
         our_file.close()
 
     '''  # not necessary because it will be in the seekr pickle ???
@@ -207,3 +218,14 @@ def openSeekrCalc(picklename):
     seekr_obj=pickle.load(our_file)
     our_file.close()
     return seekr_obj
+
+class Test_base(unittest.TestCase):
+    # several test cases to ensure the functions in this module are working properly
+    def test_pickle(self): # test this function
+        filename = '/tmp/testdump.pickle'
+        myobj = SeekrCalculation()
+        myobj.save(filename)
+        newobj = openSeekrCalc(filename)
+    
+if __name__ == "__main__":
+    unittest.main()

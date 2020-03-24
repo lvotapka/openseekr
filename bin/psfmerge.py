@@ -86,7 +86,7 @@ def renumber_psflist(oldlist, fixdict):
     for old in oldlist:
         littlelist = []
         for atomid in old:
-            assert atomid in fixdict.keys(), "Alert! atom id found in PSF section that doesn't exist within 'ATOM' section: {0}".format(atomid)
+            assert atomid in list(fixdict.keys()), "Alert! atom id found in PSF section that doesn't exist within 'ATOM' section: {0}".format(atomid)
             littlelist.append(fixdict[atomid])
         #newlist.append(littlelist)
         oldlist[counter] = littlelist # change the object in-place
@@ -165,11 +165,11 @@ def parse_psf(psf_file):
     atomlist = []; bondlist = []; anglelist = []; dihedrallist = []; improperlist = []; nblist = []; crtlist = []; donorlist = []; acclist = [] # a series of empty lists
     section = "" # the section of PSF file we are in
     bangN = re.compile('!N([A-Z]*)')
-    for line in psf_file.xreadlines():
+    for line in psf_file:
         sectionsearch = re.search(bangN, line)
         if sectionsearch: # then we are entering a new section
             section = sectionsearch.group(1)
-            print "now parsing section:", section
+            print("now parsing section:", section)
             continue
         else:
             if section == "TITLE":
@@ -179,42 +179,42 @@ def parse_psf(psf_file):
                 atomlist.append(Atom(line))
                 #print atomlist[-1].write()
             elif section == "BOND":
-                tempbondlist = map(int, line.strip().split())
+                tempbondlist = list(map(int, line.strip().split()))
                 for i in range(0, len(tempbondlist), 2):
                     bondlist.append(tempbondlist[i:i+2])
             elif section == "THETA":
-                tempanglelist = map(int, line.strip().split())
+                tempanglelist = list(map(int, line.strip().split()))
                 for i in range(0, len(tempanglelist), 3):
                     anglelist.append(tempanglelist[i:i+3])
             elif section == "PHI":
-                tempdihedrallist = map(int, line.strip().split())
+                tempdihedrallist = list(map(int, line.strip().split()))
                 for i in range(0, len(tempdihedrallist), 4):
                     dihedrallist.append(tempdihedrallist[i:i+4])
             elif section == "IMPHI":
-                tempimproperlist = map(int, line.strip().split())
+                tempimproperlist = list(map(int, line.strip().split()))
                 for i in range(0, len(tempimproperlist), 4):
                     improperlist.append(tempimproperlist[i:i+4])
             elif section == "NCRTERM":
-                tempncrtermlist = map(int, line.strip().split())
+                tempncrtermlist = list(map(int, line.strip().split()))
                 for i in range(0, len(tempncrtermlist), 4):
                     crtlist.append(tempncrtermlist[i:i+4])
             elif section == "DON": # donor list
-                tempdonlist = map(int, line.strip().split())
+                tempdonlist = list(map(int, line.strip().split()))
                 for i in range(0, len(tempdonlist), 2):
                     donorlist.append(tempdonlist[i:i+2])
             elif section == "ACC": # acceptor list
-                tempacclist = map(int, line.strip().split())
+                tempacclist = list(map(int, line.strip().split()))
                 for i in range(0, len(tempacclist), 2):
                     acclist.append(tempacclist[i:i+2])
                     #acclist += [map(int, line.strip().split())]
             elif section == "NB":
-                tempnblist = map(int, line.strip().split())
+                tempnblist = list(map(int, line.strip().split()))
                 for i in range(0, len(tempnblist), 2):
                     nblist.append(tempnblist[i:i+2])
             elif section == "GRP":
                 continue
             else:
-                print "Warning: psfmerge.py does not know how to deal with section:", section, ". Therefore it will be ignored..."
+                print("Warning: psfmerge.py does not know how to deal with section:", section, ". Therefore it will be ignored...")
 
     #print "improperlist[:40]:", improperlist[:40]
     return PSF(atomlist, bondlist, anglelist, dihedrallist, improperlist, nblist, donorlist, acclist, crtlist)

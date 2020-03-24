@@ -54,10 +54,10 @@ def create_forces(seekrcalc, milestone, system):
     r0 = new_force.addGlobalParameter('radius', milestone.radius*angstrom)
     g1 = new_force.addGroup(milestone.atom_selection_1)
     g2 = new_force.addGroup(milestone.atom_selection_2)
-    if verbose: print("k:", seekrcalc.umbrella_stage.force_constant, "radius:", milestone.radius*angstrom, "g1:", milestone.atom_selection_1, "g2:", milestone.atom_selection_2)
+    if verbose: print(("k:", seekrcalc.umbrella_stage.force_constant, "radius:", milestone.radius*angstrom, "g1:", milestone.atom_selection_1, "g2:", milestone.atom_selection_2))
     new_force.addBond([g1, g2], [])
-    if verbose: print("new_force.getNumGlobalParameters():", new_force.getNumGlobalParameters())
-    if verbose: print("new_force.getNumPerBondParameters():", new_force.getNumPerBondParameters())
+    if verbose: print(("new_force.getNumGlobalParameters():", new_force.getNumGlobalParameters()))
+    if verbose: print(("new_force.getNumPerBondParameters():", new_force.getNumPerBondParameters()))
     return new_force
 
 def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umbrella1.dcd'):
@@ -81,12 +81,12 @@ def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umb
         no_ext = os.path.splitext(basename)[0]
         dcd_filename = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'umbrella', '%s.dcd' % no_ext)
         assert os.path.exists(dcd_filename), "Cannot load DCD or PDB file for umbrella stage, none exist:" + dcd_filename
-        print("Restarting failed umbrella stage from last frame of DCD file: ", dcd_filename)
+        print(("Restarting failed umbrella stage from last frame of DCD file: ", dcd_filename))
         last_fwd_frame = load_last_mdtraj_frame(dcd_filename, milestone.openmm.prmtop_filename)
         my_positions = last_fwd_frame.xyz[0]
 
     inpcrd_filename = milestone.openmm.inpcrd_filename
-    if verbose: print("opening files:", prmtop_filename, inpcrd_filename, pdb_filename)
+    if verbose: print(("opening files:", prmtop_filename, inpcrd_filename, pdb_filename))
     prmtop = AmberPrmtopFile(prmtop_filename)
     inpcrd = AmberInpcrdFile(inpcrd_filename)
 
@@ -113,7 +113,7 @@ def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umb
     elif inpcrd.boxVectors is not None:
         simulation.context.setPeriodicBoxVectors(*inpcrd.boxVectors)
 
-    if verbose: print("Running energy minimization on milestone:", milestone.index)
+    if verbose: print(("Running energy minimization on milestone:", milestone.index))
     simulation.minimizeEnergy()
 
     umbrella_traj = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'umbrella', traj_name)
@@ -123,7 +123,7 @@ def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umb
 
     state_filename = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'umbrella', 'backup.state')
     current_step = 0
-    print("running %d steps" % seekrcalc.umbrella_stage.steps)
+    print(("running %d steps" % seekrcalc.umbrella_stage.steps))
     while current_step < seekrcalc.umbrella_stage.steps:
         try:
             simulation.saveState(state_filename)
@@ -134,7 +134,7 @@ def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umb
             simulation.loadState(state_filename)
 
     #simulation.step(seekrcalc.umbrella_stage.steps) # old way: simulate steps directly
-    print("time:", time.time() - starttime, "s")
+    print(("time:", time.time() - starttime, "s"))
     end_state = simulation.context.getState(getPositions=True)
     ending_box_vectors = end_state.getPeriodicBoxVectors()
     milestone.openmm.simulation = simulation

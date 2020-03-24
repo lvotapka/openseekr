@@ -13,7 +13,7 @@ from simtk.unit import *
 import mdtraj
 from simtk.openmm.app import AmberInpcrdFile
 
-print "Parse arguments"
+print("Parse arguments")
 which = None
 if len(sys.argv) < 2: # then assume all
     which = 'all'
@@ -27,9 +27,9 @@ if len(sys.argv) == 3:
 else:
     launches_per_config = 1
 
-print "which:", which
+print("which:", which)
 
-print "Loading SEEKR calculation."
+print("Loading SEEKR calculation.")
 
 ##################################################################
 # VARIABLES WITHIN SECTION BELOW SHOULD BE MODIFIED TO YOUR SYSTEM
@@ -73,11 +73,11 @@ for milestone in all_milestones:
                 milestone.openmm.inpcrd_filename = inpcrd_path
                 inpcrd = AmberInpcrdFile(inpcrd_path)
                 milestone.box_vectors = inpcrd.boxVectors
-                print "box_vectors:", milestone.box_vectors
+                print("box_vectors:", milestone.box_vectors)
             else:
-                print "prmtop or inpcrd file not found for milestone %d. Skipping..." % milestone.index
+                print("prmtop or inpcrd file not found for milestone %d. Skipping..." % milestone.index)
                 continue
-        print "launching constant energy reverse stage for milestone:", which
+        print("launching constant energy reverse stage for milestone:", which)
         box_vectors = milestone.box_vectors
         milestone.atom_selection_1 = rec_selection
         milestone.atom_selection_2 = lig_selection
@@ -90,7 +90,7 @@ for milestone in all_milestones:
         seekr.autoimage_traj(parm_file_name, umbrella_traj, trajout, box_info, cpptraj_script_location=cpptraj_script_location, writing_frames=reversal_frames)
         dcd = mdtraj.iterload(trajout, top=parm_file_name, chunk=1)
         traj_base = "reverse"
-        print "running reversals"
+        print("running reversals")
 
         #num_frames = launches_per_config*(reversal_frames[1] - reversal_frames[0]) / reversal_frames[2]
         #print "num_frames:", num_frames
@@ -104,14 +104,14 @@ for milestone in all_milestones:
         i = 0
         save_fwd_rev = False
         while not complete:
-            print "Running chunk %d" % i
+            print("Running chunk %d" % i)
             success_positions, success_velocities, data_file_name, indices_list, complete = seekr.launch_fwd_rev_stage(me, milestone, traj_base, True, dcd, pos_vel_chunk_size,
                                                                                                            box_vectors=box_vectors, suffix='_%d' % i, save_fwd_rev=save_fwd_rev)
             save_fwd_rev = True
             if len(success_positions) == 0:
-                print "Reversal stage failed for this chunk: No successful reversal trajectories completed."
+                print("Reversal stage failed for this chunk: No successful reversal trajectories completed.")
             else:
-                print "saving coordinates and velocities for the reversal stage. len(success_positions)", len(success_positions), "len(success_velocities):", len(success_velocities)
+                print("saving coordinates and velocities for the reversal stage. len(success_positions)", len(success_positions), "len(success_velocities):", len(success_velocities))
                 seekr.pickle_coords_vels(me, milestone, success_positions, success_velocities, index=i)
             i += 1
 

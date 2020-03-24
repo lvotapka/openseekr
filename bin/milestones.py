@@ -194,3 +194,7 @@ class Test_milestones(unittest.TestCase):
         self.assertEqual(find_anchor_from_vectors(B2, A, 2.0), sqrt(3.0)-1.0) # check a vector against 45 degree angle
         '''
         return
+    
+if __name__ == "__main__":
+    print("Running unit tests for milestones.py")
+    unittest.main()

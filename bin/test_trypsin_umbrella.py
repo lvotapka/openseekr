@@ -11,7 +11,7 @@ from seekr import amber
 import sys, os
 from simtk.unit import *
 
-print "Parsing arguments"
+print("Parsing arguments")
 which = None
 try:
     if sys.argv[1].lower() == 'all':
@@ -24,19 +24,19 @@ try:
     elif sys.argv[2].lower() == 'nvt':
         ensemble = 'nvt'
     else:
-        print "Option for 'ensemble' not allowed:", sys.argv[2]
+        print("Option for 'ensemble' not allowed:", sys.argv[2])
 
     num_steps = int(sys.argv[3])
 
 except:
-    print '''Usage: python this_script.py milestone ensemble steps
+    print('''Usage: python this_script.py milestone ensemble steps
   Argument milestone may be an integer or the word 'all', ensemble may be 'nvt' or
   'npt', and steps is an integer representing the number of umbrella steps
-  to run.'''
+  to run.''')
     exit()
 
-print "Loading SEEKR calculation for milestone:", which
-print "Using", ensemble, "ensemble for", num_steps, "steps."
+print("Loading SEEKR calculation for milestone:", which)
+print("Using", ensemble, "ensemble for", num_steps, "steps.")
 #rootdir = '/home/lvotapka/tryp_test'
 
 ##################################################################
@@ -82,12 +82,12 @@ for milestone in all_milestones:
                 milestone.openmm.inpcrd_filename = inpcrd_path
                 inpcrd = AmberInpcrdFile(inpcrd_path)
                 milestone.box_vectors = inpcrd.boxVectors
-                print "box_vectors:", milestone.box_vectors
+                print("box_vectors:", milestone.box_vectors)
             else:
-                print "prmtop or inpcrd file not found for milestone %d. Skipping..." % milestone.index
+                print("prmtop or inpcrd file not found for milestone %d. Skipping..." % milestone.index)
                 continue
 
-        print "launching constant pressure umbrella sampling for milestone:", which
+        print("launching constant pressure umbrella sampling for milestone:", which)
         if rec_selection:
             milestone.atom_selection_1 = rec_selection
         if lig_selection:
@@ -101,6 +101,6 @@ for milestone in all_milestones:
         amber.save_restart(me, milestone, pdb_filename)
         milestone.openmm.umbrella_pdb_filename = pdb_filename
 
-    print "ending box vectors for milestone %d:" % milestone.index, milestone.box_vectors
+    print("ending box vectors for milestone %d:" % milestone.index, milestone.box_vectors)
 
 me.save()

@@ -26,7 +26,7 @@ me.master_temperature = 298. #*kelvin # temperature of (most) all calculations
 
 # project information
 me.project.name = 'test_tryp'
-me.project.rootdir = '/home/lvotapka/tryp_test'
+me.project.rootdir = '/home/lvotapka/tryp_test_2to3'
 me.project.empty_rootdir = remove_old_filetree
 me.md = True
 me.bd = True
@@ -48,7 +48,7 @@ me.building.rec_dry_pqr_filename = '/home/lvotapka/torq/lvotapka/Documents/tryps
 me.building.reject_clashes = True
 
 # Minimization / Temperature Equilibration info
-me.min_equil.constrained += range(3220)
+me.min_equil.constrained += list(range(3220))
 me.min_equil.min_num_steps = 5000
 me.min_equil.min_reporter_freq = 500 #[PDBReporter('dummy', 500)] # SEEKR will automatically change the filename
 me.min_equil.temp_equil_integrator = LangevinIntegrator(me.master_temperature*kelvin, 5/picosecond, 0.002*picoseconds)
@@ -80,15 +80,15 @@ origin = np.array([-1.536, 13.859, 16.539])
 radius_list = [1.0, 1.5, 2.0, 3.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0]
 vectors = [np.array([9.019, 72.142, 15.943]),]
 milestones = seekr.generate_spherical_milestones(me, rec_site_atom_indices, origin, radius_list, 0, vectors, absolute=False)
-print "The following milestones were created:"
+print("The following milestones were created:")
 seekr.print_spherical_milestone_info(milestones)
 me.milestones = milestones
 
 # Generate Filetree and Building files
 seekr.generate_filetree(me)
 holo_config_wet, insert_index, last_ligand_index = seekr.generate_configs(me)
-ligand_heavy_indices = seekr.find_heavy_atoms(holo_config_wet, range(insert_index, insert_index+last_ligand_index+1))
-print "Ligand heavy indices:", ligand_heavy_indices  # ATTN: changed
+ligand_heavy_indices = seekr.find_heavy_atoms(holo_config_wet, list(range(insert_index, insert_index+last_ligand_index+1)))
+print("Ligand heavy indices:", ligand_heavy_indices)  # ATTN: changed
 
 amber_settings = amber.AmberSettings()
 amber_settings.leap_program = 'tleap'
@@ -127,7 +127,7 @@ savepdb holo  $LEAP_OUTPUT_PDB
 quit
 '''
 
-me.min_equil.constrained += range(insert_index)
+me.min_equil.constrained += list(range(insert_index))
 me.min_equil.constrained += ligand_heavy_indices
 
 for milestone in me.milestones:
@@ -144,11 +144,11 @@ for milestone in me.milestones:
         parm.box = np.array([64.9127105, 64.9127105, 64.9127105,109.471219, 109.471219,109.471219])
         box_vector = Quantity([[64.912710500000003, 0.0, 0.0], [-21.637568420791037, 61.200290990259163, 0.0], [-21.637568420791037, -30.600141791568205, 53.00100885481632]], unit=angstrom)
         parm.box_vectors = box_vector
-        print "parm.box:", parm.box
-        print "parm.box_vectors:", parm.box_vectors
-        print "saving prmtop for milestone:", milestone.index
+        print("parm.box:", parm.box)
+        print("parm.box_vectors:", parm.box_vectors)
+        print("saving prmtop for milestone:", milestone.index)
         parm.save(milestone.openmm.prmtop_filename, overwrite = True)
-        print "saving inpcrd for milestone:", milestone.index
+        print("saving inpcrd for milestone:", milestone.index)
         parm.save(milestone.openmm.inpcrd_filename, overwrite = True)
 
         amber.create_simulation(me, milestone)
@@ -165,11 +165,11 @@ for milestone in me.milestones:
         filename = amber.save_restart(me, milestone)
         milestone.openmm.umbrella_pdb_filename = filename
 
-print "Saving all system settings for Umbrella stage and later stages."
+print("Saving all system settings for Umbrella stage and later stages.")
 me.save()
 
-print "Preparing Brownian dynamics stages..."
+print("Preparing Brownian dynamics stages...")
 
 bd.build_bd(me)
 
-print "Ligand heavy indices:", ligand_heavy_indices
+print("Ligand heavy indices:", ligand_heavy_indices)

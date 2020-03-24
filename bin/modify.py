@@ -11,7 +11,7 @@ import seekr
 import sys, os, math, shutil
 import numpy as np
 
-print "Parse arguments"
+print("Parse arguments")
 command = None
 directory = None
 
@@ -40,7 +40,7 @@ elif command == 'report': # print a concise report about all of the milestones i
 picklename = os.path.join(directory, 'seekr_calc.pickle')
 assert os.path.exists(picklename), "SEEKR pickle not found in provided directory. Are you sure this is a SEEKR calculation directory?"
 
-print "Loading SEEKR calculation."
+print("Loading SEEKR calculation.")
 me = seekr.openSeekrCalc(picklename)
 
 # TODO: add support for multiple sites...
@@ -108,17 +108,17 @@ if command == 'add':
         if os.path.exists(new_path):
             #tmp_name = os.path.join(me.project.rootdir, 'temp_dir')
             if os.path.exists(old_path_tmp):
-                print "temporarily renaming", old_path_tmp, "to", new_path_tmp
+                print("temporarily renaming", old_path_tmp, "to", new_path_tmp)
                 os.rename(old_path_tmp, new_path_tmp)
             else:
-                print "temporarily renaming", old_path, "to", new_path_tmp
+                print("temporarily renaming", old_path, "to", new_path_tmp)
                 os.rename(old_path, new_path_tmp)
         else:
             if os.path.exists(old_path_tmp):
-                print "renaming files:", old_path_tmp, "to", new_path
+                print("renaming files:", old_path_tmp, "to", new_path)
                 os.rename(old_path_tmp, new_path)
             else:
-                print "renaming files:", old_path, "to", new_path
+                print("renaming files:", old_path, "to", new_path)
                 os.rename(old_path, new_path)
 
 
@@ -126,18 +126,18 @@ if command == 'add':
     me.milestones.insert(insert_index, new_milestone)
     anchor_dir = os.path.join(me.project.rootdir, new_milestone.directory)
     anchor_filetree = seekr.Filetree({new_milestone.directory:{}})
-    print "Making directory:", anchor_dir
+    print("Making directory:", anchor_dir)
     anchor_filetree.make_tree(me.project.rootdir) # create this anchor's directory
     md_dir=os.path.join(anchor_dir,'md') # directory for MD
     md_filetree=seekr.Filetree({'md':seekr.mdtree})
     md_filetree.make_tree(anchor_dir) # make the MD filetree
-    print "Making directory:", md_dir
+    print("Making directory:", md_dir)
 
 
     # Save pickle and rename directories
-    print "saving pickle..."
+    print("saving pickle...")
     me.save()
-    print "New milestone of radius", args['radius'], "added."
+    print("New milestone of radius", args['radius'], "added.")
 
 
 elif command == 'delete':
@@ -158,12 +158,12 @@ elif command == 'delete':
         me.milestones[i].directory = new_dirname
         old_path = os.path.join(me.project.rootdir, old_dirname)
         new_path = os.path.join(me.project.rootdir, new_dirname)
-        print "renaming", old_path, "to", new_path
+        print("renaming", old_path, "to", new_path)
         os.rename(old_path, new_path)
 
 
     del_milestone = me.milestones.pop(delete_index)
-    print "deleting milestone index:", del_milestone.index, "radius:", del_milestone.radius
+    print("deleting milestone index:", del_milestone.index, "radius:", del_milestone.radius)
     del_dir = os.path.join(me.project.rootdir, del_milestone.directory)
     shutil.rmtree(del_dir)
 
@@ -173,11 +173,11 @@ elif command == 'modify':
     modify_index = args['index']
     modify_radius = args['radius']
     me.milestones[modify_index].radius = modify_radius
-    print "modifying milestone", modify_index, "to have radius:", modify_radius
+    print("modifying milestone", modify_index, "to have radius:", modify_radius)
     me.save()
 
 elif command == 'report':
-    print "Milestones:"
-    print "Index\tRadius\tNeighbors\tDirectory"
+    print("Milestones:")
+    print("Index\tRadius\tNeighbors\tDirectory")
     for i, milestone in enumerate(me.milestones):
-        print "%d\t%f\t" % (milestone.index, milestone.radius) , milestone.neighbors, '\t', milestone.directory
+        print("%d\t%f\t" % (milestone.index, milestone.radius) , milestone.neighbors, '\t', milestone.directory)
