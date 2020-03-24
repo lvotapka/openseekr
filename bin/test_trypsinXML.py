@@ -16,8 +16,12 @@ import parmed as pmd
 import sys
 
 remove_old_filetree = False
+rebuild_amber = False
 if 'remove' in sys.argv[1:]:
     remove_old_filetree = True
+
+if 'amber' in sys.argv[1:]:
+    rebuild_amber = True
 
 # Define settings object for all simulations
 me = seekr.SeekrCalculation() # create a new SEEKR calculation object
@@ -47,7 +51,7 @@ me.building.rec_dry_pqr_filename = '/home/lvotapka/torq/lvotapka/Documents/tryps
 me.building.reject_clashes = True
 
 # Minimization / Temperature Equilibration info
-me.min_equil.constrained += list(range(3220))
+#me.min_equil.constrained += list(range(3220))
 me.min_equil.min_num_steps = 5000
 me.min_equil.min_reporter_freq = 500 #[PDBReporter('dummy', 500)] # SEEKR will automatically change the filename
 me.min_equil.temp_equil_integrator = LangevinIntegrator(me.master_temperature*kelvin, 5/picosecond, 0.002*picoseconds)
@@ -133,7 +137,7 @@ for milestone in me.milestones:
     milestone.atom_selection_1 = me.selections.site_com_indices
     milestone.atom_selection_2 = ligand_heavy_indices
     if milestone.md:
-        amber.amber_building(me, milestone, amber_settings)
+        #amber.amber_building(me, milestone, amber_settings)
 
         if not milestone.openmm.prmtop_filename: continue
         # modify the file to have the correct solvent octahedron box
@@ -156,7 +160,7 @@ for milestone in me.milestones:
         if not me.openmm.simulation: # create a sample of a simulation file for future use
             me.openmm.simulation = milestone.openmm.simulation
 
-seekr.run_min_equil(me)
+#seekr.run_min_equil(me)
 
 # save equilibration output
 for milestone in me.milestones:
