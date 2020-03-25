@@ -49,11 +49,13 @@ class _Project():
         xmlProjectEmptyRootdir = ET.SubElement(xmlProject, 'empty_rootdir')
         xmlProjectEmptyRootdir.text = str(self.empty_rootdir)
         xmlString = ET.tostring(xmlProject)
-        xmlTree = ET.ElementTree(element=xmlProject)
-        
-        xmlstr = minidom.parseString(ET.tostring(xmlProject)).toprettyxml(indent="   ")
-        print('xml test:', xmlstr)
-        return xmlstr
+        return xmlString
+    
+    '''
+    xmlTree = ET.ElementTree(element=xmlProject)
+    xmlstr = minidom.parseString(ET.tostring(xmlProject)).toprettyxml(indent="   ")
+    print('xml test:', xmlstr)
+    '''
         
 class _OpenMM():
     '''An object to represent all information about the molecules. Particularly structural information.'''
@@ -72,7 +74,16 @@ class _OpenMM():
         self.simulation = None
         self.platform = None # OpenMM platform object
         self.properties = {} # OpenMM platform properties
-
+        
+    def serialize(self):
+        xmlOpenMM = ET.Element('openmm')
+        xmlOpenMMProperties = ET.SubElement(xmlOpenMM, 'properties')
+        for property_key in self.properties:
+            xmlOpenMMProperties_i = ET.SubElement(xmlOpenMMProperties, property_key)
+            xmlOpenMMProperties_i.text = str(self.properties[property_key])
+        xmlString = ET.tostring(xmlOpenMM)
+        return xmlString
+        
 class _Inputgen():
     '''Inputgen is a program for generating APBS input files.'''
     def __init__(self):
@@ -209,6 +220,7 @@ class SeekrCalculation():
         '''Save a copy of this SEEKR calculation and all its milestone information.'''
         
         self.project.serialize()
+        self.openmm.serialize()
         exit()
         
         # need to step through the object and set all unpicklable objects to None

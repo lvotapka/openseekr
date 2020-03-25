@@ -31,8 +31,8 @@ me.md = True
 me.bd = True
 
 # OpenMM information
-me.openmm.platform = Platform.getPlatformByName('CUDA')
-me.openmm.properties = {'CudaDeviceIndex':'1', 'CudaPrecision':'mixed'}
+me.openmm.platform = Platform.getPlatformByName('Reference')
+me.openmm.properties = {} #{'CudaDeviceIndex':'1', 'CudaPrecision':'mixed'}
 
 # Selection information
 rec_site_atom_indices = [2478, 2489, 2499, 2535, 2718, 2745, 2769, 2787, 2794, 2867, 2926] # Make sure this is selected by "index" in VMD
