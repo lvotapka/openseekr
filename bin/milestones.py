@@ -10,7 +10,7 @@ import numpy as np
 from math import sqrt
 import cmath
 import unittest
-
+import xml.etree.ElementTree as ET
 
 verbose = True
 
@@ -24,6 +24,20 @@ class Milestone_System():
         self.umbrella_pdb_filename = ''
         self.system = None
         self.simulation = None
+        return
+    
+    def serialize(self, xmlMilestone_system):
+        xmlWet_holo_pdb_filename = ET.SubElement(xmlMilestone_system, 'wet_holo_pdb_filename')
+        xmlWet_holo_pdb_filename.text = str(self.wet_holo_pdb_filename)
+        xmlDry_holo_pdb_filename = ET.SubElement(xmlMilestone_system, 'dry_holo_pdb_filename')
+        xmlDry_holo_pdb_filename.text = str(self.dry_holo_pdb_filename)
+        xmlPrmtop_filename = ET.SubElement(xmlMilestone_system, 'prmtop_filename')
+        xmlPrmtop_filename.text = str(self.prmtop_filename)
+        xmlInpcrd_filename = ET.SubElement(xmlMilestone_system, 'inpcrd_filename')
+        xmlInpcrd_filename.text = str(self.inpcrd_filename)
+        xmlUmbrella_pdb_filename = ET.SubElement(xmlMilestone_system, 'umbrella_pdb_filename')
+        xmlUmbrella_pdb_filename.text = str(self.umbrella_pdb_filename)
+        return
 
 class Milestone():
     '''Milestone superclass. It represents a surface in phase space that is monitored for crossings'''
@@ -40,7 +54,7 @@ class Milestone():
         self.absolute = False # whether the milestone is kept stationary in space
         self.md = False # whether md simulations are run from this milestone
         self.bd = False # whether bd simulations are run from this milestone
-        self.bd_adjacent = None # adjacent to a BD milestone
+        self.bd_adjacent = '' # adjacent to a BD milestone
         self.end = False # a sink state milestone
         self.openmm = Milestone_System()
         self.box_vectors = None
@@ -70,6 +84,54 @@ class Concentric_Spherical_Milestone(Milestone):
         self.openmm = Milestone_System()
         self.config = None
         self.box_vectors = None
+        return
+        
+    def serialize(self, xmlMilestone):
+        xmlFullname = ET.SubElement(xmlMilestone, 'fullname')
+        xmlFullname.text = str(self.fullname)
+        xmlDirectory = ET.SubElement(xmlMilestone, 'directory')
+        xmlDirectory.text = str(self.directory)
+        xmlAnchor = ET.SubElement(xmlMilestone, 'anchor')
+        xmlAnchor.text = str(self.directory)
+        xmlNeighbors = ET.SubElement(xmlMilestone, 'neighbors')
+        for neighbor in self.neighbors:
+            xmlNeighbor = ET.SubElement(xmlNeighbors, 'neighbor')
+            xmlNeighbor.text = str(neighbor)
+        xmlIndex = ET.SubElement(xmlMilestone, 'index')
+        xmlIndex.text = str(self.index)
+        xmlSiteID = ET.SubElement(xmlMilestone, 'siteid')
+        xmlSiteID.text = str(self.siteid)
+        xmlAbsolute = ET.SubElement(xmlMilestone, 'absolute')
+        xmlAbsolute.text = str(self.absolute)
+        xmlMd = ET.SubElement(xmlMilestone, 'md')
+        xmlMd.text = str(self.md)
+        xmlBd = ET.SubElement(xmlMilestone, 'bd')
+        xmlBd.text = str(self.bd)
+        xmlBd_adjacent = ET.SubElement(xmlMilestone, 'bd_adjacent')
+        xmlBd_adjacent.text = str(self.bd_adjacent)
+        xmlEnd = ET.SubElement(xmlMilestone, 'end')
+        xmlEnd.text = str(self.end)
+        xmlCenter_atom_indices = ET.SubElement(xmlMilestone, 'center_atom_indices')
+        xmlCenter_atom_indices.text = ','.join(list(map(str, self.center_atom_indices)))
+        xmlCenter_vec = ET.SubElement(xmlMilestone, 'center_vec')
+        xmlCenter_vec.text = ','.join(list(map(str, self.center_vec)))
+        xmlRadius = ET.SubElement(xmlMilestone, 'radius')
+        xmlRadius.text = str(self.radius)
+        xmlWet_holo_pdb_filename = ET.SubElement(xmlMilestone, 'wet_holo_filename')
+        xmlWet_holo_pdb_filename.text = str(self.wet_holo_filename)
+        xmlDry_holo_pdb_filename = ET.SubElement(xmlMilestone, 'dry_holo_filename')
+        xmlDry_holo_pdb_filename.text = str(self.dry_holo_filename)
+        xmlAtom_selection_1 = ET.SubElement(xmlMilestone, 'atom_selection_1')
+        xmlAtom_selection_1.text = ','.join(list(map(str, self.atom_selection_1)))
+        xmlAtom_selection_2 = ET.SubElement(xmlMilestone, 'atom_selection_2')
+        xmlAtom_selection_2.text = ','.join(list(map(str, self.atom_selection_2)))
+        xmlOpenMM = ET.SubElement(xmlMilestone, 'openmm')
+        xmlOpenMM.text = self.openmm.serialize(xmlOpenMM)
+        #xmlConfig = ET.SubElement(xmlMilestone, 'config')
+        #xmlConfig.text = str(self.config)
+        xmlBox_vectors = ET.SubElement(xmlMilestone, 'box_vectors')
+        xmlBox_vectors.text = str(self.box_vectors)
+        return
 
 def quadratic_formula(a,b,c):
     '''calculates the roots of the equation:
