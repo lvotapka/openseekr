@@ -11,6 +11,7 @@ from math import sqrt
 import cmath
 import unittest
 import xml.etree.ElementTree as ET
+from base import strBool
 
 verbose = True
 
@@ -38,6 +39,21 @@ class Milestone_System():
         xmlUmbrella_pdb_filename = ET.SubElement(xmlMilestone_system, 'umbrella_pdb_filename')
         xmlUmbrella_pdb_filename.text = str(self.umbrella_pdb_filename)
         return
+    
+    def deserialize(self, xmlTree):
+        self.wet_holo_pdb_filename = xmlTree.find('wet_holo_pdb_filename').text
+        self.dry_holo_pdb_filename = xmlTree.find('dry_holo_pdb_filename').text
+        self.prmtop_filename = xmlTree.find('prmtop_filename').text
+        self.inpcrd_filename = xmlTree.find('inpcrd_filename').text
+        self.umbrella_pdb_filename = xmlTree.find('umbrella_pdb_filename').text
+        '''
+        print('wet_holo_pdb_filename', self.wet_holo_pdb_filename,
+              'dry_holo_pdb_filename', self.dry_holo_pdb_filename,
+              'prmtop_filename', self.prmtop_filename,
+              'inpcrd_filename', self.inpcrd_filename,
+              'umbrella_pdb_filename', self.umbrella_pdb_filename
+              )''' # TODO: marked for removal
+        return
 
 class Milestone():
     '''Milestone superclass. It represents a surface in phase space that is monitored for crossings'''
@@ -61,7 +77,7 @@ class Milestone():
 
 class Concentric_Spherical_Milestone(Milestone):
     '''Concentric spherical milestones centered on an atom selection.'''
-    def __init__(self, index, siteid, absolute='False', md=True, bd=False):
+    def __init__(self, index=0, siteid=0, absolute='False', md=True, bd=False):
         self.fullname = ''
         self.directory = ''
         self.anchor = None # the location where the ligand was started
@@ -87,6 +103,8 @@ class Concentric_Spherical_Milestone(Milestone):
         return
         
     def serialize(self, xmlMilestone):
+        xmlType = ET.SubElement(xmlMilestone, 'type')
+        xmlType.text = 'concentric_spherical'
         xmlFullname = ET.SubElement(xmlMilestone, 'fullname')
         xmlFullname.text = str(self.fullname)
         xmlDirectory = ET.SubElement(xmlMilestone, 'directory')
@@ -108,13 +126,17 @@ class Concentric_Spherical_Milestone(Milestone):
         xmlBd = ET.SubElement(xmlMilestone, 'bd')
         xmlBd.text = str(self.bd)
         xmlBd_adjacent = ET.SubElement(xmlMilestone, 'bd_adjacent')
-        xmlBd_adjacent.text = str(self.bd_adjacent)
+        if self.bd_adjacent:
+            xmlBd_adjacent.text = str(self.bd_adjacent.index)
+        else:
+            xmlBd_adjacent.text = ''
+        
         xmlEnd = ET.SubElement(xmlMilestone, 'end')
         xmlEnd.text = str(self.end)
         xmlCenter_atom_indices = ET.SubElement(xmlMilestone, 'center_atom_indices')
-        xmlCenter_atom_indices.text = ','.join(list(map(str, self.center_atom_indices)))
+        xmlCenter_atom_indices.text = ', '.join(list(map(str, self.center_atom_indices)))
         xmlCenter_vec = ET.SubElement(xmlMilestone, 'center_vec')
-        xmlCenter_vec.text = ','.join(list(map(str, self.center_vec)))
+        xmlCenter_vec.text = ', '.join(list(map(str, self.center_vec)))
         xmlRadius = ET.SubElement(xmlMilestone, 'radius')
         xmlRadius.text = str(self.radius)
         xmlWet_holo_pdb_filename = ET.SubElement(xmlMilestone, 'wet_holo_filename')
@@ -122,16 +144,85 @@ class Concentric_Spherical_Milestone(Milestone):
         xmlDry_holo_pdb_filename = ET.SubElement(xmlMilestone, 'dry_holo_filename')
         xmlDry_holo_pdb_filename.text = str(self.dry_holo_filename)
         xmlAtom_selection_1 = ET.SubElement(xmlMilestone, 'atom_selection_1')
-        xmlAtom_selection_1.text = ','.join(list(map(str, self.atom_selection_1)))
+        xmlAtom_selection_1.text = ', '.join(list(map(str, self.atom_selection_1)))
         xmlAtom_selection_2 = ET.SubElement(xmlMilestone, 'atom_selection_2')
-        xmlAtom_selection_2.text = ','.join(list(map(str, self.atom_selection_2)))
+        xmlAtom_selection_2.text = ', '.join(list(map(str, self.atom_selection_2)))
         xmlOpenMM = ET.SubElement(xmlMilestone, 'openmm')
         xmlOpenMM.text = self.openmm.serialize(xmlOpenMM)
         #xmlConfig = ET.SubElement(xmlMilestone, 'config')
         #xmlConfig.text = str(self.config)
         xmlBox_vectors = ET.SubElement(xmlMilestone, 'box_vectors')
-        xmlBox_vectors.text = str(self.box_vectors)
+        xmlBox_vectors.text = self.box_vectors
         return
+    
+    def deserialize(self, xmlTree):
+        self.fullname = xmlTree.find('fullname').text
+        self.directory = xmlTree.find('directory').text
+        self.anchor = xmlTree.find('anchor').text
+        self.index = int(xmlTree.find('index').text)
+        self.siteid = int(xmlTree.find('siteid').text)
+        self.absolute = xmlTree.find('absolute').text
+        self.md = strBool(xmlTree.find('md').text)
+        self.bd = strBool(xmlTree.find('bd').text)
+        # temporarily store index, fill with object later
+        bd_adjacent_str = xmlTree.find('bd_adjacent').text
+        if bd_adjacent_str:
+            self.bd_adjacent = int(bd_adjacent_str) 
+        self.end = strBool(xmlTree.find('end').text)
+        center_atom_indices_str = xmlTree.find('center_atom_indices').text
+        if center_atom_indices_str:
+            center_atom_indices_str = center_atom_indices_str.replace(' ', '')
+            self.center_atom_indices = list(
+                map(int, center_atom_indices_str.split(',')))
+        center_vec_str = xmlTree.find('center_vec').text
+        if center_vec_str:
+            center_vec_str = center_vec_str.replace(' ', '')
+            self.center_vec = list(
+                map(float, center_vec_str.split(',')))
+        self.radius = float(xmlTree.find('radius').text)
+        self.wet_holo_filename = xmlTree.find('wet_holo_filename').text
+        self.dry_holo_filename = xmlTree.find('dry_holo_filename').text
+        atom_selection_1_str = xmlTree.find('atom_selection_1').text
+        if atom_selection_1_str:
+            atom_selection_1_str = atom_selection_1_str.replace(' ', '')
+            self.atom_selection_1 = list(
+                map(int, atom_selection_1_str.split(',')))
+        atom_selection_2_str = xmlTree.find('atom_selection_2').text
+        if atom_selection_2_str:
+            atom_selection_2_str = atom_selection_2_str.replace(' ', '')
+            self.atom_selection_2 = list(
+                map(int, atom_selection_2_str.split(',')))
+        self.openmm.deserialize(xmlTree.find('openmm'))
+        self.box_vectors = xmlTree.find('wet_holo_filename').text
+        '''
+        print('fullname', self.fullname,
+              'index', self.index
+            )''' # TODO: marked for removal
+        return
+
+def deserialize_milestones(xmlTree):
+    '''
+    Deserialize a milestone section of the SeekrCalculation XML file
+    '''
+    milestones_list = []
+    for milestone_xml in xmlTree:
+        milestone_type = milestone_xml.find('type').text
+        if milestone_type == None or \
+                milestone_type == 'concentric_spherical':
+            milestone = Concentric_Spherical_Milestone()
+            milestone.deserialize(milestone_xml)
+        else:
+            raise Exception("milestone type not implemented: %s" % \
+                            milestone_type)
+            
+        milestones_list.append(milestone)
+            
+    for milestone in milestones_list:
+        bd_adjacent_index = milestone.bd_adjacent
+        if bd_adjacent_index is not None:
+            milestone.bd_adjacent = milestones_list[bd_adjacent_index]
+            
+    return milestones_list
 
 def quadratic_formula(a,b,c):
     '''calculates the roots of the equation:
