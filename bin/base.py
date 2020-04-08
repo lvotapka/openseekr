@@ -12,6 +12,8 @@ import unittest, warnings
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
 
+from simtk.unit import kilocalorie, angstrom, mole, bar
+
 def strBool(bool_str):
     '''
     Takes the string "true" or "false" of any case and returns a boolean object.
@@ -459,13 +461,14 @@ class _Umbrella():
         xmlTraj_freq = ET.SubElement(xmlUmbrella, 'traj_freq')
         xmlTraj_freq.text = str(self.traj_freq)
         xmlForce_constant = ET.SubElement(xmlUmbrella, 'force_constant')
-        xmlForce_constant.text = str(self.force_constant)
+        xmlForce_constant.text = str(self.force_constant.value_in_unit(
+            kilocalorie/(angstrom**2*mole)))
         xmlBarostat = ET.SubElement(xmlUmbrella, 'barostat')
         xmlBarostat.text = str(self.barostat)
         xmlBarostat_coeff = ET.SubElement(xmlUmbrella, 'barostat_coeff')
         xmlBarostat_coeff.text = str(self.barostat_coeff)
         xmlBarostat_pressure = ET.SubElement(xmlUmbrella, 'barostat_pressure')
-        xmlBarostat_pressure.text = str(self.barostat_pressure)
+        xmlBarostat_pressure.text = str(self.barostat_pressure.value_in_unit(bar))
         return
     
     def deserialize(self, xmlTree):
@@ -473,10 +476,13 @@ class _Umbrella():
         self.steps = int(xmlTree.find('steps').text)
         self.energy_freq = int(xmlTree.find('energy_freq').text)
         self.traj_freq = int(xmlTree.find('traj_freq').text)
-        self.force_constant = float(xmlTree.find('force_constant').text)
+        force_constant_val = float(xmlTree.find('force_constant').text)
+        self.force_constant = force_constant_val * \
+            kilocalorie/(angstrom**2*mole)
         self.barostat = strBool(xmlTree.find('barostat').text)
         self.barostat_coeff = float(xmlTree.find('barostat_coeff').text)
-        self.barostat_pressure = float(xmlTree.find('barostat_pressure').text)
+        barostat_pressure_val = float(xmlTree.find('barostat_pressure').text)
+        self.barostat_pressure = barostat_pressure_val * bar
         return
 
 class _Fwd_rev():

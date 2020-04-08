@@ -10,12 +10,12 @@ Must be run in Python 2!!
 @author: lvotapka
 '''
 
-import old_base
+import old_base, base
 import sys
 
 print "Parse arguments"
 if len(sys.argv) < 3:
-    print "Usage:\npython convert_pickle.py PICKLE XML"
+    print "Usage:\npython convert_pickle.py PICKLE_FILE XML_FILE"
     
     exit()
 
@@ -24,5 +24,6 @@ xmlname = sys.argv[2]
 
 seekrPickle = old_base.openSeekrCalcPickle(picklename)
 seekrPickle.save(xmlname)
+testSeekr = base.openSeekrCalc(xmlname)
 
 print('Conversion complete.')

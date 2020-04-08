@@ -12,6 +12,9 @@ import cmath
 import unittest
 import xml.etree.ElementTree as ET
 from base import strBool
+from simtk.unit import nanometer, Quantity
+
+
 
 verbose = True
 
@@ -145,7 +148,31 @@ class Concentric_Spherical_Milestone(Milestone):
         #xmlConfig = ET.SubElement(xmlMilestone, 'config')
         #xmlConfig.text = str(self.config)
         xmlBox_vectors = ET.SubElement(xmlMilestone, 'box_vectors')
-        xmlBox_vectors.text = self.box_vectors
+        if self.box_vectors is not None:
+            box_vectors_unitless = self.box_vectors.value_in_unit(nanometer)
+            xmlA = ET.SubElement(xmlBox_vectors, 'A')
+            xmlAx = ET.SubElement(xmlA, 'x')
+            xmlAx.text = str(box_vectors_unitless[0][0])
+            xmlAy = ET.SubElement(xmlA, 'y')
+            xmlAy.text = str(box_vectors_unitless[0][1])
+            xmlAz = ET.SubElement(xmlA, 'z')
+            xmlAz.text = str(box_vectors_unitless[0][2])
+            xmlB = ET.SubElement(xmlBox_vectors, 'B')
+            xmlBx = ET.SubElement(xmlB, 'x')
+            xmlBx.text = str(box_vectors_unitless[1][0])
+            xmlBy = ET.SubElement(xmlB, 'y')
+            xmlBy.text = str(box_vectors_unitless[1][1])
+            xmlBz = ET.SubElement(xmlB, 'z')
+            xmlBz.text = str(box_vectors_unitless[1][2])
+            xmlC = ET.SubElement(xmlBox_vectors, 'C')
+            xmlCx = ET.SubElement(xmlC, 'x')
+            xmlCx.text = str(box_vectors_unitless[2][0])
+            xmlCy = ET.SubElement(xmlC, 'y')
+            xmlCy.text = str(box_vectors_unitless[2][1])
+            xmlCz = ET.SubElement(xmlC, 'z')
+            xmlCz.text = str(box_vectors_unitless[2][2])
+        else:
+            xmlBox_vectors.text = ''
         return
     
     def deserialize(self, xmlTree):
@@ -186,7 +213,26 @@ class Concentric_Spherical_Milestone(Milestone):
             self.atom_selection_2 = list(
                 map(int, atom_selection_2_str.split(',')))
         self.openmm.deserialize(xmlTree.find('openmm'))
-        self.box_vectors = xmlTree.find('wet_holo_filename').text
+        xmlBox_vectors = xmlTree.find('box_vectors')
+        if xmlBox_vectors.text is not None:
+            xmlA = xmlBox_vectors.find('A')
+            xmlAx = float(xmlA.find('x').text)
+            xmlAy = float(xmlA.find('y').text)
+            xmlAz = float(xmlA.find('z').text)
+            xmlB = xmlBox_vectors.find('B')
+            xmlBx = float(xmlB.find('x').text)
+            xmlBy = float(xmlB.find('y').text)
+            xmlBz = float(xmlB.find('z').text)
+            xmlC = xmlBox_vectors.find('C')
+            xmlCx = float(xmlC.find('x').text)
+            xmlCy = float(xmlC.find('y').text)
+            xmlCz = float(xmlC.find('z').text)
+            self.box_vectors = Quantity([[xmlAx, xmlAy, xmlAz], 
+                                         [xmlBx, xmlBy, xmlBz],
+                                         [xmlCx, xmlCy, xmlCz]], 
+                                         unit=nanometer)
+        else:
+            self.box_vectors = None
         return
 
 def deserialize_milestones(xmlTree):
