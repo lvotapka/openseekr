@@ -106,7 +106,7 @@ class Concentric_Spherical_Milestone(Milestone):
         xmlDirectory = ET.SubElement(xmlMilestone, 'directory')
         xmlDirectory.text = str(self.directory)
         xmlAnchor = ET.SubElement(xmlMilestone, 'anchor')
-        xmlAnchor.text = str(self.directory)
+        xmlAnchor.text = str(self.anchor)
         xmlNeighbors = ET.SubElement(xmlMilestone, 'neighbors')
         for neighbor in self.neighbors:
             xmlNeighbor = ET.SubElement(xmlNeighbors, 'neighbor')

@@ -153,9 +153,9 @@ class APBS_ion():
     
     def deserialize(self, xmlTree):
         self.name = xmlTree.find('name').text
-        self.conc = xmlTree.find('concentration').text
-        self.charge = xmlTree.find('charge').text
-        self.radius = xmlTree.find('radius').text
+        self.concentration = float(xmlTree.find('concentration').text)
+        self.charge = float(xmlTree.find('charge').text)
+        self.radius = float(xmlTree.find('radius').text)
         return
 
 class _APBS():
@@ -237,7 +237,7 @@ class _Browndye():
         self.lig_dry_pqr_filename = xmlTree.find('lig_dry_pqr_filename').text
         self.b_surface_path = xmlTree.find('b_surface_path').text
         self.browndye_bin = xmlTree.find('browndye_bin').text
-        self.num_thread = int(xmlTree.find('num_threads').text)
+        self.num_threads = int(xmlTree.find('num_threads').text)
         self.prods_per_anchor = int(xmlTree.find('prods_per_anchor').text)
         self.apbs.deserialize(xmlTree.find('apbs'))
         self.ligand_is_protein = strBool(xmlTree.find('ligand_is_protein').text)
@@ -442,12 +442,12 @@ class _Umbrella():
         self.energy_freq = 1
         self.traj_freq = 1
         self.force = None # the force object for umbrella sampling
-        self.force_constant = 0.0
+        self.force_constant = None
         self.integrator = None # the OpenMM integrator object
         self.reporters = [] # OpenMM reporter frequency
         self.barostat = True
-        self.barostat_coeff = 25
-        self.barostat_pressure = 1.0
+        self.barostat_coeff = 0
+        self.barostat_pressure = None
         self.traj = []
         return
     
@@ -461,14 +461,21 @@ class _Umbrella():
         xmlTraj_freq = ET.SubElement(xmlUmbrella, 'traj_freq')
         xmlTraj_freq.text = str(self.traj_freq)
         xmlForce_constant = ET.SubElement(xmlUmbrella, 'force_constant')
-        xmlForce_constant.text = str(self.force_constant.value_in_unit(
-            kilocalorie/(angstrom**2*mole)))
+        if self.force_constant is not None:
+            xmlForce_constant.text = str(self.force_constant.value_in_unit(
+                kilocalorie/(angstrom**2*mole)))
+        else:
+            xmlForce_constant.text = None
         xmlBarostat = ET.SubElement(xmlUmbrella, 'barostat')
         xmlBarostat.text = str(self.barostat)
         xmlBarostat_coeff = ET.SubElement(xmlUmbrella, 'barostat_coeff')
         xmlBarostat_coeff.text = str(self.barostat_coeff)
         xmlBarostat_pressure = ET.SubElement(xmlUmbrella, 'barostat_pressure')
-        xmlBarostat_pressure.text = str(self.barostat_pressure.value_in_unit(bar))
+        if self.barostat_pressure is not None:
+            xmlBarostat_pressure.text = str(
+                self.barostat_pressure.value_in_unit(bar))
+        else:
+            xmlBarostat_pressure.text = None
         return
     
     def deserialize(self, xmlTree):
@@ -476,13 +483,19 @@ class _Umbrella():
         self.steps = int(xmlTree.find('steps').text)
         self.energy_freq = int(xmlTree.find('energy_freq').text)
         self.traj_freq = int(xmlTree.find('traj_freq').text)
-        force_constant_val = float(xmlTree.find('force_constant').text)
-        self.force_constant = force_constant_val * \
-            kilocalorie/(angstrom**2*mole)
+        if xmlTree.find('force_constant').text is not None:
+            force_constant_val = float(xmlTree.find('force_constant').text)
+            self.force_constant = force_constant_val * \
+                kilocalorie/(angstrom**2*mole)
+        else:
+            self.force_constant = None
         self.barostat = strBool(xmlTree.find('barostat').text)
         self.barostat_coeff = float(xmlTree.find('barostat_coeff').text)
-        barostat_pressure_val = float(xmlTree.find('barostat_pressure').text)
-        self.barostat_pressure = barostat_pressure_val * bar
+        if xmlTree.find('barostat_pressure').text is not None:
+            barostat_pressure_val = float(xmlTree.find('barostat_pressure').text)
+            self.barostat_pressure = barostat_pressure_val * bar
+        else:
+            self.barostat_pressure = None
         return
 
 class _Fwd_rev():
