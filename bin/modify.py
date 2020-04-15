@@ -15,7 +15,7 @@ print("Parse arguments")
 command = None
 directory = None
 
-assert len(sys.argv) >= 3, "At least two arguments required: 'command', and 'directory', and, possibly {arguments...}."
+assert len(sys.argv) >= 3, "At least two arguments required: 'command', and 'seekrFile', and, possibly {arguments...}."
 
 command = sys.argv[1]
 directory = sys.argv[2]
@@ -23,10 +23,10 @@ args = {}
 
 assert command in ['add', 'modify', 'delete', 'report'], "Unknown command: %s. Allowed commands: 'add', 'modify', 'delete', and 'report'."
 if command == 'add':
-    assert len(sys.argv) == 4, "Only one extra argument allowed for 'add' command: radius of adding milestone."
+    assert len(sys.argv) == 4, "Exactly one extra argument allowed for 'add' command: radius of adding milestone."
     args['radius'] = float(sys.argv[3])
 elif command == 'delete':
-    assert len(sys.argv) == 4, "Only one extra argument allowed for 'delete' command: index of milestone to delete."
+    assert len(sys.argv) == 4, "Exactly one extra argument allowed for 'delete' command: index of milestone to delete."
     args['index'] = int(sys.argv[3])
 elif command == 'modify':
     #pass # more complicated situation...
@@ -37,7 +37,7 @@ elif command == 'report': # print a concise report about all of the milestones i
     assert len(sys.argv) == 3, "No extra arguments allowed for 'report' command."
 
 
-picklename = os.path.join(directory, 'seekr_calc.pickle')
+picklename = directory
 assert os.path.exists(picklename), "SEEKR pickle not found in provided directory. Are you sure this is a SEEKR calculation directory?"
 
 print("Loading SEEKR calculation.")
@@ -50,6 +50,7 @@ spheres_in_site = 0
 if command == 'add':
     insert_index = None # index to insert before
     for i, milestone in enumerate(me.milestones):
+        print('milestone.neighbors:', milestone.neighbors)
         if milestone.radius > args['radius'] and insert_index == None:
             insert_index = i
             absolute = milestone.absolute
@@ -85,6 +86,8 @@ if command == 'add':
     # modify neighbor milestones
     # Lower neighbor doesn't need modification
     for i in range(insert_index, len(me.milestones)): # all upper milestones need modifying
+        print('i:', i)
+        print('me.milestones[i].neighbors:', me.milestones[i].neighbors)
         me.milestones[i].index = i+1
         me.milestones[i].neighbors[0] = i
         if len(me.milestones[i].neighbors) == 2:

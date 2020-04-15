@@ -12,6 +12,7 @@ import cmath
 import unittest
 import xml.etree.ElementTree as ET
 from base import strBool
+from simtk.unit import nanometer, Quantity
 
 verbose = True
 
@@ -46,13 +47,6 @@ class Milestone_System():
         self.prmtop_filename = xmlTree.find('prmtop_filename').text
         self.inpcrd_filename = xmlTree.find('inpcrd_filename').text
         self.umbrella_pdb_filename = xmlTree.find('umbrella_pdb_filename').text
-        '''
-        print('wet_holo_pdb_filename', self.wet_holo_pdb_filename,
-              'dry_holo_pdb_filename', self.dry_holo_pdb_filename,
-              'prmtop_filename', self.prmtop_filename,
-              'inpcrd_filename', self.inpcrd_filename,
-              'umbrella_pdb_filename', self.umbrella_pdb_filename
-              )''' # TODO: marked for removal
         return
 
 class Milestone():
@@ -70,7 +64,7 @@ class Milestone():
         self.absolute = False # whether the milestone is kept stationary in space
         self.md = False # whether md simulations are run from this milestone
         self.bd = False # whether bd simulations are run from this milestone
-        self.bd_adjacent = '' # adjacent to a BD milestone
+        self.bd_adjacent = None # adjacent to a BD milestone
         self.end = False # a sink state milestone
         self.openmm = Milestone_System()
         self.box_vectors = None
@@ -110,7 +104,7 @@ class Concentric_Spherical_Milestone(Milestone):
         xmlDirectory = ET.SubElement(xmlMilestone, 'directory')
         xmlDirectory.text = str(self.directory)
         xmlAnchor = ET.SubElement(xmlMilestone, 'anchor')
-        xmlAnchor.text = str(self.directory)
+        xmlAnchor.text = ', '.join(list(map(str, self.anchor)))
         xmlNeighbors = ET.SubElement(xmlMilestone, 'neighbors')
         for neighbor in self.neighbors:
             xmlNeighbor = ET.SubElement(xmlNeighbors, 'neighbor')
@@ -152,13 +146,46 @@ class Concentric_Spherical_Milestone(Milestone):
         #xmlConfig = ET.SubElement(xmlMilestone, 'config')
         #xmlConfig.text = str(self.config)
         xmlBox_vectors = ET.SubElement(xmlMilestone, 'box_vectors')
-        xmlBox_vectors.text = self.box_vectors
+        if self.box_vectors is not None:
+            box_vectors_unitless = self.box_vectors.value_in_unit(nanometer)
+            xmlA = ET.SubElement(xmlBox_vectors, 'A')
+            xmlAx = ET.SubElement(xmlA, 'x')
+            xmlAx.text = str(box_vectors_unitless[0][0])
+            xmlAy = ET.SubElement(xmlA, 'y')
+            xmlAy.text = str(box_vectors_unitless[0][1])
+            xmlAz = ET.SubElement(xmlA, 'z')
+            xmlAz.text = str(box_vectors_unitless[0][2])
+            xmlB = ET.SubElement(xmlBox_vectors, 'B')
+            xmlBx = ET.SubElement(xmlB, 'x')
+            xmlBx.text = str(box_vectors_unitless[1][0])
+            xmlBy = ET.SubElement(xmlB, 'y')
+            xmlBy.text = str(box_vectors_unitless[1][1])
+            xmlBz = ET.SubElement(xmlB, 'z')
+            xmlBz.text = str(box_vectors_unitless[1][2])
+            xmlC = ET.SubElement(xmlBox_vectors, 'C')
+            xmlCx = ET.SubElement(xmlC, 'x')
+            xmlCx.text = str(box_vectors_unitless[2][0])
+            xmlCy = ET.SubElement(xmlC, 'y')
+            xmlCy.text = str(box_vectors_unitless[2][1])
+            xmlCz = ET.SubElement(xmlC, 'z')
+            xmlCz.text = str(box_vectors_unitless[2][2])
+        else:
+            xmlBox_vectors.text = ''
         return
     
     def deserialize(self, xmlTree):
         self.fullname = xmlTree.find('fullname').text
-        self.directory = xmlTree.find('directory').text
-        self.anchor = xmlTree.find('anchor').text
+        self.directory = xmlTree.find('directory').text        
+        anchor_str = xmlTree.find('anchor').text
+        if anchor_str:
+            anchor_str = anchor_str.replace(' ', '')
+            self.anchor = list(
+                map(float, anchor_str.split(',')))
+        
+        neighbors_list = []
+        for neighbor_child in xmlTree.find('neighbors'):
+            neighbors_list.append(int(neighbor_child.text))
+        self.neighbors = sorted(neighbors_list)
         self.index = int(xmlTree.find('index').text)
         self.siteid = int(xmlTree.find('siteid').text)
         self.absolute = xmlTree.find('absolute').text
@@ -193,11 +220,26 @@ class Concentric_Spherical_Milestone(Milestone):
             self.atom_selection_2 = list(
                 map(int, atom_selection_2_str.split(',')))
         self.openmm.deserialize(xmlTree.find('openmm'))
-        self.box_vectors = xmlTree.find('wet_holo_filename').text
-        '''
-        print('fullname', self.fullname,
-              'index', self.index
-            )''' # TODO: marked for removal
+        xmlBox_vectors = xmlTree.find('box_vectors')
+        if xmlBox_vectors.text is not None:
+            xmlA = xmlBox_vectors.find('A')
+            xmlAx = float(xmlA.find('x').text)
+            xmlAy = float(xmlA.find('y').text)
+            xmlAz = float(xmlA.find('z').text)
+            xmlB = xmlBox_vectors.find('B')
+            xmlBx = float(xmlB.find('x').text)
+            xmlBy = float(xmlB.find('y').text)
+            xmlBz = float(xmlB.find('z').text)
+            xmlC = xmlBox_vectors.find('C')
+            xmlCx = float(xmlC.find('x').text)
+            xmlCy = float(xmlC.find('y').text)
+            xmlCz = float(xmlC.find('z').text)
+            self.box_vectors = Quantity([[xmlAx, xmlAy, xmlAz], 
+                                         [xmlBx, xmlBy, xmlBz],
+                                         [xmlCx, xmlCy, xmlCz]], 
+                                         unit=nanometer)
+        else:
+            self.box_vectors = None
         return
 
 def deserialize_milestones(xmlTree):
@@ -320,6 +362,7 @@ def print_spherical_milestone_info(milestones):
         print("Milestone index:", milestone.index, "siteid:", milestone.siteid, "origin:", milestone.center_vec, "center_atoms:", milestone.center_atom_indices, end=' ')
         print("  num neighbors:", len(milestone.neighbors), "anchor:", milestone.anchor, "md:", milestone.md, "bd:", milestone.bd, "bd_adjacent:", milestone.bd_adjacent)
         print("  end:", milestone.end, "fullname:", milestone.fullname, "radius:", milestone.radius)
+
     return
 
 class Test_milestones(unittest.TestCase):

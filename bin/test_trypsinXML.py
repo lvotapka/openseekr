@@ -35,8 +35,8 @@ me.md = True
 me.bd = True
 
 # OpenMM information
-me.openmm.platform = Platform.getPlatformByName('Reference')
-me.openmm.properties = {} #{'CudaDeviceIndex':'1', 'CudaPrecision':'mixed'}
+me.openmm.platform = Platform.getPlatformByName('CUDA')
+me.openmm.properties = {'CudaDeviceIndex':'1', 'CudaPrecision':'mixed'}
 
 # Selection information
 rec_site_atom_indices = [2478, 2489, 2499, 2535, 2718, 2745, 2769, 2787, 2794, 2867, 2926] # Make sure this is selected by "index" in VMD
@@ -80,7 +80,7 @@ me.browndye.apbs.inputgen.executable = '/home/lvotapka/Downloads/APBS-1.5-linux6
 # Generate Milestones
 origin = np.array([-1.536, 13.859, 16.539])
 #radius_list = np.arange(2.0, 14.1, 2.0)
-radius_list = [10.0, 12.0, 14.0]
+radius_list = [10.0, 12.0, 14.0, 16.0]
 vectors = [np.array([9.019, 72.142, 15.943]),]
 milestones = seekr.generate_spherical_milestones(me, rec_site_atom_indices, origin, radius_list, 0, vectors, absolute=False)
 print("The following milestones were created:")
@@ -137,7 +137,7 @@ for milestone in me.milestones:
     milestone.atom_selection_1 = me.selections.site_com_indices
     milestone.atom_selection_2 = ligand_heavy_indices
     if milestone.md:
-        #amber.amber_building(me, milestone, amber_settings)
+        amber.amber_building(me, milestone, amber_settings)
 
         if not milestone.openmm.prmtop_filename: continue
         # modify the file to have the correct solvent octahedron box
@@ -160,7 +160,7 @@ for milestone in me.milestones:
         if not me.openmm.simulation: # create a sample of a simulation file for future use
             me.openmm.simulation = milestone.openmm.simulation
 
-#seekr.run_min_equil(me)
+seekr.run_min_equil(me)
 
 # save equilibration output
 for milestone in me.milestones:
@@ -173,6 +173,6 @@ me.save()
 
 print("Preparing Brownian dynamics stages...")
 
-bd.build_bd(me)
+#bd.build_bd(me)
 
 print("Ligand heavy indices:", ligand_heavy_indices)

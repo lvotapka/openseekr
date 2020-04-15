@@ -13,16 +13,7 @@ import xml.etree.ElementTree as ET
 from xml.dom import minidom
 
 
-'''
-class _BaseClass():
-    def serialize(self):
-        ''
-        Convert parameters of the class into XML format
-        ''
-        
-        
-    def deserialize(self):
-'''
+from simtk.unit import kilocalorie, angstrom, mole, bar
 
 def strBool(bool_str):
     '''
@@ -36,7 +27,6 @@ def strBool(bool_str):
         raise Exception(
             "argument for strBool must be string either 'True' or 'False'.")
     return
-        
 
 class _Project():
     '''An object for generic project-level information of a SEEKR run'''
@@ -76,7 +66,7 @@ class _Project():
         self.bd = strBool(xmlTree.find('bd').text)
         self.empty_rootdir = strBool(xmlTree.find('empty_rootdir').text)
         return
-        
+
 class _OpenMM():
     '''
     An object to represent all information about the molecules. Particularly 
@@ -99,7 +89,7 @@ class _OpenMM():
         self.platform = None # OpenMM platform object
         self.properties = {} # OpenMM platform properties
         return
-        
+
     def serialize(self, xmlOpenMM):
         xmlProperties = ET.SubElement(xmlOpenMM, 'properties')
         for property_key in self.properties:
@@ -121,11 +111,11 @@ class _Inputgen():
         self.fadd = 150 # how many angstroms around the molecule to add as a 
         #buffer before reaching the boundary in the fine grid
         self.cfac = 6 # the factor to create a boundary in the course grid
-        self.gmemceil = 64000
+        self.gmemceil = 1000
         self.resolution = 0.5
         self.ionic_str = 0.15
         return
-        
+
     def serialize(self, xmlInputGen):
         xmlExecutable = ET.SubElement(xmlInputGen, 'executable')
         xmlExecutable.text = self.executable
@@ -148,11 +138,6 @@ class _Inputgen():
         self.gmemceil = int(xmlTree.find('gmemceil').text)
         self.resolution = float(xmlTree.find('resolution').text)
         self.ionic_str = float(xmlTree.find('ionic_str').text)
-        '''
-        print('executable', self.executable, 'fadd', self.fadd, 'cfac:', 
-              self.cfac, 'gmemceil', self.gmemceil, 'resolution', 
-              self.resolution, 'ionic_str:', self.ionic_str) # TODO: marked for removal
-        '''
         return
 
 class APBS_ion():
@@ -177,16 +162,9 @@ class APBS_ion():
     
     def deserialize(self, xmlTree):
         self.name = xmlTree.find('name').text
-        self.conc = xmlTree.find('concentration').text
-        self.charge = xmlTree.find('charge').text
-        self.radius = xmlTree.find('radius').text
-        '''
-        print('apbs_ion:')
-        print('name', self.name,
-              'conc', self.conc,
-              'charge', self.charge,
-              'radius', self.radius) 
-        ''' # TODO: marked for removal
+        self.concentration = float(xmlTree.find('concentration').text)
+        self.charge = float(xmlTree.find('charge').text)
+        self.radius = float(xmlTree.find('radius').text)
         return
 
 class _APBS():
@@ -272,12 +250,13 @@ class _Browndye():
         xmlFhpd_numtraj.text = str(self.fhpd_numtraj)
         return
     
+
     def deserialize(self, xmlTree):
         self.rec_dry_pqr_filename = xmlTree.find('rec_dry_pqr_filename').text
         self.lig_dry_pqr_filename = xmlTree.find('lig_dry_pqr_filename').text
         self.b_surface_path = xmlTree.find('b_surface_path').text
         self.browndye_bin = xmlTree.find('browndye_bin').text
-        self.num_thread = int(xmlTree.find('num_threads').text)
+        self.num_threads = int(xmlTree.find('num_threads').text)
         self.prods_per_anchor = int(xmlTree.find('prods_per_anchor').text)
         self.apbs.deserialize(xmlTree.find('apbs'))
         self.ligand_is_protein = strBool(xmlTree.find('ligand_is_protein').text)
@@ -345,8 +324,7 @@ class _Selections():
               'site_com_indices', self.site_com_indices)
         ''' # TODO: marked for removal
         return
-        
-
+    
 class _Building():
     '''An object to represent the building process.'''
     def __init__(self):
@@ -367,7 +345,7 @@ class _Building():
         # self.watermodel = '' ?
         # the rest needs to be filled out by the AmberPrepare script
         return
-        
+
     def serialize(self, xmlBuilding):
         xmlFf = ET.SubElement(xmlBuilding, 'ff')
         xmlFf.text = self.ff
@@ -494,17 +472,8 @@ class _Min_Equil():
                 map(float, xmlTemp_equil_temperatures_str.split(',')))
         
         self.temp_equil_steps = int(xmlTree.find('temp_equil_steps').text)
-        '''
-        print('min', self.min,
-              'min_num_steps', self.min_num_steps,
-              'min_reporter_freq', self.min_reporter_freq,
-              'temp_equil', self.temp_equil,
-              'constrained', self.constrained,
-              'temp_equil_temperatures', self.temp_equil_temperatures,
-              'temp_equil_steps', self.temp_equil_steps
-              ) ''' # TODO: marked for removal
         return
-
+    
 class _Umbrella():
     '''An object for containing all settings related to umbrella sampling.'''
     def __init__(self):
@@ -513,13 +482,13 @@ class _Umbrella():
         self.energy_freq = 1
         self.traj_freq = 1
         self.force = None # the force object for umbrella sampling
-        self.force_constant = 0.0
+        self.force_constant = None
         self.integrator = None # the OpenMM integrator object
         self.reporters = [] # OpenMM reporter frequency
         self.barostat = True
-        self.barostat_coeff = 25.0
-        self.barostat_pressure = 1.0
-        #self.traj = [] # TODO: marked for removal
+        self.barostat_coeff = 0
+        self.barostat_pressure = None
+        self.traj = []
         return
     
     def serialize(self, xmlUmbrella):
@@ -532,13 +501,21 @@ class _Umbrella():
         xmlTraj_freq = ET.SubElement(xmlUmbrella, 'traj_freq')
         xmlTraj_freq.text = str(self.traj_freq)
         xmlForce_constant = ET.SubElement(xmlUmbrella, 'force_constant')
-        xmlForce_constant.text = str(self.force_constant)
+        if self.force_constant is not None:
+            xmlForce_constant.text = str(self.force_constant.value_in_unit(
+                kilocalorie/(angstrom**2*mole)))
+        else:
+            xmlForce_constant.text = None
         xmlBarostat = ET.SubElement(xmlUmbrella, 'barostat')
         xmlBarostat.text = str(self.barostat)
         xmlBarostat_coeff = ET.SubElement(xmlUmbrella, 'barostat_coeff')
         xmlBarostat_coeff.text = str(self.barostat_coeff)
         xmlBarostat_pressure = ET.SubElement(xmlUmbrella, 'barostat_pressure')
-        xmlBarostat_pressure.text = str(self.barostat_pressure)
+        if self.barostat_pressure is not None:
+            xmlBarostat_pressure.text = str(
+                self.barostat_pressure.value_in_unit(bar))
+        else:
+            xmlBarostat_pressure.text = None
         return
     
     def deserialize(self, xmlTree):
@@ -546,20 +523,19 @@ class _Umbrella():
         self.steps = int(xmlTree.find('steps').text)
         self.energy_freq = int(xmlTree.find('energy_freq').text)
         self.traj_freq = int(xmlTree.find('traj_freq').text)
-        self.force_constant = float(xmlTree.find('force_constant').text)
+        if xmlTree.find('force_constant').text is not None:
+            force_constant_val = float(xmlTree.find('force_constant').text)
+            self.force_constant = force_constant_val * \
+                kilocalorie/(angstrom**2*mole)
+        else:
+            self.force_constant = None
         self.barostat = strBool(xmlTree.find('barostat').text)
         self.barostat_coeff = float(xmlTree.find('barostat_coeff').text)
-        self.barostat_pressure = float(xmlTree.find('barostat_pressure').text)
-        '''
-        print('umbrella', self.umbrella,
-              'steps', self.steps,
-              'energy_freq', self.energy_freq,
-              'traj_freq', self.traj_freq,
-              'force_constant', self.force_constant,
-              'barostat', self.barostat,
-              'barostat_coeff', self.barostat_coeff,
-              'barostat_pressure', self.barostat_pressure,
-              ) ''' # TODO: marked for removal
+        if xmlTree.find('barostat_pressure').text is not None:
+            barostat_pressure_val = float(xmlTree.find('barostat_pressure').text)
+            self.barostat_pressure = barostat_pressure_val * bar
+        else:
+            self.barostat_pressure = None
         return
 
 class _Fwd_rev():
@@ -603,13 +579,6 @@ class _Fwd_rev():
             'success_coords_pickle').text
         self.success_vels_pickle = xmlTree.find(
             'success_vels_pickle').text
-        '''
-        print('launches_per_config', self.launches_per_config,
-              'reversal_coords_pickle', self.reversal_coords_pickle,
-              'reversal_vels_pickle', self.reversal_vels_pickle,
-              'success_coords_pickle', self.success_coords_pickle,
-              'success_vels_pickle', self.success_vels_pickle
-              ) ''' # TODO: marked for removal
         return
 
 class SeekrCalculation():
@@ -648,7 +617,7 @@ class SeekrCalculation():
         Save a copy of this SEEKR calculation and all its milestone 
         information.
         '''
-        
+
         root = ET.Element('seekr_calc')
         xmlMasterTemp = ET.SubElement(root, 'master_temperature')
         xmlMasterTemp.text = str(self.master_temperature)
@@ -677,29 +646,7 @@ class SeekrCalculation():
         xmlstr = minidom.parseString(ET.tostring(root)).toprettyxml(
             indent="   ")
         
-        '''
-        # need to step through the object and set all unpicklable objects to 
-        # None
-        self.openmm.system = None
-        self.openmm.simulation = None
-        self.openmm.context = None
-        self.openmm.platform = None
-        self.min_equil.temp_equil_integrator = None
-        for milestone in self.milestones:
-            milestone.openmm.system = None
-            milestone.openmm.simulation = None
 
-        #self.milestones = None
-        #self.project = None
-        self.openmm = None
-        self.browndye = None
-        self.selections = None
-        self.building = None
-        self.min_equil = None
-        self.umbrella_stage = None
-        self.fwd_rev_stage = None
-        '''
-        
         if not picklename:
             picklename = os.path.join(self.project.rootdir, 'seekr_calc.xml')
         #dill.detect.trace(True)
@@ -732,7 +679,6 @@ def openSeekrCalc(xmlFileName):
     seekrCalc = SeekrCalculation()
     seekrCalc.deserialize(root)
     return seekrCalc
-    
 
 class Test_base(unittest.TestCase):
     # several test cases to ensure the functions in this module are working

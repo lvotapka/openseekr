@@ -10,19 +10,8 @@ Must be run in Python 2!!
 @author: lvotapka
 '''
 
-import old_base
-import sys
 
-print "Parse arguments"
-if len(sys.argv) < 3:
-    print "Usage:\npython convert_pickle.py PICKLE XML"
-    
-    exit()
 
-picklename = sys.argv[1]
-xmlname = sys.argv[2]
-
-seekrPickle = old_base.openSeekrCalcPickle(picklename)
-seekrPickle.save(xmlname)
-
-print('Conversion complete.')
+print("DO NOT RUN THIS SCRIPT IN THIS BRANCH")
+print("USE xmlPython2 BRANCH INSTEAD.")
+exit()

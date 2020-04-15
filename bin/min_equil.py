@@ -42,5 +42,8 @@ def run_min_equil(seekrcalc):
                 simulation.integrator.setTemperature(temperature*kelvin)
                 simulation.step(seekrcalc.min_equil.temp_equil_steps)
                 if verbose: print("Ran temperature equilibration:", simulation.integrator.getTemperature())
+            
+            state = simulation.context.getState()
+            milestone.box_vectors = state.getPeriodicBoxVectors()
 
     return
