@@ -116,9 +116,21 @@ def make_seekr_calculation():
         milestone.dry_holo_filename = '/path/to/test_dry_holo_filename'
         milestone.atom_selection_1 = [56, 78, 89]
         milestone.atom_selection_2 = [34, 76, 87]
-        milestone.box_vectors = Quantity([[64.913, 0.0, 0.0], 
+        milestone.building_box_vectors = Quantity([[64.913, 0.0, 0.0], 
                                           [-21.63756, 61.20029, 0.0], 
                                           [-21.63756, -30.6001417, 53.001008]], 
+                                          unit=angstroms)
+        milestone.min_equil_box_vectors = Quantity([[64.913, 0.0, 0.0], 
+                                          [-20.63756, 61.20029, 0.0], 
+                                          [-21.63756, -30.6001417, 53.001008]], 
+                                          unit=angstroms)
+        milestone.umbrella_box_vectors = Quantity([[64.413, 0.0, 0.0], 
+                                          [-21.63756, 61.20029, 0.0], 
+                                          [-21.63756, -30.6001417, 53.001008]], 
+                                          unit=angstroms)
+        milestone.fwd_rev_box_vectors = Quantity([[64.913, 0.0, 0.0], 
+                                          [-21.63756, 61.20029, 0.0], 
+                                          [-21.54756, -30.6001417, 53.001008]], 
                                           unit=angstroms)
         # Milestone_system
         milestone.openmm = milestones.Milestone_System()
@@ -289,10 +301,44 @@ def verify_seekr_identical(seekr1, seekr2):
                  seekr2.milestones[i].atom_selection_1)
         assertEq(seekr1.milestones[i].atom_selection_2, 
                  seekr2.milestones[i].atom_selection_2)
-        for j in range(3):
-            for k in range(3):
-                assertEqQuantities(seekr1.milestones[i].box_vectors[j][k], 
-                           seekr2.milestones[i].box_vectors[j][k])
+        
+        if (seekr1.milestones[i].building_box_vectors is not None) and \
+                (seekr2.milestones[i].building_box_vectors is not None):
+            for j in range(3):
+                for k in range(3):
+                    assertEqQuantities(seekr1.milestones[i].building_box_vectors[j][k], 
+                               seekr2.milestones[i].building_box_vectors[j][k])
+        else:
+            assert seekr1.milestones[i].building_box_vectors is None
+            assert seekr2.milestones[i].building_box_vectors is None
+        
+        if (seekr1.milestones[i].min_equil_box_vectors is not None) and \
+                (seekr2.milestones[i].min_equil_box_vectors is not None):
+            for j in range(3):
+                for k in range(3):
+                    assertEqQuantities(seekr1.milestones[i].min_equil_box_vectors[j][k], 
+                               seekr2.milestones[i].min_equil_box_vectors[j][k])
+        else:
+            assert seekr1.milestones[i].min_equil_box_vectors is None
+            assert seekr2.milestones[i].min_equil_box_vectors is None
+                
+        if seekr1.milestones[i].umbrella_box_vectors is not None:
+            for j in range(3):
+                for k in range(3):
+                    assertEqQuantities(seekr1.milestones[i].umbrella_box_vectors[j][k], 
+                               seekr2.milestones[i].umbrella_box_vectors[j][k])
+        else:
+            assert seekr1.milestones[i].umbrella_box_vectors is None
+            assert seekr2.milestones[i].umbrella_box_vectors is None
+                
+        if seekr1.milestones[i].fwd_rev_box_vectors is not None:
+            for j in range(3):
+                for k in range(3):
+                    assertEqQuantities(seekr1.milestones[i].fwd_rev_box_vectors[j][k], 
+                               seekr2.milestones[i].fwd_rev_box_vectors[j][k])
+        else:
+            assert seekr1.milestones[i].fwd_rev_box_vectors is None
+            assert seekr2.milestones[i].fwd_rev_box_vectors is None
         
         # more here
         # Milestone_system

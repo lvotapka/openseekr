@@ -110,6 +110,8 @@ def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umb
     simulation.context.setVelocitiesToTemperature(seekrcalc.master_temperature*kelvin)
     if box_vectors:
         simulation.context.setPeriodicBoxVectors(*box_vectors)
+    elif milestone.umbrella_box_vectors:
+        simulation.context.setPeriodicBoxVectors(milestone.umbrella_box_vectors)
     elif inpcrd.boxVectors is not None:
         simulation.context.setPeriodicBoxVectors(*inpcrd.boxVectors)
 
@@ -138,6 +140,7 @@ def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umb
     end_state = simulation.context.getState(getPositions=True)
     ending_box_vectors = end_state.getPeriodicBoxVectors()
     milestone.openmm.simulation = simulation
+    milestone.umbrella_box_vectors = ending_box_vectors
     return ending_box_vectors, umbrella_traj
 
 def generate_umbrella_filenames(seekr_calc, milestone):

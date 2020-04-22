@@ -287,6 +287,8 @@ def launch_fwd_rev_stage(seekrcalc, milestone, traj_base, end_on_middle_crossing
             simulation.context.setTime(0.0)
             if box_vectors:
                 simulation.context.setPeriodicBoxVectors(*box_vectors)
+            elif milestone.umbrella_box_vectors is not None:
+                simulation.context.setPeriodicBoxVectors(milestone.umbrella_box_vectors)
             elif inpcrd.boxVectors is not None:
                 simulation.context.setPeriodicBoxVectors(*inpcrd.boxVectors)
 
@@ -347,7 +349,9 @@ def launch_fwd_rev_stage(seekrcalc, milestone, traj_base, end_on_middle_crossing
             break
         #if i*seekrcalc.fwd_rev_stage.launches_per_config >= dcd_iterator_chunk:
         #  break
-
+    
+    state = simulation.context.getState()
+    milestone.fwd_rev_box_vectors = state.getPeriodicBoxVectors()
     print("Time elapsed:", time.time() - starttime)
     print("Number of errors:", num_errors)
 

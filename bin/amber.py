@@ -128,6 +128,7 @@ def create_simulation(seekrcalc, milestone):
         simulation.context.setPeriodicBoxVectors(*inpcrd.boxVectors)
     milestone.openmm.system = system
     milestone.openmm.simulation = simulation
+    milestone.building_box_vectors = inpcrd.boxVectors
     return
 
 def save_restart(seekrcalc, milestone, pdb_save_filename=None):
@@ -150,3 +151,4 @@ def save_restart(seekrcalc, milestone, pdb_save_filename=None):
         pdb_save_filename = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'temp_equil', 'equilibrated.pdb')
     amber_parm.save(pdb_save_filename, overwrite=True)
     return pdb_save_filename
+

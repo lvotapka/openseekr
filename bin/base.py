@@ -11,7 +11,7 @@ import os
 import unittest, warnings
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
-
+from simtk.unit import nanometer, Quantity
 
 from simtk.unit import kilocalorie, angstrom, mole, bar
 
@@ -27,6 +27,65 @@ def strBool(bool_str):
         raise Exception(
             "argument for strBool must be string either 'True' or 'False'.")
     return
+
+def serialize_box_vectors(box_vectors, xmlRoot, tagName='box_vectors'):
+    '''
+    Takes a 3x3 simtk.unit.Quantity representing an openMM or Parmed system box 
+    vectors and serializes it as xml, saving the text into xmlRoot.
+    '''
+    xmlBox_vectors = ET.SubElement(xmlRoot, tagName)
+    if box_vectors is not None:
+        box_vectors_unitless = box_vectors.value_in_unit(nanometer)
+        xmlA = ET.SubElement(xmlBox_vectors, 'A')
+        xmlAx = ET.SubElement(xmlA, 'x')
+        xmlAx.text = str(box_vectors_unitless[0][0])
+        xmlAy = ET.SubElement(xmlA, 'y')
+        xmlAy.text = str(box_vectors_unitless[0][1])
+        xmlAz = ET.SubElement(xmlA, 'z')
+        xmlAz.text = str(box_vectors_unitless[0][2])
+        xmlB = ET.SubElement(xmlBox_vectors, 'B')
+        xmlBx = ET.SubElement(xmlB, 'x')
+        xmlBx.text = str(box_vectors_unitless[1][0])
+        xmlBy = ET.SubElement(xmlB, 'y')
+        xmlBy.text = str(box_vectors_unitless[1][1])
+        xmlBz = ET.SubElement(xmlB, 'z')
+        xmlBz.text = str(box_vectors_unitless[1][2])
+        xmlC = ET.SubElement(xmlBox_vectors, 'C')
+        xmlCx = ET.SubElement(xmlC, 'x')
+        xmlCx.text = str(box_vectors_unitless[2][0])
+        xmlCy = ET.SubElement(xmlC, 'y')
+        xmlCy.text = str(box_vectors_unitless[2][1])
+        xmlCz = ET.SubElement(xmlC, 'z')
+        xmlCz.text = str(box_vectors_unitless[2][2])
+    else:
+        xmlBox_vectors.text = ''
+    return
+
+def deserialize_box_vectors(xmlBox_vectors):
+    '''
+    Takes xml representing box vectors for an openMM or parmed system and
+    creates a simtk.unit.Quantity object for it.
+    '''
+    if xmlBox_vectors.text is not None:
+        xmlA = xmlBox_vectors.find('A')
+        xmlAx = float(xmlA.find('x').text)
+        xmlAy = float(xmlA.find('y').text)
+        xmlAz = float(xmlA.find('z').text)
+        xmlB = xmlBox_vectors.find('B')
+        xmlBx = float(xmlB.find('x').text)
+        xmlBy = float(xmlB.find('y').text)
+        xmlBz = float(xmlB.find('z').text)
+        xmlC = xmlBox_vectors.find('C')
+        xmlCx = float(xmlC.find('x').text)
+        xmlCy = float(xmlC.find('y').text)
+        xmlCz = float(xmlC.find('z').text)
+        box_vectors = Quantity([[xmlAx, xmlAy, xmlAz], 
+                                     [xmlBx, xmlBy, xmlBz],
+                                     [xmlCx, xmlCy, xmlCz]], 
+                                     unit=nanometer)
+    else:
+        box_vectors = None
+    return box_vectors
 
 class _Project():
     '''An object for generic project-level information of a SEEKR run'''

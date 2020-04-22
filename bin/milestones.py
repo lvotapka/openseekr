@@ -11,7 +11,7 @@ from math import sqrt
 import cmath
 import unittest
 import xml.etree.ElementTree as ET
-from base import strBool
+from base import strBool, serialize_box_vectors, deserialize_box_vectors
 from simtk.unit import nanometer, Quantity
 
 verbose = True
@@ -67,7 +67,12 @@ class Milestone():
         self.bd_adjacent = None # adjacent to a BD milestone
         self.end = False # a sink state milestone
         self.openmm = Milestone_System()
-        self.box_vectors = None
+        #self.box_vectors = None
+        self.building_box_vectors = None
+        self.min_equil_box_vectors = None
+        self.umbrella_box_vectors = None
+        self.fwd_rev_box_vectors = None
+        return
 
 class Concentric_Spherical_Milestone(Milestone):
     '''Concentric spherical milestones centered on an atom selection.'''
@@ -93,7 +98,11 @@ class Concentric_Spherical_Milestone(Milestone):
         self.atom_selection_2 = None
         self.openmm = Milestone_System()
         self.config = None
-        self.box_vectors = None
+        #self.box_vectors = None
+        self.building_box_vectors = None
+        self.min_equil_box_vectors = None
+        self.umbrella_box_vectors = None
+        self.fwd_rev_box_vectors = None
         return
         
     def serialize(self, xmlMilestone):
@@ -108,7 +117,7 @@ class Concentric_Spherical_Milestone(Milestone):
         xmlNeighbors = ET.SubElement(xmlMilestone, 'neighbors')
         for neighbor in self.neighbors:
             xmlNeighbor = ET.SubElement(xmlNeighbors, 'neighbor')
-            xmlNeighbor.text = str(neighbor)
+            xmlNeighbor.text = str(neighbor.index)
         xmlIndex = ET.SubElement(xmlMilestone, 'index')
         xmlIndex.text = str(self.index)
         xmlSiteID = ET.SubElement(xmlMilestone, 'siteid')
@@ -145,32 +154,15 @@ class Concentric_Spherical_Milestone(Milestone):
         xmlOpenMM.text = self.openmm.serialize(xmlOpenMM)
         #xmlConfig = ET.SubElement(xmlMilestone, 'config')
         #xmlConfig.text = str(self.config)
-        xmlBox_vectors = ET.SubElement(xmlMilestone, 'box_vectors')
-        if self.box_vectors is not None:
-            box_vectors_unitless = self.box_vectors.value_in_unit(nanometer)
-            xmlA = ET.SubElement(xmlBox_vectors, 'A')
-            xmlAx = ET.SubElement(xmlA, 'x')
-            xmlAx.text = str(box_vectors_unitless[0][0])
-            xmlAy = ET.SubElement(xmlA, 'y')
-            xmlAy.text = str(box_vectors_unitless[0][1])
-            xmlAz = ET.SubElement(xmlA, 'z')
-            xmlAz.text = str(box_vectors_unitless[0][2])
-            xmlB = ET.SubElement(xmlBox_vectors, 'B')
-            xmlBx = ET.SubElement(xmlB, 'x')
-            xmlBx.text = str(box_vectors_unitless[1][0])
-            xmlBy = ET.SubElement(xmlB, 'y')
-            xmlBy.text = str(box_vectors_unitless[1][1])
-            xmlBz = ET.SubElement(xmlB, 'z')
-            xmlBz.text = str(box_vectors_unitless[1][2])
-            xmlC = ET.SubElement(xmlBox_vectors, 'C')
-            xmlCx = ET.SubElement(xmlC, 'x')
-            xmlCx.text = str(box_vectors_unitless[2][0])
-            xmlCy = ET.SubElement(xmlC, 'y')
-            xmlCy.text = str(box_vectors_unitless[2][1])
-            xmlCz = ET.SubElement(xmlC, 'z')
-            xmlCz.text = str(box_vectors_unitless[2][2])
-        else:
-            xmlBox_vectors.text = ''
+        #serialize_box_vectors(self.box_vectors, xmlMilestone)
+        serialize_box_vectors(self.building_box_vectors, xmlMilestone, 
+                              'building_box_vectors')
+        serialize_box_vectors(self.min_equil_box_vectors, xmlMilestone, 
+                              'min_equil_box_vectors')
+        serialize_box_vectors(self.umbrella_box_vectors, xmlMilestone, 
+                              'umbrella_box_vectors')
+        serialize_box_vectors(self.fwd_rev_box_vectors, xmlMilestone, 
+                              'fwd_rev_box_vectors')
         return
     
     def deserialize(self, xmlTree):
@@ -185,6 +177,7 @@ class Concentric_Spherical_Milestone(Milestone):
         neighbors_list = []
         for neighbor_child in xmlTree.find('neighbors'):
             neighbors_list.append(int(neighbor_child.text))
+            # temporarily store index to be replaced later with neighbor object
         self.neighbors = sorted(neighbors_list)
         self.index = int(xmlTree.find('index').text)
         self.siteid = int(xmlTree.find('siteid').text)
@@ -220,26 +213,21 @@ class Concentric_Spherical_Milestone(Milestone):
             self.atom_selection_2 = list(
                 map(int, atom_selection_2_str.split(',')))
         self.openmm.deserialize(xmlTree.find('openmm'))
-        xmlBox_vectors = xmlTree.find('box_vectors')
-        if xmlBox_vectors.text is not None:
-            xmlA = xmlBox_vectors.find('A')
-            xmlAx = float(xmlA.find('x').text)
-            xmlAy = float(xmlA.find('y').text)
-            xmlAz = float(xmlA.find('z').text)
-            xmlB = xmlBox_vectors.find('B')
-            xmlBx = float(xmlB.find('x').text)
-            xmlBy = float(xmlB.find('y').text)
-            xmlBz = float(xmlB.find('z').text)
-            xmlC = xmlBox_vectors.find('C')
-            xmlCx = float(xmlC.find('x').text)
-            xmlCy = float(xmlC.find('y').text)
-            xmlCz = float(xmlC.find('z').text)
-            self.box_vectors = Quantity([[xmlAx, xmlAy, xmlAz], 
-                                         [xmlBx, xmlBy, xmlBz],
-                                         [xmlCx, xmlCy, xmlCz]], 
-                                         unit=nanometer)
-        else:
-            self.box_vectors = None
+        #xmlBox_vectors = xmlTree.find('box_vectors')
+        #self.box_vectors = deserialize_box_vectors(xmlBox_vectors)
+        xmlBuilding_box_vectors = xmlTree.find('building_box_vectors')
+        if xmlBuilding_box_vectors is not None:
+            self.building_box_vectors = deserialize_box_vectors(xmlBuilding_box_vectors)
+        xmlMin_equil_box_vectors = xmlTree.find('min_equil_box_vectors')
+        if xmlMin_equil_box_vectors is not None:
+            self.min_equil_box_vectors = deserialize_box_vectors(xmlMin_equil_box_vectors)
+        xmlUmbrella_box_vectors = xmlTree.find('umbrella_box_vectors')
+        if xmlUmbrella_box_vectors is not None:
+            self.umbrella_box_vectors = deserialize_box_vectors(xmlUmbrella_box_vectors)
+        xmlFwd_rev_box_vectors = xmlTree.find('fwd_rev_box_vectors')
+        if xmlFwd_rev_box_vectors is not None:
+            self.fwd_rev_box_vectors = deserialize_box_vectors(xmlFwd_rev_box_vectors)
+        
         return
 
 def deserialize_milestones(xmlTree):
@@ -263,6 +251,11 @@ def deserialize_milestones(xmlTree):
         bd_adjacent_index = milestone.bd_adjacent
         if bd_adjacent_index is not None:
             milestone.bd_adjacent = milestones_list[bd_adjacent_index]
+        new_neighbor_list = []
+        for neighbor_index in milestone.neighbors:
+            new_neighbor_list.append(milestones_list[neighbor_index])
+        milestone.neighbors = new_neighbor_list
+        #print('milestone.neighbors', milestone.neighbors)
             
     return milestones_list
 
@@ -335,12 +328,12 @@ def generate_spherical_milestones(seekrcalc, atom_indices, origin, radius_list, 
         milestone.center_vec = origin
         milestone.radius = radius
         milestone.anchor = anchor
-        if i > 0:
-            milestone.neighbors.append(i-1) # if we are the furthest milestone in either direction, then include no neighbors
+        #if i > 0:
+        #    milestone.neighbors.append(i-1) # if we are the furthest milestone in either direction, then include no neighbors
         #else:
             #if not k_off: milestone.end = True
         if i < spheres_in_site - 1:
-            milestone.neighbors.append(i+1)
+            #milestone.neighbors.append(i+1)
             milestone.bd = False
         else: # then this is the outermost one, so set BD to true
             milestone.bd = True
@@ -349,6 +342,16 @@ def generate_spherical_milestones(seekrcalc, atom_indices, origin, radius_list, 
             milestone.md = False
         milestone.fullname = "%d_%d_%s_%.1f_%.1f_%.1f" % (i+(spheres_in_site*int(siteid)), i, siteid, anchor[0], anchor[1], anchor[2])
         milestones.append(milestone)
+    
+    for i in range(spheres_in_site):
+        if i > 0:
+            milestones[i].neighbors.append(milestones[i-1]) 
+            # if we are the furthest milestone in either direction, then 
+            # include no neighbors
+
+        if i < spheres_in_site - 1:
+            milestones[i].neighbors.append(milestones[i+1])
+        
     return milestones
 
 def print_spherical_milestone_info(milestones):
