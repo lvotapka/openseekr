@@ -113,7 +113,7 @@ def create_spherical_seekr_force(seekrcalc, milestone, system,
     else:
         raise Exception("Only one or two milestone neighbors allowed at " \
                         "present. Number of neighbors: %d" \
-                        % milestone.neighbors)
+                        % len(milestone.neighbors))
     # define the file to write transition information
     data_file_name = os.path.join(seekrcalc.project.rootdir, 
                                   milestone.directory, 'md', 'fwd_rev', 
