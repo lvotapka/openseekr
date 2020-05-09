@@ -477,6 +477,10 @@ def serialize_transition_info(seekrcalc, milestone, transition_dict,
         xmlDest = ET.SubElement(xmlTransition, 'destination')
         dest = key.split('_')[1]
         xmlDest.text = dest
+        dest_index = int(dest)
+        dest_radius = seekrcalc.milestones[dest_index].radius
+        xmlDestRadius = ET.SubElement(xmlTransition, 'destRadius')
+        xmlDestRadius.text = str(dest_radius)
         xmlCount = ET.SubElement(xmlTransition, 'count')
         count = transition_dict[key]
         xmlCount.text = str(count)

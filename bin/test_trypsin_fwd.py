@@ -157,4 +157,4 @@ for milestone in all_milestones:
         avg_incubation_time = np.mean(incubation_time_list_total)
         pprint(avg_incubation_time)
 
-        seekr.pickle_transition_info(me, milestone, transition_dict, avg_incubation_time)
+        seekr.pickle_transition_info(me, milestone, transition_dict_total, avg_incubation_time)
