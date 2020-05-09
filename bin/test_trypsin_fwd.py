@@ -32,8 +32,8 @@ print "Loading SEEKR calculation."
 ##################################################################
 
 
-picklename = '/home/lvotapka/tryp_test/seekr_calc.xml'
-me = seekr.openSeekrCalc(picklename)
+picklename = '/home/lvotapka/tryp_test/seekr_calc.pickle'
+me = seekr.openSeekrCalcPickle(picklename)
 
 lig_selection = [3222, 3223, 3224, 3225, 3226, 3227, 3228, 3229, 3230]
 rec_selection = [2466, 2478, 2489, 2535, 2745, 2769, 2787]
