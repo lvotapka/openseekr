@@ -179,6 +179,12 @@ def delete_milestone_directory(del_dir, delete_index):
         old_path = os.path.join(me.project.rootdir, old_dirname)
         new_path = os.path.join(me.project.rootdir, new_dirname)
         print("renaming", old_path, "to", new_path)
+        if me.milestones[i].openmm.prmtop_filename:
+            me.milestones[i].openmm.prmtop_filename = os.path.join(new_path, 
+                    'md', 'building','holo.parm7')
+        if me.milestones[i].openmm.inpcrd_filename:
+            me.milestones[i].openmm.inpcrd_filename = os.path.join(new_path, 
+                    'md', 'building','holo.rst7')
         os.rename(old_path, new_path)
     
     return

@@ -15,6 +15,8 @@ from simtk.unit import nanometer, Quantity
 
 from simtk.unit import kilocalorie, angstrom, mole, bar
 
+import simtk.openmm as mm
+
 def strBool(bool_str):
     '''
     Takes the string "true" or "false" of any case and returns a boolean object.
@@ -738,6 +740,25 @@ def openSeekrCalc(xmlFileName):
     seekrCalc = SeekrCalculation()
     seekrCalc.deserialize(root)
     return seekrCalc
+
+def saveStateWithoutParam(my_simulation, file):
+    '''
+    Save the current state of the simulation to a file, but excluding
+    parameters.
+    
+    Nearly identical to simulation.saveState() function, but excludes
+    saving parameters.
+    '''
+    
+    state = my_simulation.context.getState(getPositions=True, 
+                                           getVelocities=True, 
+                                           getParameters=False)
+    xml = mm.XmlSerializer.serialize(state)
+    if isinstance(file, str):
+        with open(file, 'w') as f:
+            f.write(xml)
+    else:
+        file.write(xml)
 
 class Test_base(unittest.TestCase):
     # several test cases to ensure the functions in this module are working

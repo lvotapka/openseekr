@@ -12,6 +12,7 @@ from simtk.unit import *
 import os, time, glob, re
 from sys import stdout
 from seekr import amber
+from base import saveStateWithoutParam
 import mdtraj
 
 verbose = True
@@ -73,9 +74,33 @@ def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umb
     '''
     prmtop_filename = milestone.openmm.prmtop_filename
     pdb_filename = milestone.openmm.umbrella_pdb_filename
-    if os.path.exists(pdb_filename):
+    root_name = os.path.splitext(pdb_filename)[0]
+    prev_end_state_filename = os.path.join(
+        seekrcalc.project.rootdir, milestone.directory, 'md', 'umbrella', 
+        '%s_end.state' % root_name)
+    
+    inpcrd_filename = milestone.openmm.inpcrd_filename
+    if verbose: print("opening files:", prmtop_filename, inpcrd_filename, pdb_filename)
+    prmtop = AmberPrmtopFile(prmtop_filename)
+    inpcrd = AmberInpcrdFile(inpcrd_filename)
+    
+    # This is fine because h-bonds are always constrained in water!
+    system = prmtop.createSystem(nonbondedMethod=PME, 
+                                 nonbondedCutoff=1*nanometer, 
+                                 constraints=HBonds) 
+    integrator = LangevinIntegrator(seekrcalc.master_temperature*kelvin, 
+                                    1/picosecond, 0.002*picoseconds)
+    platform = Platform.getPlatformByName('CUDA')
+
+    # TODO: change this back
+    properties = seekrcalc.openmm.properties #{'CudaDeviceIndex':'0', 'CudaPrecision':'mixed', 'UseCpuPme':'false'}
+    
+    if os.path.exists(prev_end_state_filename):
+        print('loaded state from', prev_end_state_filename)
+    elif os.path.exists(pdb_filename):
         pdb = PDBFile(pdb_filename)
         my_positions = pdb.positions
+        print('loading positions from', pdb_filename)
     else:
         basename = os.path.basename(pdb_filename)
         no_ext = os.path.splitext(basename)[0]
@@ -84,39 +109,36 @@ def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umb
         print(("Restarting failed umbrella stage from last frame of DCD file: ", dcd_filename))
         last_fwd_frame = load_last_mdtraj_frame(dcd_filename, milestone.openmm.prmtop_filename)
         my_positions = last_fwd_frame.xyz[0]
+        print('loading positions from', dcd_filename)
 
-    inpcrd_filename = milestone.openmm.inpcrd_filename
-    if verbose: print(("opening files:", prmtop_filename, inpcrd_filename, pdb_filename))
-    prmtop = AmberPrmtopFile(prmtop_filename)
-    inpcrd = AmberInpcrdFile(inpcrd_filename)
-
-
-    system = prmtop.createSystem(nonbondedMethod=PME, nonbondedCutoff=1*nanometer, constraints=HBonds) # This is fine because h-bonds are always constrained in water!
-    integrator = LangevinIntegrator(seekrcalc.master_temperature*kelvin, 1/picosecond, 0.002*picoseconds) #LangevinIntegrator(300*kelvin, 1/picosecond, 0.002*picoseconds)
-    platform = Platform.getPlatformByName('CUDA')
-
-    # TODO: change this back
-    properties = seekrcalc.openmm.properties #{'CudaDeviceIndex':'0', 'CudaPrecision':'mixed', 'UseCpuPme':'false'}
-
-    # add restraints
+        # add restraints
     new_force = create_forces(seekrcalc, milestone, system) #system, prmtop.topology, inpcrd.positions, seekrcalc.min_equil.constrained)
     system.addForce(new_force)
+    barostat_force_id = None
     if seekrcalc.umbrella_stage.barostat:
         barostat = MonteCarloBarostat(seekrcalc.umbrella_stage.barostat_pressure, seekrcalc.master_temperature*kelvin, seekrcalc.umbrella_stage.barostat_freq)
-        system.addForce(barostat)
-
-    simulation = Simulation(prmtop.topology, system, integrator, platform, properties)
-    simulation.context.setPositions(my_positions)
-    simulation.context.setVelocitiesToTemperature(seekrcalc.master_temperature*kelvin)
-    if box_vectors:
-        simulation.context.setPeriodicBoxVectors(*box_vectors)
-    elif milestone.umbrella_box_vectors:
-        simulation.context.setPeriodicBoxVectors(milestone.umbrella_box_vectors)
-    elif inpcrd.boxVectors is not None:
-        simulation.context.setPeriodicBoxVectors(*inpcrd.boxVectors)
-
-    if verbose: print(("Running energy minimization on milestone:", milestone.index))
-    simulation.minimizeEnergy()
+        barostat_force_id = system.addForce(barostat)
+    
+    simulation = Simulation(prmtop.topology, system, integrator, 
+                                     platform, properties)
+    
+    if os.path.exists(prev_end_state_filename):
+        simulation.loadState(prev_end_state_filename)
+    else:
+        simulation.context.setPositions(my_positions)
+        simulation.context.setVelocitiesToTemperature(seekrcalc.master_temperature*kelvin)
+        if box_vectors:
+            simulation.context.setPeriodicBoxVectors(*box_vectors)
+            print('box_vectors assigned', box_vectors)
+        elif milestone.umbrella_box_vectors:
+            simulation.context.setPeriodicBoxVectors(milestone.umbrella_box_vectors)
+            print('milestone.umbrella_box_vectors assigned', box_vectors)
+        elif inpcrd.boxVectors is not None:
+            simulation.context.setPeriodicBoxVectors(*inpcrd.boxVectors)
+            print('inpcrd.boxVectors assigned', box_vectors)
+    
+        if verbose: print(("Running energy minimization on milestone:", milestone.index))
+        simulation.minimizeEnergy()
 
     umbrella_traj = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'umbrella', traj_name)
     simulation.reporters.append(StateDataReporter(stdout, seekrcalc.umbrella_stage.energy_freq, step=True, potentialEnergy=True, temperature=True, volume=True))
@@ -124,20 +146,31 @@ def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umb
     starttime = time.time()
 
     state_filename = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'umbrella', 'backup.state')
+    step_chunk_size = min(seekrcalc.umbrella_stage.steps, 
+                          seekrcalc.umbrella_stage.traj_freq)
     current_step = 0
     print(("running %d steps" % seekrcalc.umbrella_stage.steps))
     while current_step < seekrcalc.umbrella_stage.steps:
         try:
             simulation.saveState(state_filename)
-            simulation.step(seekrcalc.umbrella_stage.traj_freq)
-            current_step = current_step + seekrcalc.umbrella_stage.traj_freq
-        except:
+            simulation.step(step_chunk_size)
+            current_step = current_step + step_chunk_size
+        except Exception:
             print("Alert! NaN error detected. Restarting from saved state.")
             simulation.loadState(state_filename)
 
     #simulation.step(seekrcalc.umbrella_stage.steps) # old way: simulate steps directly
     print(("time:", time.time() - starttime, "s"))
-    end_state = simulation.context.getState(getPositions=True)
+    if barostat_force_id is not None:
+        system.removeForce(barostat_force_id)
+    end_state = simulation.context.getState(getPositions=True, 
+                                            getVelocities=True)
+    root_name = os.path.splitext(umbrella_traj)[0]
+    end_state_filename = os.path.join(
+        seekrcalc.project.rootdir, milestone.directory, 'md', 'umbrella', 
+        '%s_end.state' % root_name)
+    #simulation.saveState(end_state_filename)
+    saveStateWithoutParam(my_simulation=simulation, file=end_state_filename)
     ending_box_vectors = end_state.getPeriodicBoxVectors()
     milestone.openmm.simulation = simulation
     milestone.umbrella_box_vectors = ending_box_vectors
@@ -150,7 +183,7 @@ def generate_umbrella_filenames(seekr_calc, milestone):
         milestone.openmm.umbrella_pdb_filename = os.path.join(seekr_calc.project.rootdir, milestone.directory, 'md', 'temp_equil', 'equilibrated.pdb')
         new_dcd_filename = 'umbrella1.dcd'
         new_pdb_filename = 'umbrella1.pdb'
-        milestone.box_vectors = None
+        milestone.umbrella_box_vectors = None
     else: # then some already exist
         number_list = []
         for existing_file in existing_umbrella_files:

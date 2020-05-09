@@ -15,6 +15,8 @@ from sys import stdout
 from seekr import amber
 from copy import deepcopy
 import parmed
+import xml.etree.ElementTree as ET
+from xml.dom import minidom
 
 
 from seekrplugin import SeekrForce
@@ -77,39 +79,56 @@ def autoimage_traj(parm_name, trajin_name, trajout_name, box_info, cpptraj_scrip
     os.system("%s < %s" % (cpptraj_exe, cpptraj_script_location)) # run cpptraj
     return
 
-def create_spherical_seekr_force(seekrcalc, milestone, system, end_on_middle_crossing, transition_filename='transition.dat'):
+def create_spherical_seekr_force(seekrcalc, milestone, system, 
+                                 end_on_middle_crossing, 
+                                 transition_filename='transition.dat'):
     '''create the SEEKR 'force' even though it's more of a monitor than a force.
     Input:
      - seekrcalc: The SeekrCalculation object that contains all the settings for
          the SEEKR calculation.
      - milestone: the Milestone() object to run the simulation for
      - system: the OpenMM system to add the SEEKR 'force' to
-     - end_on_middle_crossing: boolean to whether to end the simulation on a crossing of the
-         middle milestone
+     - end_on_middle_crossing: boolean to whether to end the simulation on a 
+         crossing of the middle milestone
     Output:
      - force: the SEEKR force object
      - data_file_name: the data file that will be monitored for crossing events.
      '''
     force = SeekrForce() # create the SEEKR force object
     if len(milestone.neighbors) == 2:
-        neighbor1 = seekrcalc.milestones[milestone.neighbors[0]] # find the neighbor milestones
-        neighbor2 = seekrcalc.milestones[milestone.neighbors[1]]
-        radius1 = neighbor1.radius / 10.0 # extract neighbor milestone radii
-        radius2 = milestone.radius / 10.0 # convert to nm. TODO: better way to deal with these units?
+        neighbor1 = seekrcalc.milestones[milestone.neighbors[0].index]
+        neighbor2 = seekrcalc.milestones[milestone.neighbors[1].index]
+        # convert to nm. TODO: better way to deal with these units?
+        radius1 = neighbor1.radius / 10.0
+        radius2 = milestone.radius / 10.0 
         radius3 = neighbor2.radius / 10.0
-    elif len(milestone.neighbors) == 1: # this is an endpoint milestone HACKY...
-        neighbor1 = seekrcalc.milestones[milestone.neighbors[0]] # find the neighbor milestones
-        neighbor2 = seekrcalc.milestones[milestone.neighbors[0]]
+    elif len(milestone.neighbors) == 1: 
+        # this is an endpoint milestone HACKY...
+        neighbor1 = seekrcalc.milestones[milestone.neighbors[0].index]
+        neighbor2 = seekrcalc.milestones[milestone.neighbors[0].index]
+        # convert to nm. TODO: better way to deal with these units?
         radius1 = 0.0 # extract neighbor milestone radii
-        radius2 = milestone.radius / 10.0 # convert to nm. TODO: better way to deal with these units?
+        radius2 = milestone.radius / 10.0 
         radius3 = neighbor2.radius / 10.0
     else:
-        raise Exception("Only one or two milestone neighbors allowed at present. Number of neighbors: %d" % milestone.neighbors)
-    data_file_name = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'fwd_rev', transition_filename) # define the file to write transition information
+        raise Exception("Only one or two milestone neighbors allowed at " \
+                        "present. Number of neighbors: %d" \
+                        % milestone.neighbors)
+    # define the file to write transition information
+    data_file_name = os.path.join(seekrcalc.project.rootdir, 
+                                  milestone.directory, 'md', 'fwd_rev', 
+                                  transition_filename) 
     # Define all settings and parameters for the SEEKR force object
-    force.addSphericalMilestone(len(milestone.atom_selection_1), len(milestone.atom_selection_2), radius1, radius2, radius3, milestone.atom_selection_1, milestone.atom_selection_2, end_on_middle_crossing, data_file_name)
-    system.addForce(force) # Add the SEEKR force to the openMM system
-    if verbose: print("SEEKR force added to system.")
+    force.addSphericalMilestone(len(milestone.atom_selection_1), 
+                                len(milestone.atom_selection_2), 
+                                radius1, radius2, radius3, 
+                                milestone.atom_selection_1, 
+                                milestone.atom_selection_2, 
+                                end_on_middle_crossing, data_file_name)
+    # Add the SEEKR force to the openMM system
+    system.addForce(force) 
+    if verbose: print("SEEKR force added to system. Inner radius:", radius1, 
+                      "Middle radius:", radius2, "Outer radius:", radius3)
     return force, data_file_name
 
 def get_data_file_length(data_file_name):
@@ -144,12 +163,12 @@ def read_data_file_transitions(data_file_name, seekrcalc, milestone):
     num_failed = 0
     data_file = open(data_file_name, 'r')
     if len(milestone.neighbors) == 2:
-        neighbor1 = seekrcalc.milestones[milestone.neighbors[0]] # find the neighbor milestones
-        neighbor2 = seekrcalc.milestones[milestone.neighbors[1]]
+        neighbor1 = seekrcalc.milestones[milestone.neighbors[0].index] # find the neighbor milestones
+        neighbor2 = seekrcalc.milestones[milestone.neighbors[1].index]
         dest1 = neighbor1.index
         dest2 = neighbor2.index
     else:
-        neighbor2 = seekrcalc.milestones[milestone.neighbors[0]]
+        neighbor2 = seekrcalc.milestones[milestone.neighbors[0].index]
         dest2 = neighbor2.index
         dest1 = -1
     src = milestone.index
@@ -343,7 +362,7 @@ def launch_fwd_rev_stage(seekrcalc, milestone, traj_base, end_on_middle_crossing
                         raise Exception("ff not yet implemented: %s" % seekrcalc.building.ff)
 
         i += 1
-
+        
         if len(success_positions) >= dcd_iterator_chunk:
             complete = False
             break
@@ -413,9 +432,12 @@ def pickle_coords_vels(seekrcalc, milestone, success_coords, success_vels, index
 
     return success_coords_pickle, success_vels_pickle
 
-def pickle_transition_info(seekrcalc, milestone, transition_dict, avg_incubation_time):
-    '''Save the reversal starting positions and velocities in a pickle for easy
-    retrieval.
+def serialize_transition_info(seekrcalc, milestone, transition_dict, 
+                           avg_incubation_time):
+    '''Save the transition information, including milestone index, radius,
+    incubation time for the transitions, source milestone, destination
+    milestone, and count of transitions into an XML file.
+    
     Input:
      - seekrcalc: The SeekrCalculation object that contains all the settings for
          the SEEKR calculation.
@@ -428,11 +450,40 @@ def pickle_transition_info(seekrcalc, milestone, transition_dict, avg_incubation
     Output:
      - None
     '''
+    
+    '''
     transition_info_pickle = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'fwd_rev', 'transition_info.pickle')
 
     transition_info_pickle_file=open(transition_info_pickle, 'wb')
     pickle.dump(transition_dict, transition_info_pickle_file, protocol=-1)
     pickle.dump(avg_incubation_time, transition_info_pickle_file, protocol=-1) # NOTE: This will require two load calls to remove both objects from this pickle
     transition_info_pickle_file.close()
-
+    '''
+    transition_info_pickle = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'fwd_rev', 'transition_info.xml')
+    root = ET.Element('fwd_transitions')
+    xmlIndex = ET.SubElement(root, 'milestone_index')
+    xmlIndex.text = str(milestone.index)
+    xmlIndex = ET.SubElement(root, 'milestone_siteid')
+    xmlIndex.text = str(milestone.siteid)
+    xmlIndex = ET.SubElement(root, 'milestone_radius')
+    xmlIndex.text = str(milestone.radius)
+    xmlTime = ET.SubElement(root, 'avg_incubation_time')
+    xmlTime.text = str(avg_incubation_time)
+    for key in transition_dict:
+        xmlTransition = ET.SubElement(root, 'transition')
+        xmlSrc = ET.SubElement(xmlTransition, 'source')
+        src = key.split('_')[0]
+        xmlSrc.text = src
+        xmlDest = ET.SubElement(xmlTransition, 'destination')
+        dest = key.split('_')[1]
+        xmlDest.text = dest
+        xmlCount = ET.SubElement(xmlTransition, 'count')
+        count = transition_dict[key]
+        xmlCount.text = str(count)
+    
+    xmlstr = minidom.parseString(ET.tostring(root)).toprettyxml(
+        indent="   ")
+    with open(transition_info_pickle, 'w') as xmlfile:
+        xmlfile.write(xmlstr)
+    
     return

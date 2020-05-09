@@ -31,3 +31,4 @@ def find_heavy_atoms(pdb_obj, index_range):
         if atom.element != 'H':
             heavy_atoms.append(index)
     return heavy_atoms
+
