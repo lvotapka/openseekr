@@ -12,7 +12,7 @@ import cPickle as pickle
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
 
-import old_base, base
+import base
 import fwd_rev
 
 
@@ -28,7 +28,7 @@ milestone_index = int(sys.argv[2])
 transition_file = sys.argv[3]
 xmlname = sys.argv[4]
 
-me = old_base.openSeekrCalcPickle(picklename)
+me = base.openSeekrCalcPickle(picklename)
 milestone = me.milestones[milestone_index]
 
 transition_dict, avg_incubation_time, incubation_time_list = \

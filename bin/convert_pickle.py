@@ -10,7 +10,7 @@ Must be run in Python 2!!
 @author: lvotapka
 '''
 
-import old_base, base
+import base
 import sys
 
 print "Parse arguments"
@@ -22,7 +22,8 @@ if len(sys.argv) < 3:
 picklename = sys.argv[1]
 xmlname = sys.argv[2]
 
-seekrPickle = old_base.openSeekrCalcPickle(picklename)
+seekrPickle = base.openSeekrCalcPickle(picklename)
+print('xmlname', xmlname)
 seekrPickle.save(xmlname)
 testSeekr = base.openSeekrCalc(xmlname)
 
