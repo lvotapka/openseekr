@@ -243,7 +243,7 @@ def get_umbrella_info(me, milestone):
         if line.startswith(b'Total'):
             num_frames = int(line.split()[-1])
     
-    return '  Umbrella stage: %d frames found' % num_frames
+    return num_frames
     
 def get_fwd_rev_info(me, milestone):
     absolute_directory = os.path.join(me.project.rootdir, milestone.directory)
@@ -255,25 +255,26 @@ def get_fwd_rev_info(me, milestone):
                                  'forward*.dcd')
     forward_dcds = glob.glob(forward_glob)
     num_forwards = len(forward_dcds)
-    return '  Fwd_rev Stage: %d reversal, %d forward dcd files found' \
-        % (num_reversals, num_forwards)
+    return num_reversals, num_forwards
     
 def get_transition_info(me, milestone):
     absolute_directory = os.path.join(me.project.rootdir, milestone.directory)
     transition_filename = os.path.join(absolute_directory, 'md', 'fwd_rev', 
                                  'transition_info.xml')
     if not os.path.exists(transition_filename):
-        return '  Transitions: no data found'
+        return None
     else:
         trans_info = deserialize_transition_info(transition_filename)
         transition_strings = []
+        incubation_time = trans_info['avg_incubation_time']
         for transition in trans_info['transitions']:
             source = transition['source']
             dest = transition['destination']
             count = transition['count']
             transition_strings.append('%d->%d: %d' % (source, dest, count))
-        transition_string = ', '.join(transition_strings)
-        return '  Transitions: ' + transition_string
+        transition_string = ', '.join(transition_strings) \
+            + ' incubation time: %.3f ps' % incubation_time
+        return transition_string
 
 def report_milestones(me):
     print("Milestones:")
@@ -292,12 +293,17 @@ def report_milestones(me):
               milestone.neighbors[0].index, milestone.neighbors[1].index, 
               '\t', milestone.directory)
         umbrella_info = get_umbrella_info(me, milestone)
-        print(umbrella_info)
+        print('  Umbrella stage: %d frames found' % umbrella_info)
         fwd_rev_info = get_fwd_rev_info(me, milestone)
-        print(fwd_rev_info)
+        print('  Fwd_rev Stage: %d reversal, %d forward dcd files found' \
+        % fwd_rev_info)
         transition_info = get_transition_info(me, milestone)
-        print(transition_info)
+        if transition_info is None:
+            print('  Transitions: no data found')
+        else:
+            print('  Transitions: ' + transition_info)
         
+        print('')
 
 if __name__ == "__main__":
     print("Parse arguments")
