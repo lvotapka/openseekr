@@ -266,7 +266,14 @@ def get_transition_info(me, milestone):
         return '  Transitions: no data found'
     else:
         trans_info = deserialize_transition_info(transition_filename)
-        print('trans_info', trans_info)
+        transition_strings = []
+        for transition in trans_info['transitions']:
+            source = transition['source']
+            dest = transition['destination']
+            count = transition['count']
+            transition_strings.append('%d->%d: %d' % (source, dest, count))
+        transition_string = ', '.join(transition_strings)
+        return '  Transitions: ' + transition_string
 
 def report_milestones(me):
     print("Milestones:")

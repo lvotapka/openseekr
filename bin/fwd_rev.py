@@ -505,13 +505,12 @@ def deserialize_transition_info(xml_file_name):
     results['milestone_radius'] = float(root.find('milestone_radius').text)
     results['avg_incubation_time'] = float(
         root.find('avg_incubation_time').text)
-    results['transition'] = []
+    results['transitions'] = []
     for xmlTransition in root.find('transitions'):
-        print('xmlTransition.text', xmlTransition.text)
         trans_dict = {}
         trans_dict['source'] = int(xmlTransition.find('source').text)
         trans_dict['destination'] = int(xmlTransition.find('destination').text)
         trans_dict['destRadius'] = float(xmlTransition.find('destRadius').text)
         trans_dict['count'] = int(xmlTransition.find('count').text)
-        results['transition'].append(trans_dict)
+        results['transitions'].append(trans_dict)
     return results
