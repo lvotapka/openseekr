@@ -36,7 +36,7 @@ transition_dict, avg_incubation_time, incubation_time_list = \
     
 print 'transition_dict:', transition_dict
 print 'avg_incubation_time:', avg_incubation_time
-print 'incubation_time_list:', incubation_time_list
+#print 'incubation_time_list:', incubation_time_list
 
 root = ET.Element('fwd_transitions')
     xmlIndex = ET.SubElement(root, 'milestone_index')
