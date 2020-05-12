@@ -7,13 +7,17 @@ Created on June 28, 2018
 
 @author: lvotapka
 '''
+import sys
+import os
+import glob
+import pprint
+from shutil import copyfile
+from math import sqrt, pi, exp, log, sin, cos
 
 import mdtraj
-import seekr
-import sys, os, glob, pprint
-from shutil import copyfile
 import numpy as np
-from math import sqrt, pi, exp, log, sin, cos
+
+import seekr
 
 def get_com(coords):
     '''
