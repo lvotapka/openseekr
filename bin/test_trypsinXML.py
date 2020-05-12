@@ -1,10 +1,9 @@
 '''
-Created on May 9, 2018
+Created on March 24, 2020
 
 @author: lvotapka
 
-This is a module to test the SEEKR package and to aid in its development and
-introduction of functionality
+Test the new XML serializer
 '''
 
 import seekr
@@ -17,16 +16,20 @@ import parmed as pmd
 import sys
 
 remove_old_filetree = False
+rebuild_amber = False
 if 'remove' in sys.argv[1:]:
     remove_old_filetree = True
+
+if 'amber' in sys.argv[1:]:
+    rebuild_amber = True
 
 # Define settings object for all simulations
 me = seekr.SeekrCalculation() # create a new SEEKR calculation object
 me.master_temperature = 298. #*kelvin # temperature of (most) all calculations
 
 # project information
-me.project.name = 'test_tryp'
-me.project.rootdir = '/home/lvotapka/tryp_test_2to3'
+me.project.name = 'test_trypXML'
+me.project.rootdir = '/home/lvotapka/tryp_testXML'
 me.project.empty_rootdir = remove_old_filetree
 me.md = True
 me.bd = True
@@ -48,13 +51,13 @@ me.building.rec_dry_pqr_filename = '/home/lvotapka/torq/lvotapka/Documents/tryps
 me.building.reject_clashes = True
 
 # Minimization / Temperature Equilibration info
-me.min_equil.constrained += list(range(3220))
+#me.min_equil.constrained += list(range(3220))
 me.min_equil.min_num_steps = 5000
 me.min_equil.min_reporter_freq = 500 #[PDBReporter('dummy', 500)] # SEEKR will automatically change the filename
 me.min_equil.temp_equil_integrator = LangevinIntegrator(me.master_temperature*kelvin, 5/picosecond, 0.002*picoseconds)
 me.min_equil.temp_equil_reporters = [PDBReporter('dummy', 100)] # SEEKR will automatically change the filename
 me.min_equil.temp_equil_steps = 1000 # number of simulation steps per temperature
-me.min_equil.temp_equil_temperatures = [300., 310., 320., 330., 340., 350., 340., 330., 320., 310., 300.] # progression of the temperature equilibration
+me.min_equil.temp_equil_temperatures = [300., 310., 300.] # progression of the temperature equilibration
 
 # BrownDye information
 me.browndye.browndye_bin_dir = '/home/lvotapka/Downloads/browndye/bin'
@@ -77,7 +80,7 @@ me.browndye.apbs.inputgen.executable = '/home/lvotapka/Downloads/APBS-1.5-linux6
 # Generate Milestones
 origin = np.array([-1.536, 13.859, 16.539])
 #radius_list = np.arange(2.0, 14.1, 2.0)
-radius_list = [1.0, 1.5, 2.0, 3.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0]
+radius_list = [10.0, 12.0, 14.0, 16.0]
 vectors = [np.array([9.019, 72.142, 15.943]),]
 milestones = seekr.generate_spherical_milestones(me, rec_site_atom_indices, origin, radius_list, 0, vectors, absolute=False)
 print("The following milestones were created:")
@@ -170,6 +173,6 @@ me.save()
 
 print("Preparing Brownian dynamics stages...")
 
-bd.build_bd(me)
+#bd.build_bd(me)
 
 print("Ligand heavy indices:", ligand_heavy_indices)
