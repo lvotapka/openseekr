@@ -12,7 +12,7 @@ import unittest, warnings
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
 
-from simtk.unit import kilocalorie, angstrom, mole, bar, nanometer
+from simtk.unit import kilocalorie, angstrom, mole, bar, nanometer, Quantity
 
 def strBool(bool_str):
     '''
