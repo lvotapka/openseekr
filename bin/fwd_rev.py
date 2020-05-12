@@ -471,8 +471,9 @@ def serialize_transition_info(seekrcalc, milestone, transition_dict,
     xmlIndex.text = str(milestone.radius)
     xmlTime = ET.SubElement(root, 'avg_incubation_time')
     xmlTime.text = str(avg_incubation_time)
+    xmlTransitions = ET.SubElement(root, 'transitions')
     for key in transition_dict:
-        xmlTransition = ET.SubElement(root, 'transition')
+        xmlTransition = ET.SubElement(xmlTransitions, 'transition')
         xmlSrc = ET.SubElement(xmlTransition, 'source')
         src = key.split('_')[0]
         xmlSrc.text = src
@@ -493,3 +494,25 @@ def serialize_transition_info(seekrcalc, milestone, transition_dict,
         xmlfile.write(xmlstr)
     
     return
+
+def deserialize_transition_info(xml_file_name):
+    '''
+    Unpack the XML file containing transition info for a milestone
+    '''
+    results = {}
+    tree = ET.parse(xml_file_name)
+    root = tree.getroot()
+    results['milestone_index'] = int(root.find('milestone_index').text)
+    results['milestone_siteid'] = int(root.find('milestone_siteid').text)
+    results['milestone_radius'] = float(root.find('milestone_radius').text)
+    results['avg_incubation_time'] = float(
+        root.find('avg_incubation_time').text)
+    results['transitions'] = []
+    for xmlTransition in root.find('transitions'):
+        trans_dict = {}
+        trans_dict['source'] = int(xmlTransition.find('source').text)
+        trans_dict['destination'] = int(xmlTransition.find('destination').text)
+        trans_dict['destRadius'] = float(xmlTransition.find('destRadius').text)
+        trans_dict['count'] = int(xmlTransition.find('count').text)
+        results['transitions'].append(trans_dict)
+    return results
