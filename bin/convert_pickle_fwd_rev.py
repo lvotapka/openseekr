@@ -39,30 +39,30 @@ print 'avg_incubation_time:', avg_incubation_time
 #print 'incubation_time_list:', incubation_time_list
 
 root = ET.Element('fwd_transitions')
-    xmlIndex = ET.SubElement(root, 'milestone_index')
-    xmlIndex.text = str(milestone.index)
-    xmlIndex = ET.SubElement(root, 'milestone_siteid')
-    xmlIndex.text = str(milestone.siteid)
-    xmlIndex = ET.SubElement(root, 'milestone_radius')
-    xmlIndex.text = str(milestone.radius)
-    xmlTime = ET.SubElement(root, 'avg_incubation_time')
-    xmlTime.text = str(avg_incubation_time)
-    xmlTransitions = ET.SubElement(root, 'transitions')
-    for key in transition_dict:
-        xmlTransition = ET.SubElement(xmlTransitions, 'transition')
-        xmlSrc = ET.SubElement(xmlTransition, 'source')
-        src = key.split('_')[0]
-        xmlSrc.text = src
-        xmlDest = ET.SubElement(xmlTransition, 'destination')
-        dest = key.split('_')[1]
-        xmlDest.text = dest
-        dest_index = int(dest)
-        dest_radius = me.milestones[dest_index].radius
-        xmlDestRadius = ET.SubElement(xmlTransition, 'destRadius')
-        xmlDestRadius.text = str(dest_radius)
-        xmlCount = ET.SubElement(xmlTransition, 'count')
-        count = transition_dict[key]
-        xmlCount.text = str(count)
+xmlIndex = ET.SubElement(root, 'milestone_index')
+xmlIndex.text = str(milestone.index)
+xmlIndex = ET.SubElement(root, 'milestone_siteid')
+xmlIndex.text = str(milestone.siteid)
+xmlIndex = ET.SubElement(root, 'milestone_radius')
+xmlIndex.text = str(milestone.radius)
+xmlTime = ET.SubElement(root, 'avg_incubation_time')
+xmlTime.text = str(avg_incubation_time)
+xmlTransitions = ET.SubElement(root, 'transitions')
+for key in transition_dict:
+    xmlTransition = ET.SubElement(xmlTransitions, 'transition')
+    xmlSrc = ET.SubElement(xmlTransition, 'source')
+    src = key.split('_')[0]
+    xmlSrc.text = src
+    xmlDest = ET.SubElement(xmlTransition, 'destination')
+    dest = key.split('_')[1]
+    xmlDest.text = dest
+    dest_index = int(dest)
+    dest_radius = me.milestones[dest_index].radius
+    xmlDestRadius = ET.SubElement(xmlTransition, 'destRadius')
+    xmlDestRadius.text = str(dest_radius)
+    xmlCount = ET.SubElement(xmlTransition, 'count')
+    count = transition_dict[key]
+    xmlCount.text = str(count)
 
 xmlstr = minidom.parseString(ET.tostring(root)).toprettyxml(
     indent="   ")
