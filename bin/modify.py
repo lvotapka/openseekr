@@ -6,10 +6,19 @@ Created on Mar 15, 2019
 Module for modifying, adding, or deleting milestones
 '''
 
+import sys
+import os
+import math
+import shutil
+import subprocess
+import glob
+
+import numpy as np
+
 import seekr
 #from seekr import amber
-import sys, os, math, shutil
-import numpy as np
+from seekr import deserialize_transition_info
+
 
 def add_milestone(me, radius):
     '''
@@ -216,7 +225,57 @@ def modify_milestone(me, index, radius):
             
     me.milestones[modify_index].radius = modify_radius
     return
+
+def get_umbrella_info(me, milestone):
+    absolute_directory = os.path.join(me.project.rootdir, milestone.directory)
+    umbrella_glob = os.path.join(absolute_directory, 'md', 'umbrella', 
+                                 'umbrella*.dcd')
+    umbrella_dcds = glob.glob(umbrella_glob)
+    try:
+        catdcd_output = subprocess.check_output(['catdcd'] + umbrella_dcds)
+    except FileNotFoundError:
+        print('Make sure you have the program catdcd installed')
+    except subprocess.CalledProcessError:
+        catdcd_output = ''
+    catdcd_lines = catdcd_output.splitlines()
+    num_frames = 0
+    for line in catdcd_lines:
+        if line.startswith(b'Total'):
+            num_frames = int(line.split()[-1])
     
+    return num_frames
+    
+def get_fwd_rev_info(me, milestone):
+    absolute_directory = os.path.join(me.project.rootdir, milestone.directory)
+    reversal_glob = os.path.join(absolute_directory, 'md', 'fwd_rev', 
+                                 'reverse*.dcd')
+    reversal_dcds = glob.glob(reversal_glob)
+    num_reversals = len(reversal_dcds)
+    forward_glob = os.path.join(absolute_directory, 'md', 'fwd_rev', 
+                                 'forward*.dcd')
+    forward_dcds = glob.glob(forward_glob)
+    num_forwards = len(forward_dcds)
+    return num_reversals, num_forwards
+    
+def get_transition_info(me, milestone):
+    absolute_directory = os.path.join(me.project.rootdir, milestone.directory)
+    transition_filename = os.path.join(absolute_directory, 'md', 'fwd_rev', 
+                                 'transition_info.xml')
+    if not os.path.exists(transition_filename):
+        return None
+    else:
+        trans_info = deserialize_transition_info(transition_filename)
+        transition_strings = []
+        incubation_time = trans_info['avg_incubation_time']
+        for transition in trans_info['transitions']:
+            source = transition['source']
+            dest = transition['destination']
+            count = transition['count']
+            transition_strings.append('%d->%d: %d' % (source, dest, count))
+        transition_string = ', '.join(transition_strings) \
+            + ' incubation time: %.3f ps' % incubation_time
+        return transition_string
+
 def report_milestones(me):
     print("Milestones:")
     print("Index\tRadius\tNeighbors\tDirectory")
@@ -233,6 +292,18 @@ def report_milestones(me):
             print("%d\t%f\t" % (milestone.index, milestone.radius) , 
               milestone.neighbors[0].index, milestone.neighbors[1].index, 
               '\t', milestone.directory)
+        umbrella_info = get_umbrella_info(me, milestone)
+        print('  Umbrella stage: %d frames found' % umbrella_info)
+        fwd_rev_info = get_fwd_rev_info(me, milestone)
+        print('  Fwd_rev Stage: %d reversal, %d forward dcd files found' \
+        % fwd_rev_info)
+        transition_info = get_transition_info(me, milestone)
+        if transition_info is None:
+            print('  Transitions: no data found')
+        else:
+            print('  Transitions: ' + transition_info)
+        
+        print('')
 
 if __name__ == "__main__":
     print("Parse arguments")
