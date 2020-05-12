@@ -17,6 +17,7 @@ import numpy as np
 
 import seekr
 #from seekr import amber
+from seekr import deserialize_transition_info
 
 
 def add_milestone(me, radius):
@@ -227,26 +228,45 @@ def modify_milestone(me, index, radius):
 
 def get_umbrella_info(me, milestone):
     absolute_directory = os.path.join(me.project.rootdir, milestone.directory)
-    umbrella_glob = os.path.join(absolute_directory, 'umbrella*.dcd')
+    umbrella_glob = os.path.join(absolute_directory, 'md', 'umbrella', 
+                                 'umbrella*.dcd')
     umbrella_dcds = glob.glob(umbrella_glob)
     try:
-        catdcd_output = subprocess(['catdcd'] + umbrella_dcds)
+        catdcd_output = subprocess.check_output(['catdcd'] + umbrella_dcds)
     except FileNotFoundError:
         print('Make sure you have the program catdcd installed')
+    except subprocess.CalledProcessError:
+        catdcd_output = ''
     catdcd_lines = catdcd_output.splitlines()
+    num_frames = 0
     for line in catdcd_lines:
-        if line.startswith('Total frame:'):
+        if line.startswith(b'Total'):
             num_frames = int(line.split()[-1])
+    
+    return '  Umbrella stage: %d frames found' % num_frames
+    
+def get_fwd_rev_info(me, milestone):
+    absolute_directory = os.path.join(me.project.rootdir, milestone.directory)
+    reversal_glob = os.path.join(absolute_directory, 'md', 'fwd_rev', 
+                                 'reverse*.dcd')
+    reversal_dcds = glob.glob(reversal_glob)
+    num_reversals = len(reversal_dcds)
+    forward_glob = os.path.join(absolute_directory, 'md', 'fwd_rev', 
+                                 'forward*.dcd')
+    forward_dcds = glob.glob(forward_glob)
+    num_forwards = len(forward_dcds)
+    return '  Fwd_rev Stage: %d reversal, %d forward dcd files found' \
+        % (num_reversals, num_forwards)
+    
+def get_transition_info(me, milestone):
+    absolute_directory = os.path.join(me.project.rootdir, milestone.directory)
+    transition_filename = os.path.join(absolute_directory, 'md', 'fwd_rev', 
+                                 'transition_info.xml')
+    if not os.path.exists(transition_filename):
+        return '  Transitions: no data found'
     else:
-        num_frames = 0
-    return 'Umbrella stage: %d frames found'
-    
-    
-def get_reversal_info(me, milestone):
-    pass
-    
-def get_forward_info(me, milestone):
-    pass
+        trans_info = deserialize_transition_info(transition_filename)
+        print('trans_info', trans_info)
 
 def report_milestones(me):
     print("Milestones:")
@@ -266,6 +286,10 @@ def report_milestones(me):
               '\t', milestone.directory)
         umbrella_info = get_umbrella_info(me, milestone)
         print(umbrella_info)
+        fwd_rev_info = get_fwd_rev_info(me, milestone)
+        print(fwd_rev_info)
+        transition_info = get_transition_info(me, milestone)
+        print(transition_info)
         
 
 if __name__ == "__main__":
