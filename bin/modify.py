@@ -6,10 +6,18 @@ Created on Mar 15, 2019
 Module for modifying, adding, or deleting milestones
 '''
 
+import sys
+import os
+import math
+import shutil
+import subprocess
+import glob
+
+import numpy as np
+
 import seekr
 #from seekr import amber
-import sys, os, math, shutil
-import numpy as np
+
 
 def add_milestone(me, radius):
     '''
@@ -216,7 +224,30 @@ def modify_milestone(me, index, radius):
             
     me.milestones[modify_index].radius = modify_radius
     return
+
+def get_umbrella_info(me, milestone):
+    absolute_directory = os.path.join(me.project.rootdir, milestone.directory)
+    umbrella_glob = os.path.join(absolute_directory, 'umbrella*.dcd')
+    umbrella_dcds = glob.glob(umbrella_glob)
+    try:
+        catdcd_output = subprocess(['catdcd'] + umbrella_dcds)
+    except FileNotFoundError:
+        print('Make sure you have the program catdcd installed')
+    catdcd_lines = catdcd_output.splitlines()
+    for line in catdcd_lines:
+        if line.startswith('Total frame:'):
+            num_frames = int(line.split()[-1])
+    else:
+        num_frames = 0
+    return 'Umbrella stage: %d frames found'
     
+    
+def get_reversal_info(me, milestone):
+    pass
+    
+def get_forward_info(me, milestone):
+    pass
+
 def report_milestones(me):
     print("Milestones:")
     print("Index\tRadius\tNeighbors\tDirectory")
@@ -233,6 +264,9 @@ def report_milestones(me):
             print("%d\t%f\t" % (milestone.index, milestone.radius) , 
               milestone.neighbors[0].index, milestone.neighbors[1].index, 
               '\t', milestone.directory)
+        umbrella_info = get_umbrella_info(me, milestone)
+        print(umbrella_info)
+        
 
 if __name__ == "__main__":
     print("Parse arguments")
