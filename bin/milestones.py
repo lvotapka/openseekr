@@ -106,7 +106,7 @@ class Concentric_Spherical_Milestone(Milestone):
         xmlDirectory = ET.SubElement(xmlMilestone, 'directory')
         xmlDirectory.text = str(self.directory)
         xmlAnchor = ET.SubElement(xmlMilestone, 'anchor')
-        xmlAnchor.text = str(self.anchor)
+        xmlAnchor.text = ', '.join(list(map(str, self.anchor)))
         xmlNeighbors = ET.SubElement(xmlMilestone, 'neighbors')
         for neighbor in self.neighbors:
             xmlNeighbor = ET.SubElement(xmlNeighbors, 'neighbor')
@@ -160,7 +160,11 @@ class Concentric_Spherical_Milestone(Milestone):
     def deserialize(self, xmlTree):
         self.fullname = xmlTree.find('fullname').text
         self.directory = xmlTree.find('directory').text
-        self.anchor = xmlTree.find('anchor').text
+        anchor_str = xmlTree.find('anchor').text
+        if anchor_str:
+            anchor_str = anchor_str.replace(' ', '')
+            self.anchor = list(
+                map(float, anchor_str.split(',')))
         self.index = int(xmlTree.find('index').text)
         self.siteid = int(xmlTree.find('siteid').text)
         self.absolute = xmlTree.find('absolute').text
