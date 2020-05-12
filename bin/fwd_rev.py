@@ -119,6 +119,8 @@ def create_spherical_seekr_force(seekrcalc, milestone, system,
                                   milestone.directory, 'md', 'fwd_rev', 
                                   transition_filename) 
     # Define all settings and parameters for the SEEKR force object
+    assert len(milestone.atom_selection_1) > 0
+    assert len(milestone.atom_selection_2) > 0
     force.addSphericalMilestone(len(milestone.atom_selection_1), 
                                 len(milestone.atom_selection_2), 
                                 radius1, radius2, radius3, 

@@ -53,7 +53,9 @@ def create_forces(seekrcalc, milestone, system):
     k = new_force.addGlobalParameter('k', seekrcalc.umbrella_stage.force_constant)
     #r0 = new_force.addGlobalParameter('length', milestone.radius*angstrom)
     r0 = new_force.addGlobalParameter('radius', milestone.radius*angstrom)
+    assert len(milestone.atom_selection_1) > 0
     g1 = new_force.addGroup(milestone.atom_selection_1)
+    assert len(milestone.atom_selection_2) > 0
     g2 = new_force.addGroup(milestone.atom_selection_2)
     if verbose: print(("k:", seekrcalc.umbrella_stage.force_constant, "radius:", milestone.radius*angstrom, "g1:", milestone.atom_selection_1, "g2:", milestone.atom_selection_2))
     new_force.addBond([g1, g2], [])
