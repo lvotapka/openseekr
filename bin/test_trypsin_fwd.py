@@ -82,14 +82,14 @@ for milestone in all_milestones:
                 milestone.openmm.prmtop_filename = prmtop_path
                 milestone.openmm.inpcrd_filename = inpcrd_path
                 inpcrd = AmberInpcrdFile(inpcrd_path)
-                milestone.box_vectors = inpcrd.boxVectors
-                print("box_vectors:", milestone.box_vectors)
+                milestone.fwd_rev_box_vectors = inpcrd.boxVectors
+                print("box_vectors:", milestone.fwd_rev_box_vectors)
             else:
                 print("prmtop or inpcrd file not found for milestone %d. Skipping..." % milestone.index)
                 continue
 
         print("launching constant energy forward stage for milestone:", which)
-        box_vectors = milestone.box_vectors
+        box_vectors = milestone.fwd_rev_box_vectors
         milestone.atom_selection_1 = rec_selection
         milestone.atom_selection_2 = lig_selection
         fwd_rev_path = os.path.join(me.project.rootdir, milestone.directory, 'md', 'fwd_rev')

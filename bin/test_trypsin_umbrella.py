@@ -82,8 +82,8 @@ for milestone in all_milestones:
                 milestone.openmm.prmtop_filename = prmtop_path
                 milestone.openmm.inpcrd_filename = inpcrd_path
                 inpcrd = AmberInpcrdFile(inpcrd_path)
-                milestone.box_vectors = inpcrd.boxVectors
-                print("box_vectors:", milestone.box_vectors)
+                milestone.umbrella_box_vectors = inpcrd.boxVectors
+                print("box_vectors:", milestone.umbrella_box_vectors)
             else:
                 print("prmtop or inpcrd file not found for milestone %d. Skipping..." % milestone.index)
                 continue
@@ -95,13 +95,13 @@ for milestone in all_milestones:
             milestone.atom_selection_2 = lig_selection
 
         new_dcd_filename, new_pdb_filename = seekr.generate_umbrella_filenames(me, milestone)
-        box_vectors = milestone.box_vectors
-        milestone.box_vectors, umbrella_traj = seekr.launch_umbrella_stage(me, milestone, box_vectors, traj_name=new_dcd_filename)
+        box_vectors = milestone.umbrella_box_vectors
+        milestone.umbrella_box_vectors, umbrella_traj = seekr.launch_umbrella_stage(me, milestone, box_vectors, traj_name=new_dcd_filename)
         #TODO: umbrella_traj not used
         pdb_filename = os.path.join(me.project.rootdir, milestone.directory, 'md', 'umbrella', new_pdb_filename)
         amber.save_restart(me, milestone, pdb_filename)
         milestone.openmm.umbrella_pdb_filename = pdb_filename
 
-    print("ending box vectors for milestone %d:" % milestone.index, milestone.box_vectors)
+    print("ending box vectors for milestone %d:" % milestone.index, milestone.umbrella_box_vectors)
 
 me.save()
