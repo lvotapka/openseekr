@@ -50,17 +50,23 @@ def create_forces(seekrcalc, milestone, system):
     '''
     #new_force = CustomCentroidBondForce(2, '0.5*k*(z2-z1-length)^2')
     new_force = CustomCentroidBondForce(2, '0.5*k*(distance(g1,g2)-radius)^2')
-    k = new_force.addGlobalParameter('k', seekrcalc.umbrella_stage.force_constant)
+    k = new_force.addGlobalParameter(
+        'k', seekrcalc.umbrella_stage.force_constant)
     #r0 = new_force.addGlobalParameter('length', milestone.radius*angstrom)
     r0 = new_force.addGlobalParameter('radius', milestone.radius*angstrom)
     assert len(milestone.atom_selection_1) > 0
     g1 = new_force.addGroup(milestone.atom_selection_1)
     assert len(milestone.atom_selection_2) > 0
     g2 = new_force.addGroup(milestone.atom_selection_2)
-    if verbose: print(("k:", seekrcalc.umbrella_stage.force_constant, "radius:", milestone.radius*angstrom, "g1:", milestone.atom_selection_1, "g2:", milestone.atom_selection_2))
+    if verbose: print(("k:", seekrcalc.umbrella_stage.force_constant, 
+                       "radius:", milestone.radius*angstrom, 
+                       "g1:", milestone.atom_selection_1, 
+                       "g2:", milestone.atom_selection_2))
     new_force.addBond([g1, g2], [])
-    if verbose: print(("new_force.getNumGlobalParameters():", new_force.getNumGlobalParameters()))
-    if verbose: print(("new_force.getNumPerBondParameters():", new_force.getNumPerBondParameters()))
+    if verbose: print(("new_force.getNumGlobalParameters():", 
+                       new_force.getNumGlobalParameters()))
+    if verbose: print(("new_force.getNumPerBondParameters():", 
+                       new_force.getNumPerBondParameters()))
     return new_force
 
 def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umbrella1.dcd'):

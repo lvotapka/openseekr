@@ -176,101 +176,101 @@ def read_data_file_transitions_down(data_file_name, destination='1', last_frame=
     assert len(downward_indices) != 0, "FAILURE: no downward forward trajectories detected. Please run additional umbrella sampling and rev/fwd trajectories."
     return downward_indices
 
-
-downward = True
-print("Parse arguments")
-if len(sys.argv) < 4:
-    print("Usage:\npython dig_deeper.py MILESTONE PICKLE METHOD *ARGUMENTS")
-    print("Available arguments for 'METHOD': first, last, similar, ")
-    print("Usage for 'similar' method:")
-    print("python dig_deeper.py MILESTONE PICKLE similar REF_PARM7 REF_RST7  LIG_RESNAME")
-    print("Usage for 'index' method:")
-    print("python dig_deeper.py MILESTONE PICKLE index FILENAME")
-    print("be sure to provide reference PDB and ligand resname if using 'similar' method argument.")
-    print("if the last argument is 'up' then an upward-going trajectory is chosen.")
-    exit()
-
-which = int(sys.argv[1])
-picklename = sys.argv[2]
-method = sys.argv[3]
-ref_pdb = None
-lig_resname = None
-
-if method == 'similar':
-    #ref_pdb = sys.argv[4]
-    ref_parm7 = sys.argv[4]
-    ref_rst7 = sys.argv[5]
-    lig_resname = sys.argv[6]
-elif method == 'index':
-    index = sys.argv[4]
-
-if sys.argv[-1] == 'up':
-    downward = False
-
-print("Loading SEEKR calculation.")
-me = seekr.openSeekrCalc(picklename)
-
-milestone = me.milestones[which]
-if downward:
-    lower_milestone = me.milestones[which-1] # TODO: hacky
-else:
-    lower_milestone = me.milestones[which+1]
-
-# define all directories and files
-fwd_rev_dir = os.path.join(me.project.rootdir, milestone.directory, 'md', 'fwd_rev')
-lower_temp_equil_dir = os.path.join(me.project.rootdir, lower_milestone.directory, 'md', 'temp_equil')
-lower_temp_equil_filename = os.path.join(lower_temp_equil_dir, 'equilibrated.pdb')
-lower_milestone_holo = os.path.join(me.project.rootdir, lower_milestone.directory, 'md', 'holo_wet.pdb')
-lower_milestone_building = os.path.join(me.project.rootdir, lower_milestone.directory, 'md', 'building')
-data_file_name = os.path.join(fwd_rev_dir, 'transition_fwd.dat') # find the index of a successful downward trajectory
-prmtop = os.path.join(me.project.rootdir, milestone.directory, 'md', 'building', 'holo.parm7')
-new_prmtop = os.path.join(lower_milestone_building, 'holo.parm7')
-new_inpcrd = os.path.join(lower_milestone_building, 'holo.rst7')
-
-# NEXT TIME: find the downward forward dcd filenames for 'similar' method
-
-# figure out which forward to pull out from
-print("Attempting to extract the last frame of a successful downward trajectory.")
-if downward:
-    downward_indices = read_data_file_transitions_down(data_file_name)
-else:
-    downward_indices = read_data_file_transitions_down(data_file_name, destination='3') # TODO: hacky
-
-dcd_list = sorted(glob.glob(os.path.join(fwd_rev_dir, 'forward*.dcd')), key=seekr.sort_forward_dcd_key)
-
-print("Writing new structures and files needed to run umbrella simulation on the lower milestone (milestone %d)" % lower_milestone.index)
-#last_fwd_frame = mdtraj.load(downward_fwd_dcd, top=prmtop)[-1]
-if method=='first':
-    #downward_fwd_dcd = os.path.join(fwd_rev_dir, 'forward%i_0.dcd' % downward_indices[0])
-    downward_dcd = dcd_list[downward_indices[0]]
-    print("Extracting frame from file:", downward_dcd)
-    last_fwd_frame = seekr.load_last_mdtraj_frame(downward_dcd, prmtop)
-elif method=='last':
-    #downward_fwd_dcd = os.path.join(fwd_rev_dir, 'forward%i_0.dcd' % downward_indices[-1])
-    downward_dcd = dcd_list[downward_indices[-1]]
-    print("Extracting frame from file:", downward_dcd)
-    last_fwd_frame = seekr.load_last_mdtraj_frame(downward_dcd, prmtop)
-elif method=='similar':
-    dcd_downward_list = []
-    for dcd_index in downward_indices:
-        #dcd_list.append(os.path.join(fwd_rev_dir, 'forward%i_0.dcd' % dcd_index))
-        dcd_downward_list.append(dcd_list[dcd_index])
-    last_fwd_frame = find_closest_ligand_orientation(prmtop, dcd_downward_list, ref_parm7, ref_rst7, lig_resname, lower_milestone.center_atom_indices)
-elif method=='index':
-    downward_dcd = os.path.join(fwd_rev_dir, index)
-    print("Extracting frame from file:", downward_dcd)
-    last_fwd_frame = seekr.load_last_mdtraj_frame(downward_dcd, prmtop)
-else:
-    raise Exception("Method not allowed: %s" % method)
-
-last_fwd_frame.save_pdb(lower_temp_equil_filename)
-last_fwd_frame.save_pdb(lower_milestone_holo)
-last_fwd_frame.save_amberrst7(new_inpcrd)
-
-# copy the prmtop to the lower building directory
-copyfile(prmtop, new_prmtop)
-lower_milestone.openmm.prmtop_filename = new_prmtop
-lower_milestone.openmm.inpcrd_filename = new_inpcrd
-
-
-me.save()
+if __name__ == "__main__":
+    downward = True
+    print("Parse arguments")
+    if len(sys.argv) < 4:
+        print("Usage:\npython dig_deeper.py MILESTONE PICKLE METHOD *ARGUMENTS")
+        print("Available arguments for 'METHOD': first, last, similar, ")
+        print("Usage for 'similar' method:")
+        print("python dig_deeper.py MILESTONE PICKLE similar REF_PARM7 REF_RST7  LIG_RESNAME")
+        print("Usage for 'index' method:")
+        print("python dig_deeper.py MILESTONE PICKLE index FILENAME")
+        print("be sure to provide reference PDB and ligand resname if using 'similar' method argument.")
+        print("if the last argument is 'up' then an upward-going trajectory is chosen.")
+        exit()
+    
+    which = int(sys.argv[1])
+    picklename = sys.argv[2]
+    method = sys.argv[3]
+    ref_pdb = None
+    lig_resname = None
+    
+    if method == 'similar':
+        #ref_pdb = sys.argv[4]
+        ref_parm7 = sys.argv[4]
+        ref_rst7 = sys.argv[5]
+        lig_resname = sys.argv[6]
+    elif method == 'index':
+        index = sys.argv[4]
+    
+    if sys.argv[-1] == 'up':
+        downward = False
+    
+    print("Loading SEEKR calculation.")
+    me = seekr.openSeekrCalc(picklename)
+    
+    milestone = me.milestones[which]
+    if downward:
+        lower_milestone = me.milestones[which-1] # TODO: hacky
+    else:
+        lower_milestone = me.milestones[which+1]
+    
+    # define all directories and files
+    fwd_rev_dir = os.path.join(me.project.rootdir, milestone.directory, 'md', 'fwd_rev')
+    lower_temp_equil_dir = os.path.join(me.project.rootdir, lower_milestone.directory, 'md', 'temp_equil')
+    lower_temp_equil_filename = os.path.join(lower_temp_equil_dir, 'equilibrated.pdb')
+    lower_milestone_holo = os.path.join(me.project.rootdir, lower_milestone.directory, 'md', 'holo_wet.pdb')
+    lower_milestone_building = os.path.join(me.project.rootdir, lower_milestone.directory, 'md', 'building')
+    data_file_name = os.path.join(fwd_rev_dir, 'transition_fwd.dat') # find the index of a successful downward trajectory
+    prmtop = os.path.join(me.project.rootdir, milestone.directory, 'md', 'building', 'holo.parm7')
+    new_prmtop = os.path.join(lower_milestone_building, 'holo.parm7')
+    new_inpcrd = os.path.join(lower_milestone_building, 'holo.rst7')
+    
+    # NEXT TIME: find the downward forward dcd filenames for 'similar' method
+    
+    # figure out which forward to pull out from
+    print("Attempting to extract the last frame of a successful downward trajectory.")
+    if downward:
+        downward_indices = read_data_file_transitions_down(data_file_name)
+    else:
+        downward_indices = read_data_file_transitions_down(data_file_name, destination='3') # TODO: hacky
+    
+    dcd_list = sorted(glob.glob(os.path.join(fwd_rev_dir, 'forward*.dcd')), key=seekr.sort_forward_dcd_key)
+    
+    print("Writing new structures and files needed to run umbrella simulation on the lower milestone (milestone %d)" % lower_milestone.index)
+    #last_fwd_frame = mdtraj.load(downward_fwd_dcd, top=prmtop)[-1]
+    if method=='first':
+        #downward_fwd_dcd = os.path.join(fwd_rev_dir, 'forward%i_0.dcd' % downward_indices[0])
+        downward_dcd = dcd_list[downward_indices[0]]
+        print("Extracting frame from file:", downward_dcd)
+        last_fwd_frame = seekr.load_last_mdtraj_frame(downward_dcd, prmtop)
+    elif method=='last':
+        #downward_fwd_dcd = os.path.join(fwd_rev_dir, 'forward%i_0.dcd' % downward_indices[-1])
+        downward_dcd = dcd_list[downward_indices[-1]]
+        print("Extracting frame from file:", downward_dcd)
+        last_fwd_frame = seekr.load_last_mdtraj_frame(downward_dcd, prmtop)
+    elif method=='similar':
+        dcd_downward_list = []
+        for dcd_index in downward_indices:
+            #dcd_list.append(os.path.join(fwd_rev_dir, 'forward%i_0.dcd' % dcd_index))
+            dcd_downward_list.append(dcd_list[dcd_index])
+        last_fwd_frame = find_closest_ligand_orientation(prmtop, dcd_downward_list, ref_parm7, ref_rst7, lig_resname, lower_milestone.center_atom_indices)
+    elif method=='index':
+        downward_dcd = os.path.join(fwd_rev_dir, index)
+        print("Extracting frame from file:", downward_dcd)
+        last_fwd_frame = seekr.load_last_mdtraj_frame(downward_dcd, prmtop)
+    else:
+        raise Exception("Method not allowed: %s" % method)
+    
+    last_fwd_frame.save_pdb(lower_temp_equil_filename)
+    last_fwd_frame.save_pdb(lower_milestone_holo)
+    last_fwd_frame.save_amberrst7(new_inpcrd)
+    
+    # copy the prmtop to the lower building directory
+    copyfile(prmtop, new_prmtop)
+    lower_milestone.openmm.prmtop_filename = new_prmtop
+    lower_milestone.openmm.inpcrd_filename = new_inpcrd
+    
+    
+    me.save()
