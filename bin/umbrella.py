@@ -157,6 +157,7 @@ def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umb
     step_chunk_size = min(seekrcalc.umbrella_stage.steps, 
                           seekrcalc.umbrella_stage.traj_freq)
     current_step = 0
+    simulation.currentStep = 0
     print(("running %d steps" % seekrcalc.umbrella_stage.steps))
     while current_step < seekrcalc.umbrella_stage.steps:
         try:
@@ -166,6 +167,7 @@ def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umb
         except Exception:
             print("Alert! NaN error detected. Restarting from saved state.")
             simulation.loadState(state_filename)
+            simulation.currentStep = current_step
 
     #simulation.step(seekrcalc.umbrella_stage.steps) # old way: simulate steps directly
     print(("time:", time.time() - starttime, "s"))
