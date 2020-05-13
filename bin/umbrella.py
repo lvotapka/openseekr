@@ -169,7 +169,6 @@ def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umb
             simulation.loadState(state_filename)
             simulation.currentStep = current_step
 
-    #simulation.step(seekrcalc.umbrella_stage.steps) # old way: simulate steps directly
     print(("time:", time.time() - starttime, "s"))
     if barostat_force_id is not None:
         system.removeForce(barostat_force_id)
@@ -179,7 +178,6 @@ def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umb
     end_state_filename = os.path.join(
         seekrcalc.project.rootdir, milestone.directory, 'md', 'umbrella', 
         '%s_end.state' % root_name)
-    #simulation.saveState(end_state_filename)
     saveStateWithoutParam(my_simulation=simulation, file=end_state_filename)
     ending_box_vectors = end_state.getPeriodicBoxVectors()
     milestone.openmm.simulation = simulation
