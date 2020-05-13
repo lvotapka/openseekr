@@ -32,11 +32,8 @@ print("Loading SEEKR calculation.")
 ##################################################################
 
 
-picklename = '/home/lvotapka/tryp_test/seekr_calc.pickle'
+picklename = '/home/lvotapka/tryp_test/seekr_calc.xml'
 me = seekr.openSeekrCalc(picklename)
-
-lig_selection = [3222, 3223, 3224, 3225, 3226, 3227, 3228, 3229, 3230]
-rec_selection = [2466, 2478, 2489, 2535, 2745, 2769, 2787]
 
 step_chunk_size = 1000
 me.fwd_rev_stage.steps = step_chunk_size # in 2*fs
@@ -45,7 +42,7 @@ me.fwd_rev_stage.traj_freq = 1000
 me.fwd_rev_stage.launches_per_config = 1
 me.fwd_rev_stage.barostat = False # leave barostat off
 transition_filename = 'transition_fwd.dat'
-me.openmm.properties = {'CudaDeviceIndex':'1', 'CudaPrecision':'mixed'}
+me.openmm.properties = {'CudaDeviceIndex':'0', 'CudaPrecision':'mixed'}
 
 ##################################################################
 # DON'T MODIFY THE SECTION BELOW UNLESS YOU KNOW WHAT YOU'RE DOING
@@ -90,8 +87,6 @@ for milestone in all_milestones:
 
         print("launching constant energy forward stage for milestone:", which)
         box_vectors = milestone.fwd_rev_box_vectors
-        milestone.atom_selection_1 = rec_selection
-        milestone.atom_selection_2 = lig_selection
         fwd_rev_path = os.path.join(me.project.rootdir, milestone.directory, 'md', 'fwd_rev')
 
         traj_base = "forward"
