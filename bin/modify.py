@@ -20,6 +20,7 @@ import seekr
 from seekr import deserialize_transition_info
 import analyze
 
+quick_analysis = False
 
 def add_milestone(me, radius):
     '''
@@ -301,6 +302,11 @@ def report_milestones(me):
         fwd_rev_info = get_fwd_rev_info(me, milestone)
         print('  Fwd_rev Stage: %d reversal, %d forward dcd files found' \
         % fwd_rev_info)
+        if not quick_analysis and (fwd_rev_info[0] > 0 or fwd_rev_info[1] > 0):
+            fwd_rev_distances = analyze.get_fwd_rev_avg_distance(
+                me, milestone)
+            print('  Fwd_rev Stage: upward_distance: %.2f, ' \
+                  'downward_distance: %.2f' % fwd_rev_distances)
         transition_info = get_transition_info(me, milestone)
         if transition_info is None:
             print('  Transitions: no data found')
