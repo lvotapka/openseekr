@@ -106,13 +106,13 @@ for milestone in all_milestones:
             print("Opening pickles:", coords_pickle, vels_pickle)
             success_coords_pickle =  open(coords_pickle, 'rb')
             #success_coords_pickle_file = open(success_coords_pickle, 'rb')
-            positions = pickle.load(success_coords_pickle)[:10]
+            positions = pickle.load(success_coords_pickle)
             success_coords_pickle.close()
 
             #me.fwd_rev_stage.success_vels_pickle = os.path.join(me.project.rootdir, milestone.directory, 'md', 'fwd_rev', 'success_vels.pickle') # TODO: remove line
             success_vels_pickle =  open(vels_pickle, 'rb')
             #success_vels_pickle_file = open(success_vels_pickle, 'rb')
-            velocities = pickle.load(success_vels_pickle)[:10]
+            velocities = pickle.load(success_vels_pickle)
             success_vels_pickle.close()
 
             reversed_vels = []
