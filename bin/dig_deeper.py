@@ -180,12 +180,12 @@ if __name__ == "__main__":
     downward = True
     print("Parse arguments")
     if len(sys.argv) < 4:
-        print("Usage:\npython dig_deeper.py MILESTONE PICKLE METHOD *ARGUMENTS")
-        print("Available arguments for 'METHOD': first, last, similar, ")
+        print("Usage:\npython dig_deeper.py MILESTONE SEEKRXML METHOD *ARGUMENTS")
+        print("Available arguments for 'METHOD': first, last, similar, index")
         print("Usage for 'similar' method:")
-        print("python dig_deeper.py MILESTONE PICKLE similar REF_PARM7 REF_RST7  LIG_RESNAME")
+        print("python dig_deeper.py MILESTONE SEEKRXML similar REF_PARM7 REF_RST7  LIG_RESNAME")
         print("Usage for 'index' method:")
-        print("python dig_deeper.py MILESTONE PICKLE index FILENAME")
+        print("python dig_deeper.py MILESTONE SEEKRXML index FILENAME")
         print("be sure to provide reference PDB and ligand resname if using 'similar' method argument.")
         print("if the last argument is 'up' then an upward-going trajectory is chosen.")
         exit()
@@ -272,5 +272,6 @@ if __name__ == "__main__":
     lower_milestone.openmm.prmtop_filename = new_prmtop
     lower_milestone.openmm.inpcrd_filename = new_inpcrd
     
+    lower_milestone.temp_equil_box_vectors = milestone.fwd_rev_box_vectors
     
     me.save()
