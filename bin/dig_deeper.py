@@ -272,6 +272,6 @@ if __name__ == "__main__":
     lower_milestone.openmm.prmtop_filename = new_prmtop
     lower_milestone.openmm.inpcrd_filename = new_inpcrd
     
-    lower_milestone.temp_equil_box_vectors = milestone.fwd_rev_box_vectors
+    lower_milestone.min_equil_box_vectors = milestone.fwd_rev_box_vectors
     
     me.save()

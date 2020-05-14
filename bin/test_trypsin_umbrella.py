@@ -98,7 +98,7 @@ for milestone in all_milestones:
         if milestone.umbrella_box_vectors is not None:
             box_vectors = milestone.umbrella_box_vectors
         else:
-            box_vectors = milestone.temp_equil_box_vectors
+            box_vectors = milestone.min_equil_box_vectors
         milestone.umbrella_box_vectors, umbrella_traj = seekr.launch_umbrella_stage(me, milestone, box_vectors, traj_name=new_dcd_filename)
         #TODO: umbrella_traj not used
         pdb_filename = os.path.join(me.project.rootdir, milestone.directory, 'md', 'umbrella', new_pdb_filename)
