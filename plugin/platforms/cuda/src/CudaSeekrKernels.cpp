@@ -319,7 +319,7 @@ double CudaCalcSeekrForceKernel::execute(ContextImpl& context, bool includeForce
     };
     cu.executeKernel(computeSphericalMilestonesKernel, sphericalMilestoneArgs, numSphericalMilestones);
     collectionReturnCode->download(h_collectionReturnCode); 
-    cout << "collectionReturnCode: " << h_collectionReturnCode[0] << endl;
+    //cout << "collectionReturnCode: " << h_collectionReturnCode[0] << endl;
     
     //cout << "step:" << context.getTime() << "\n";
     
@@ -370,7 +370,8 @@ double CudaCalcSeekrForceKernel::execute(ContextImpl& context, bool includeForce
           datafile.close();
         }
       } else if (h_collectionReturnCode[0] == 5) { // this is an error code
-        throw OpenMMException("Error in CUDA kernel: Nan detected in atom ");
+        cout << "Error in CUDA kernel: Nan detected in atom group distance\n";
+        throw OpenMMException("Error in CUDA kernel: Nan detected in atom group distance");
       }
     }
     return 0.0;

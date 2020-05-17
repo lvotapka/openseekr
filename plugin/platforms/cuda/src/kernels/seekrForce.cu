@@ -82,11 +82,11 @@ extern "C" __global__ void monitorSphericalMilestones(
         
         }
         
-        if (isnan(distSquared)) {
+        if (isnan(distSquared) == true) {
             returncode[index] = 5;
         }
         
-        returncode[index] = distSquared;
+        //returncode[index] = distSquared;
     }
 }
 
