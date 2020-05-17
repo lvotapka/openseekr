@@ -129,20 +129,32 @@ class Concentric_Spherical_Milestone(Milestone):
         
         xmlEnd = ET.SubElement(xmlMilestone, 'end')
         xmlEnd.text = str(self.end)
-        xmlCenter_atom_indices = ET.SubElement(xmlMilestone, 'center_atom_indices')
-        xmlCenter_atom_indices.text = ', '.join(list(map(str, self.center_atom_indices)))
+        xmlCenter_atom_indices = ET.SubElement(xmlMilestone, 
+                                               'center_atom_indices')
+        xmlCenter_atom_indices.text = ', '.join(
+            list(map(str, self.center_atom_indices)))
         xmlCenter_vec = ET.SubElement(xmlMilestone, 'center_vec')
         xmlCenter_vec.text = ', '.join(list(map(str, self.center_vec)))
         xmlRadius = ET.SubElement(xmlMilestone, 'radius')
         xmlRadius.text = str(self.radius)
-        xmlWet_holo_pdb_filename = ET.SubElement(xmlMilestone, 'wet_holo_filename')
+        xmlWet_holo_pdb_filename = ET.SubElement(xmlMilestone, 
+                                                 'wet_holo_filename')
         xmlWet_holo_pdb_filename.text = str(self.wet_holo_filename)
-        xmlDry_holo_pdb_filename = ET.SubElement(xmlMilestone, 'dry_holo_filename')
+        xmlDry_holo_pdb_filename = ET.SubElement(xmlMilestone, 
+                                                 'dry_holo_filename')
         xmlDry_holo_pdb_filename.text = str(self.dry_holo_filename)
         xmlAtom_selection_1 = ET.SubElement(xmlMilestone, 'atom_selection_1')
-        xmlAtom_selection_1.text = ', '.join(list(map(str, self.atom_selection_1)))
+        if self.atom_selection_1 is None:
+            xmlAtom_selection_1.text = None
+        else:
+            xmlAtom_selection_1.text = ', '.join(
+                list(map(str, self.atom_selection_1)))
         xmlAtom_selection_2 = ET.SubElement(xmlMilestone, 'atom_selection_2')
-        xmlAtom_selection_2.text = ', '.join(list(map(str, self.atom_selection_2)))
+        if self.atom_selection_2 is None:
+            xmlAtom_selection_2.text = None
+        else:
+            xmlAtom_selection_2.text = ', '.join(
+                list(map(str, self.atom_selection_2)))
         xmlOpenMM = ET.SubElement(xmlMilestone, 'openmm')
         xmlOpenMM.text = self.openmm.serialize(xmlOpenMM)
         #xmlConfig = ET.SubElement(xmlMilestone, 'config')
