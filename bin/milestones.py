@@ -143,9 +143,15 @@ class Concentric_Spherical_Milestone(Milestone):
         xmlRadius = ET.SubElement(xmlMilestone, 'radius')
         xmlRadius.text = str(self.radius)
         xmlWet_holo_pdb_filename = ET.SubElement(xmlMilestone, 'wet_holo_filename')
-        xmlWet_holo_pdb_filename.text = str(self.wet_holo_filename)
+        if self.wet_holo_filename is None:
+            xmlWet_holo_pdb_filename.text = None
+        else:
+            xmlWet_holo_pdb_filename.text = str(self.wet_holo_filename)
         xmlDry_holo_pdb_filename = ET.SubElement(xmlMilestone, 'dry_holo_filename')
-        xmlDry_holo_pdb_filename.text = str(self.dry_holo_filename)
+        if self.dry_holo_filename is None:
+            xmlDry_holo_pdb_filename.text = None
+        else:
+            xmlDry_holo_pdb_filename.text = str(self.dry_holo_filename)
         xmlAtom_selection_1 = ET.SubElement(xmlMilestone, 'atom_selection_1')
         xmlAtom_selection_1.text = ', '.join(list(map(str, self.atom_selection_1)))
         xmlAtom_selection_2 = ET.SubElement(xmlMilestone, 'atom_selection_2')
