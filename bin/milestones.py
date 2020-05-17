@@ -362,7 +362,7 @@ def print_spherical_milestone_info(milestones):
      - None
      '''
     for milestone in milestones:
-        print("Milestone index:", milestone.index, "siteid:", milestone.siteid, "origin:", milestone.center_vec, "center_atoms:", milestone.center_atom_indices, end=' ')
+        print("Milestone index:", milestone.index, "siteid:", milestone.siteid, "origin:", milestone.center_vec, "center_atoms:", milestone.center_atom_indices)
         print("  num neighbors:", len(milestone.neighbors), "anchor:", milestone.anchor, "md:", milestone.md, "bd:", milestone.bd, "bd_adjacent:", milestone.bd_adjacent)
         print("  end:", milestone.end, "fullname:", milestone.fullname, "radius:", milestone.radius)
 
