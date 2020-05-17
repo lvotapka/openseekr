@@ -46,8 +46,8 @@ picklename = '/home/lvotapka/tryp_test/seekr_calc.xml'
 me = seekr.openSeekrCalc(picklename)
 me.umbrella_stage.force_constant = 90.0*kilocalories_per_mole/angstroms**2
 me.umbrella_stage.steps = num_steps # in 2*fs
-me.umbrella_stage.energy_freq = 10000
-me.umbrella_stage.traj_freq = 10000
+me.umbrella_stage.energy_freq = 100000
+me.umbrella_stage.traj_freq = 100000
 if ensemble == 'npt':
     me.umbrella_stage.barostat = True # turn on barostat, run in NPT
     me.umbrella_stage.barostat_freq = 25

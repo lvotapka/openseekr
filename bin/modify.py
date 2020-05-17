@@ -20,7 +20,7 @@ import seekr
 from seekr import deserialize_transition_info
 import analyze
 
-quick_analysis = False
+quick_analysis = True
 
 def add_milestone(me, radius):
     '''
