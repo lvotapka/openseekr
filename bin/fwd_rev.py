@@ -130,7 +130,9 @@ def create_spherical_seekr_force(seekrcalc, milestone, system,
     # Add the SEEKR force to the openMM system
     system.addForce(force) 
     if verbose: print("SEEKR force added to system. Inner radius:", radius1, 
-                      "Middle radius:", radius2, "Outer radius:", radius3)
+                      "Middle radius:", radius2, "Outer radius:", radius3,
+                      "atom_selection_1:", milestone.atom_selection_1,
+                      "atom_selection_2:", milestone.atom_selection_2)
     return force, data_file_name
 
 def get_data_file_length(data_file_name):

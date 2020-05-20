@@ -369,6 +369,9 @@ double CudaCalcSeekrForceKernel::execute(ContextImpl& context, bool includeForce
           crossedStartingMilestone = false;
           datafile.close();
         }
+      } else if (h_collectionReturnCode[0] == 5) { // this is an error code
+        cout << "Error in CUDA kernel: Nan detected in atom group distance\n";
+        throw OpenMMException("Error in CUDA kernel: Nan detected in atom group distance");
       }
     }
     return 0.0;
