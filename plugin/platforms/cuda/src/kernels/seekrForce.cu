@@ -86,7 +86,7 @@ extern "C" __global__ void monitorSphericalMilestones(
             returncode[index] = 5;
         }
         
-        //returncode[index] = distSquared;
+        //returncode[index] = totalmass2;
     }
 }
 
