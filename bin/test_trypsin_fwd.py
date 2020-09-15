@@ -32,11 +32,8 @@ print("Loading SEEKR calculation.")
 ##################################################################
 
 
-picklename = '/home/lvotapka/tryp_test/seekr_calc.pickle'
+picklename = '/home/lvotapka/tryp_test/seekr_calc.xml'
 me = seekr.openSeekrCalc(picklename)
-
-lig_selection = [3222, 3223, 3224, 3225, 3226, 3227, 3228, 3229, 3230]
-rec_selection = [2466, 2478, 2489, 2535, 2745, 2769, 2787]
 
 step_chunk_size = 1000
 me.fwd_rev_stage.steps = step_chunk_size # in 2*fs
@@ -82,16 +79,14 @@ for milestone in all_milestones:
                 milestone.openmm.prmtop_filename = prmtop_path
                 milestone.openmm.inpcrd_filename = inpcrd_path
                 inpcrd = AmberInpcrdFile(inpcrd_path)
-                milestone.box_vectors = inpcrd.boxVectors
-                print("box_vectors:", milestone.box_vectors)
+                milestone.fwd_rev_box_vectors = inpcrd.boxVectors
+                print("box_vectors:", milestone.fwd_rev_box_vectors)
             else:
                 print("prmtop or inpcrd file not found for milestone %d. Skipping..." % milestone.index)
                 continue
 
         print("launching constant energy forward stage for milestone:", which)
-        box_vectors = milestone.box_vectors
-        milestone.atom_selection_1 = rec_selection
-        milestone.atom_selection_2 = lig_selection
+        box_vectors = milestone.fwd_rev_box_vectors
         fwd_rev_path = os.path.join(me.project.rootdir, milestone.directory, 'md', 'fwd_rev')
 
         traj_base = "forward"
@@ -157,4 +152,4 @@ for milestone in all_milestones:
         avg_incubation_time = np.mean(incubation_time_list_total)
         pprint(avg_incubation_time)
 
-        seekr.pickle_transition_info(me, milestone, transition_dict_total, avg_incubation_time)
+        seekr.serialize_transition_info(me, milestone, transition_dict_total, avg_incubation_time)

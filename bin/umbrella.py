@@ -50,15 +50,23 @@ def create_forces(seekrcalc, milestone, system):
     '''
     #new_force = CustomCentroidBondForce(2, '0.5*k*(z2-z1-length)^2')
     new_force = CustomCentroidBondForce(2, '0.5*k*(distance(g1,g2)-radius)^2')
-    k = new_force.addGlobalParameter('k', seekrcalc.umbrella_stage.force_constant)
+    k = new_force.addGlobalParameter(
+        'k', seekrcalc.umbrella_stage.force_constant)
     #r0 = new_force.addGlobalParameter('length', milestone.radius*angstrom)
     r0 = new_force.addGlobalParameter('radius', milestone.radius*angstrom)
+    assert len(milestone.atom_selection_1) > 0
     g1 = new_force.addGroup(milestone.atom_selection_1)
+    assert len(milestone.atom_selection_2) > 0
     g2 = new_force.addGroup(milestone.atom_selection_2)
-    if verbose: print(("k:", seekrcalc.umbrella_stage.force_constant, "radius:", milestone.radius*angstrom, "g1:", milestone.atom_selection_1, "g2:", milestone.atom_selection_2))
+    if verbose: print(("k:", seekrcalc.umbrella_stage.force_constant, 
+                       "radius:", milestone.radius*angstrom, 
+                       "g1:", milestone.atom_selection_1, 
+                       "g2:", milestone.atom_selection_2))
     new_force.addBond([g1, g2], [])
-    if verbose: print(("new_force.getNumGlobalParameters():", new_force.getNumGlobalParameters()))
-    if verbose: print(("new_force.getNumPerBondParameters():", new_force.getNumPerBondParameters()))
+    if verbose: print(("new_force.getNumGlobalParameters():", 
+                       new_force.getNumGlobalParameters()))
+    if verbose: print(("new_force.getNumPerBondParameters():", 
+                       new_force.getNumPerBondParameters()))
     return new_force
 
 def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umbrella1.dcd'):
@@ -149,6 +157,7 @@ def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umb
     step_chunk_size = min(seekrcalc.umbrella_stage.steps, 
                           seekrcalc.umbrella_stage.traj_freq)
     current_step = 0
+    simulation.currentStep = 0
     print(("running %d steps" % seekrcalc.umbrella_stage.steps))
     while current_step < seekrcalc.umbrella_stage.steps:
         try:
@@ -158,8 +167,8 @@ def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umb
         except Exception:
             print("Alert! NaN error detected. Restarting from saved state.")
             simulation.loadState(state_filename)
+            simulation.currentStep = current_step
 
-    #simulation.step(seekrcalc.umbrella_stage.steps) # old way: simulate steps directly
     print(("time:", time.time() - starttime, "s"))
     if barostat_force_id is not None:
         system.removeForce(barostat_force_id)
@@ -169,7 +178,6 @@ def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, traj_name='umb
     end_state_filename = os.path.join(
         seekrcalc.project.rootdir, milestone.directory, 'md', 'umbrella', 
         '%s_end.state' % root_name)
-    #simulation.saveState(end_state_filename)
     saveStateWithoutParam(my_simulation=simulation, file=end_state_filename)
     ending_box_vectors = end_state.getPeriodicBoxVectors()
     milestone.openmm.simulation = simulation

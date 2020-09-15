@@ -36,11 +36,8 @@ print("Loading SEEKR calculation.")
 ##################################################################
 
 
-picklename = '/home/lvotapka/tryp_test/seekr_calc.pickle'
+picklename = '/home/lvotapka/tryp_test/seekr_calc.xml'
 me = seekr.openSeekrCalc(picklename)
-
-lig_selection = [3222, 3223, 3224, 3225, 3226, 3227, 3228, 3229, 3230]
-rec_selection = [2466, 2478, 2489, 2535, 2745, 2769, 2787]
 
 step_chunk_size = 1000
 me.fwd_rev_stage.steps = step_chunk_size # in 2*fs
@@ -49,7 +46,7 @@ me.fwd_rev_stage.traj_freq = 1000
 me.fwd_rev_stage.launches_per_config = 1
 me.fwd_rev_stage.barostat = False # leave barostat off
 umbrella_glob = 'umbrella*.dcd'
-reversal_frames = (1010, 10010, 1)
+reversal_frames = (300, 5000, 1)
 pos_vel_chunk_size = 400
 transition_filename = 'transition_rev.dat'
 me.openmm.properties = {'CudaDeviceIndex':'0', 'CudaPrecision':'mixed'}
@@ -72,15 +69,13 @@ for milestone in all_milestones:
                 milestone.openmm.prmtop_filename = prmtop_path
                 milestone.openmm.inpcrd_filename = inpcrd_path
                 inpcrd = AmberInpcrdFile(inpcrd_path)
-                milestone.box_vectors = inpcrd.boxVectors
-                print("box_vectors:", milestone.box_vectors)
+                milestone.fwd_rev_box_vectors = inpcrd.boxVectors
+                print("box_vectors:", milestone.fwd_rev_box_vectors)
             else:
                 print("prmtop or inpcrd file not found for milestone %d. Skipping..." % milestone.index)
                 continue
         print("launching constant energy reverse stage for milestone:", which)
-        box_vectors = milestone.box_vectors
-        milestone.atom_selection_1 = rec_selection
-        milestone.atom_selection_2 = lig_selection
+        box_vectors = milestone.umbrella_box_vectors
         fwd_rev_path = os.path.join(me.project.rootdir, milestone.directory, 'md', 'fwd_rev')
         umbrella_traj = os.path.join(me.project.rootdir, milestone.directory, 'md', 'umbrella', umbrella_glob)
         parm_file_name = os.path.join(me.project.rootdir, milestone.directory, 'md', 'building', 'holo.parm7')

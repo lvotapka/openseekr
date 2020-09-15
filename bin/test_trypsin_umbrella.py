@@ -30,25 +30,24 @@ try:
 
 except:
     print('''Usage: python this_script.py milestone ensemble steps
-  Argument milestone may be an integer or the word 'all', ensemble may be 'nvt' or
-  'npt', and steps is an integer representing the number of umbrella steps
-  to run.''')
+  Argument milestone may be an integer or the word 'all', ensemble may be 
+  'nvt' or 'npt', and steps is an integer representing the number of 
+  umbrella steps to run.''')
     exit()
 
 print("Loading SEEKR calculation for milestone:", which)
 print("Using", ensemble, "ensemble for", num_steps, "steps.")
-#rootdir = '/home/lvotapka/tryp_test'
 
 ##################################################################
 # VARIABLES WITHIN SECTION BELOW SHOULD BE MODIFIED TO YOUR SYSTEM
 ##################################################################
 
-picklename = '/home/lvotapka/tryp_test/seekr_calc.pickle'
+picklename = '/home/lvotapka/tryp_test/seekr_calc.xml'
 me = seekr.openSeekrCalc(picklename)
 me.umbrella_stage.force_constant = 90.0*kilocalories_per_mole/angstroms**2
 me.umbrella_stage.steps = num_steps # in 2*fs
-me.umbrella_stage.energy_freq = 10000
-me.umbrella_stage.traj_freq = 10000
+me.umbrella_stage.energy_freq = 100000
+me.umbrella_stage.traj_freq = 100000
 if ensemble == 'npt':
     me.umbrella_stage.barostat = True # turn on barostat, run in NPT
     me.umbrella_stage.barostat_freq = 25
@@ -58,7 +57,9 @@ else:
 
 # Make sure you use a VMD selection by index (not serial) to find these numbers
 lig_selection = [3221, 3222, 3223, 3224, 3225, 3226, 3227, 3228, 3229]
-rec_selection = [2478, 2489, 2499, 2535, 2718, 2745, 2769, 2787, 2794, 2867, 2926]
+rec_selection = [2478, 2489, 2499, 2535, 2718, 2745, 2769, 2787, 2794, 2867, 
+                 2926]
+me.openmm.properties = {'CudaDeviceIndex':'0', 'CudaPrecision':'mixed'}
 
 ##################################################################
 # DON'T MODIFY THE SECTION BELOW UNLESS YOU KNOW WHAT YOU'RE DOING
@@ -81,8 +82,8 @@ for milestone in all_milestones:
                 milestone.openmm.prmtop_filename = prmtop_path
                 milestone.openmm.inpcrd_filename = inpcrd_path
                 inpcrd = AmberInpcrdFile(inpcrd_path)
-                milestone.box_vectors = inpcrd.boxVectors
-                print("box_vectors:", milestone.box_vectors)
+                milestone.umbrella_box_vectors = inpcrd.boxVectors
+                print("box_vectors:", milestone.umbrella_box_vectors)
             else:
                 print("prmtop or inpcrd file not found for milestone %d. Skipping..." % milestone.index)
                 continue
@@ -94,13 +95,16 @@ for milestone in all_milestones:
             milestone.atom_selection_2 = lig_selection
 
         new_dcd_filename, new_pdb_filename = seekr.generate_umbrella_filenames(me, milestone)
-        box_vectors = milestone.box_vectors
-        milestone.box_vectors, umbrella_traj = seekr.launch_umbrella_stage(me, milestone, box_vectors, traj_name=new_dcd_filename)
+        if milestone.umbrella_box_vectors is not None:
+            box_vectors = milestone.umbrella_box_vectors
+        else:
+            box_vectors = milestone.min_equil_box_vectors
+        milestone.umbrella_box_vectors, umbrella_traj = seekr.launch_umbrella_stage(me, milestone, box_vectors, traj_name=new_dcd_filename)
         #TODO: umbrella_traj not used
         pdb_filename = os.path.join(me.project.rootdir, milestone.directory, 'md', 'umbrella', new_pdb_filename)
         amber.save_restart(me, milestone, pdb_filename)
         milestone.openmm.umbrella_pdb_filename = pdb_filename
 
-    print("ending box vectors for milestone %d:" % milestone.index, milestone.box_vectors)
+    print("ending box vectors for milestone %d:" % milestone.index, milestone.umbrella_box_vectors)
 
 me.save()

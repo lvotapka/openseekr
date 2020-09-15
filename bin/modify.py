@@ -18,7 +18,9 @@ import numpy as np
 import seekr
 #from seekr import amber
 from seekr import deserialize_transition_info
+import analyze
 
+quick_analysis = True
 
 def add_milestone(me, radius):
     '''
@@ -281,22 +283,30 @@ def report_milestones(me):
     print("Index\tRadius\tNeighbors\tDirectory")
     for i, milestone in enumerate(me.milestones):
         if i == 0:
-            print("%d\t%f\t" % (milestone.index, milestone.radius) , 
+            print("%d\t%.2f\t" % (milestone.index, milestone.radius) , 
               milestone.neighbors[0].index, 
               '\t', milestone.directory)
         elif i == len(me.milestones)-1:
-            print("%d\t%f\t" % (milestone.index, milestone.radius) , 
+            print("%d\t%.2f\t" % (milestone.index, milestone.radius) , 
               milestone.neighbors[0].index,
               '\t', milestone.directory)
         else:
-            print("%d\t%f\t" % (milestone.index, milestone.radius) , 
+            print("%d\t%.2f\t" % (milestone.index, milestone.radius) , 
               milestone.neighbors[0].index, milestone.neighbors[1].index, 
               '\t', milestone.directory)
-        umbrella_info = get_umbrella_info(me, milestone)
-        print('  Umbrella stage: %d frames found' % umbrella_info)
+        umbrella_num_frames = get_umbrella_info(me, milestone)
+        print('  Umbrella stage: %d frames found' % umbrella_num_frames)
+        if umbrella_num_frames > 0:
+            avg_distance = analyze.get_umbrella_avg_distance(me, milestone)
+            print('  Umbrella average distance: %.2f angstroms' % avg_distance)
         fwd_rev_info = get_fwd_rev_info(me, milestone)
         print('  Fwd_rev Stage: %d reversal, %d forward dcd files found' \
         % fwd_rev_info)
+        if not quick_analysis and (fwd_rev_info[0] > 0 or fwd_rev_info[1] > 0):
+            fwd_rev_distances = analyze.get_fwd_rev_avg_distance(
+                me, milestone)
+            print('  Fwd_rev Stage: upward_distance: %.2f, ' \
+                  'downward_distance: %.2f' % fwd_rev_distances)
         transition_info = get_transition_info(me, milestone)
         if transition_info is None:
             print('  Transitions: no data found')

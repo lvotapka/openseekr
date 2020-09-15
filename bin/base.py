@@ -115,8 +115,8 @@ class _Project():
         xmlProjectMd.text = str(self.md)
         xmlProjectBd = ET.SubElement(xmlProject, 'bd')
         xmlProjectBd.text = str(self.bd)
-        xmlProjectEmptyRootdir = ET.SubElement(xmlProject, 'empty_rootdir')
-        xmlProjectEmptyRootdir.text = str(self.empty_rootdir)
+        #xmlProjectEmptyRootdir = ET.SubElement(xmlProject, 'empty_rootdir')
+        #xmlProjectEmptyRootdir.text = str(self.empty_rootdir)
         return
     
     def deserialize(self, xmlTree):
@@ -125,7 +125,7 @@ class _Project():
         self.test_mode = strBool(xmlTree.find('test_mode').text)
         self.md = strBool(xmlTree.find('md').text)
         self.bd = strBool(xmlTree.find('bd').text)
-        self.empty_rootdir = strBool(xmlTree.find('empty_rootdir').text)
+        #self.empty_rootdir = strBool(xmlTree.find('empty_rootdir').text)
         return
 
 class _OpenMM():
