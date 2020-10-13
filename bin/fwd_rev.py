@@ -58,7 +58,7 @@ def autoimage_traj(parm_name, trajin_name, trajout_name, box_info, cpptraj_scrip
   box $BOX_INFO
   trajin $TRAJIN
   autoimage
-  trajout $TRAJOUT $FRAME_STR
+  trajout $TRAJOUT $FRAME_STR include_ep
   go
   quit
   '''
