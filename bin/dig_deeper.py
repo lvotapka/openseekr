@@ -303,10 +303,14 @@ if __name__ == "__main__":
         downward_dcd = os.path.join(fwd_rev_dir, index)
         print("Extracting frame from file:", downward_dcd)
         last_fwd_frame = seekr.load_last_mdtraj_frame(downward_dcd, prmtop)
+    elif method=='nosave': # don't save a temp_equil structure, just holo and prmtop
+        downward_dcd = pdb_list[downward_indices[0]]
+        last_fwd_frame = seekr.load_last_mdtraj_frame(downward_dcd, prmtop)
     else:
         raise Exception("Method not allowed: %s" % method)
     
-    last_fwd_frame.save_pdb(lower_temp_equil_filename)
+    if method!='nosave':
+        last_fwd_frame.save_pdb(lower_temp_equil_filename)
     last_fwd_frame.save_pdb(lower_milestone_holo)
     last_fwd_frame.save_amberrst7(new_inpcrd)
     
