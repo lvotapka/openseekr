@@ -23,7 +23,8 @@ def find_heavy_atoms(pdb_obj, index_range):
    - index_range: a list of integers to search through.
   Output:
    - heavy_atoms: a list of integers that correspond to the indices of atoms 
-     that are heavy (non H).'''
+     that are heavy (non H).
+  '''
   heavy_atoms = []
   for index in index_range:
     atom = pdb_obj.atoms[index]
