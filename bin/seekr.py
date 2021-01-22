@@ -19,7 +19,8 @@ from fwd_rev import *
 def find_heavy_atoms(pdb_obj, index_range):
   '''Finds the heavy atoms within a subset of a PDB object.
   Input:
-   - pdb_obj: a pdb2.py structure object that contains the atoms to search through.
+   - pdb_obj: a pdb2.py structure object that contains the atoms to search 
+     through.
    - index_range: a list of integers to search through.
   Output:
    - heavy_atoms: a list of integers that correspond to the indices of atoms 
