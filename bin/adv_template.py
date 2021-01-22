@@ -1,11 +1,14 @@
 #!/usr/bin/python
 
-'''
+"""
 A python templating scheme similar to Django's
 
-Usage:  template_object_name = Adv_template('string including $variables to be replaced and commands', {dictionary containing variables and their associated string values})
+Usage:  template_object_name = Adv_template('string including $variables to 
+be replaced and commands', {dictionary containing variables and their 
+associated string values})
 
-Like Django's templating system, one can embed commands into the templates, including IF and COMMENT. Commands are surrounded as such: {% command %}.
+Like Django's templating system, one can embed commands into the templates, 
+including IF and COMMENT. Commands are surrounded as such: {% command %}.
 
 Examples:
 
@@ -14,24 +17,28 @@ Examples:
 >>> print(Adv_template(template, params))
 Hi, my name is Johnny and I am thirty years old.
 
->>> template = "{% if $NAME=='Johnny' %}Hi Johnny{% else %}I don't know you{% endif %}"
+>>> template = "{% if $NAME=='Johnny' %}Hi Johnny
+{% else %}I don't know you{% endif %}"
 >>> print(Adv_template(template, params))
 Hi Johnny
 >>> params = {"NAME":'Susie'}
 >>> print(Adv_template(template, params))
 I don't know you
 
-'''
+"""
 import re, string, unittest
 
 class Adv_template():
-  def __init__(self, template_string, params): # create a new instance of Advanced template
+  def __init__(self, template_string, params): 
+    # create a new instance of Advanced template
     self.template_string = template_string
     self.params = params
     self.template_string = self.fix_vars()
     rawoutput = self.parse_commands()
     template_string = string.Template(rawoutput) # create the template
-    self.output = template_string.safe_substitute(params) # will substitute every indicated $variable in params. Safely in case template file contains extraneous ($$$) dollar signs
+    self.output = template_string.safe_substitute(params) 
+    # will substitute every indicated $variable in params. Safely in case 
+    # template file contains extraneous ($$$) dollar signs
 
   def get_output(self):
     return self.output
