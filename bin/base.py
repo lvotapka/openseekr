@@ -197,7 +197,7 @@ class SeekrCalculation():
   within a SEEKR calculation.
   """
   def __init__(self):
-    '''Initialize the SEEKR object'''
+    """Initialize the SEEKR object"""
     self.master_temperature = 0
     self.milestones = [] # a list of milestone objects
     self.project = _Project() # project object
@@ -214,7 +214,8 @@ class SeekrCalculation():
     and all its milestone information.
     """
     
-    # need to step through the object and set all unpicklable objects to None
+    # need to step through the object 
+    # and set all unpicklable objects to None
     self.openmm.system = None
     self.openmm.simulation = None
     self.openmm.context = None
