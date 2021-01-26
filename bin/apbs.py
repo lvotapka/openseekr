@@ -28,8 +28,8 @@ apbs_input_template_location = os.path.join(self_path,
                                             'apbs_input.template')
 
 if __name__ == "__main__" and 'INPUTGEN' not in os.environ:
-  print "In order to run unit tests in apbs.py, "
-        "please set the INPUTGEN environmental variable"
+  print "In order to run unit tests in apbs.py, \
+      please set the INPUTGEN environmental variable"
   exit()
 
 if __name__ == "__main__":
@@ -174,14 +174,14 @@ def get_debye_length(seekrcalc, apbs_std_outfilename):
     if m: # then we've found a line
       number_obj = re.search("[0-9.]+", line).group()
       if number_obj == "0": 
-        print "ALERT: Debye length of zero found. This may mean that your PQR "
-              "file has a net charge that is NOT zero, or that your ion "
-              "concentration was zero..."
+        print "ALERT: Debye length of zero found. This may mean that your PQR \
+            file has a net charge that is NOT zero, or that your ion \
+            concentration was zero..."
       else:
         debye_list.append(number_obj)
   if len(debye_list) < 1:
-    print "APBS was unable to find a Debye length. "
-          "Now computing using a formula..."
+    print "APBS was unable to find a Debye length. \
+        Now computing using a formula..."
     denominator = 0.0
     for ion in seekrcalc.browndye.apbs.ions:
       denominator += ion.concentration * molecules_per_m3_per_moles_per_liter \
@@ -191,9 +191,9 @@ def get_debye_length(seekrcalc, apbs_std_outfilename):
     debye_length = sqrt(inside) * angstroms_per_m
     debye_list.append(debye_length)  
     print "A Debye length of", debye_length, "was found."
-  assert len(debye_list) > 0, "Debye length not found in APBS output: %s. "
-  "Please ensure that APBS calculation was completed properly and that the"
-  " correct output file was specified."
+  assert len(debye_list) > 0, "Debye length not found in APBS output: %s. \
+    Please ensure that APBS calculation was completed properly and that the \
+    correct output file was specified."
   # take the first member of it by default. There may be a better way 
   # for this but all outputs seem to be the same
   return debye_list[0]
@@ -223,8 +223,8 @@ def main(seekrcalc, pqr_filename,fhpd_mode=False):
   inputgen_location = inputgen.executable
   apbs_location = apbs.executable
   if not os.path.exists(inputgen_location):
-    print "provided inputgen.py location does not exist. Please modify "
-    "browndye.inputgen.executable value."
+    print "provided inputgen.py location does not exist. Please modify \
+        browndye.inputgen.executable value."
     exit()
   input_filename = make_apbs_input_using_inputgen(
       inputgen_location, pqr_filename, fadd=inputgen.fadd, cfac=inputgen.cfac, 

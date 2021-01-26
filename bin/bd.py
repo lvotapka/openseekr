@@ -194,7 +194,9 @@ Necessary arguments:
 - number of trajectories per starting structure
 '''
 
-import os, sys, glob
+import os
+import sys
+import glob
 from string import Template
 import random
 
@@ -566,7 +568,7 @@ def make_rxn_criteria(criteria, pqrs):
   return criteria_xml
 
 def pqr2xml(pqrfile, pqr2xml_program='pqr2xml'):
-  '''simply runs the pqr2xml program that comes with Browndye.'''
+  """simply runs the pqr2xml program that comes with Browndye."""
   #print "pqr2xml_program:", pqr2xml_program
   # get everything but the extension
   no_ext = os.path.splitext(pqrfile)[0]

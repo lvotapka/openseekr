@@ -44,8 +44,8 @@ def amber_building(seekrcalc, milestone, amber_settings):
                          'holo_wet.pdb')
   leap_program = amber_settings.leap_program
   if not os.path.exists(pdbfile):
-    print "Skipping milestone %d: no holo structure '
-          'detected at %s." % (i, pdbfile)
+    print "Skipping milestone %d: no holo structure 'detected at %s." \
+        % (i, pdbfile)
     return
   prmtop = os.path.join(building,working_pdb_base+'.parm7')
   inpcrd = os.path.join(building,working_pdb_base+'.rst7')
@@ -62,8 +62,8 @@ def amber_building(seekrcalc, milestone, amber_settings):
   leapfilename = os.path.join(building,'anchor.leap')
   
   if os.path.exists(prmtop) and os.path.exists(inpcrd):
-    if verbose: print "Amber Parm files already exist. '
-                      'Skipping build phase to save time."
+    if verbose: print "Amber Parm files already exist. \
+        Skipping build phase to save time."
     milestone.openmm.prmtop_filename = prmtop
     milestone.openmm.inpcrd_filename = inpcrd
     return # save us a little time by only running this when it matters
@@ -74,17 +74,17 @@ def amber_building(seekrcalc, milestone, amber_settings):
   
   leapcmd = leap_program+' -f '+leapfilename+' > '+os.path.join(building,
                                                                 'leap.out')
-  if verbose: print 'running leap using following command:', leapcmd
+  if verbose: print "running leap using following command:", leapcmd
   
   errcode = os.system(leapcmd)
   # check to make sure everything is ok
   if errcode != 0: # then we hit a problem
-    errormsg = "LEaP did not run properly. '
-    'See %s/leap.out for details" % building
+    errormsg = "LEaP did not run properly. \
+        See %s/leap.out for details" % building
     raise Exception, errormsg
   if (not os.path.exists(prmtop)) or (not os.path.exists(inpcrd)):
-    errormsg = "LEaP did not generated expected prmtop & inpcrd files. '
-    'See %s/leap.out for details" % building
+    errormsg = "LEaP did not generated expected prmtop & inpcrd files. \
+        See %s/leap.out for details" % building
     raise Exception, errormsg
   milestone.openmm.prmtop_filename = prmtop
   milestone.openmm.inpcrd_filename = inpcrd
