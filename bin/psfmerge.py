@@ -1,12 +1,14 @@
 #!/usr/bin/python
 
-'''
+"""
 psfmerge.py:
 
 contains functions that will merge 2 psf files into one
-'''
+"""
 
-import re, os, sys
+import re
+import os
+import sys
 
 class Atom():
   def __init__(self, line):
@@ -21,11 +23,15 @@ class Atom():
     self.unused = line[59:].strip()
 
   def write(self):
-    line = "\n{0:>8} {1:>4} {2:<4} {3:<4} {4:<4} {5:<5} {6:}   {7:<7}           {8:}".format(self.atomid, self.segname, self.resid, self.resname, self.atomname, self.atomtype, self.charge, self.mass, self.unused)
+    line = "\n{0:>8} {1:>4} {2:<4} {3:<4} {4:<4} {5:<5} {6:}   {7:<7}         \
+        {8:}".format(self.atomid, self.segname, self.resid, self.resname, 
+                     self.atomname, self.atomtype, self.charge, self.mass, 
+                    self.unused)
     return line
 
 class PSF():
-  def __init__(self, atomlist, bondlist, anglelist, dihedrallist, improperlist, nblist, donorlist, acclist, ctrlist):
+  def __init__(self, atomlist, bondlist, anglelist, dihedrallist, improperlist,
+               nblist, donorlist, acclist, ctrlist):
     self.atomlist = atomlist
     self.bondlist = bondlist
     self.anglelist = anglelist
@@ -64,8 +70,10 @@ class PSF():
 def write_psf_section(psflist, outfile, section_name, num_columns):
   ''' writes any section of a psf file '''
   counter = 0
-  outfile.write('\n   %5d !N%s: %s\n' % (len(psflist),section_name, section_name)) 
-  for i in range(len(psflist)): # thing = bond, angle, dihedral, etc...
+  outfile.write('\n   %5d !N%s: %s\n' % (len(psflist),section_name, 
+                                         section_name))
+  # thing = bond, angle, dihedral, etc... 
+  for i in range(len(psflist)): 
     thing = psflist[i]
     for atomid in thing:
       outfile.write('{0:>8}'.format(atomid))
@@ -80,40 +88,47 @@ def write_psf_section(psflist, outfile, section_name, num_columns):
   return
 
 def renumber_psflist(oldlist, fixdict):
-  ''' Takes an old psf list, and updates each value according to the fixdict dictionary'''
+  """ Takes an old psf list, and updates each value according to the 
+  fixdict dictionary
+  """
   newlist = []
   counter = 0
   for old in oldlist:
     littlelist = []
     for atomid in old:
-      assert atomid in fixdict.keys(), "Alert! atom id found in PSF section that doesn't exist within 'ATOM' section: {0}".format(atomid)
+      assert atomid in fixdict.keys(), "Alert! atom id found in PSF section \
+          that doesn't exist within 'ATOM' section: {0}".format(atomid)
       littlelist.append(fixdict[atomid])
     #newlist.append(littlelist)
-    oldlist[counter] = littlelist # change the object in-place
+    # change the object in-place
+    oldlist[counter] = littlelist 
     counter += 1
   #oldlist = newlist
       
       
 def merge_psf_files(psf1_filename, psf2_filename, insert_index=-1):
-  '''
-  given two PSF files, will merge them into a single file, exactly how SEEKR merges two PDB files
-  '''
+  """
+  given two PSF files, will merge them into a single file, exactly how 
+  SEEKR merges two PDB files
+  """
   psf1_file = open(psf1_filename, 'r')
   psf2_file = open(psf2_filename, 'r')
   psf1 = parse_psf(psf1_file)
   psf2 = parse_psf(psf2_file)
   
   if insert_index == -1:
-    insert_index = psf1.atomlist[-1].atomid # find the final atom's index
-  
+    # find the final atom's index
+    insert_index = psf1.atomlist[-1].atomid   
   num_psf2_atoms = psf2.atomlist[-1].atomid
-  
+
   
   # run thru psf2 atoms, generate dictionary of new atom ids
   psf2_new = {0:0}
   for atom in psf2.atomlist:
-    psf2_new[atom.atomid] = atom.atomid + insert_index # add to the dictionary
-    atom.atomid += insert_index # change the value in the Atom object
+    # add to the dictionary
+    psf2_new[atom.atomid] = atom.atomid + insert_index
+    # change the value in the Atom object 
+    atom.atomid += insert_index 
     
   # renumber every other section in psf2, renumbering where appropriate
   renumber_psflist(psf2.bondlist, psf2_new)
@@ -125,14 +140,18 @@ def merge_psf_files(psf1_filename, psf2_filename, insert_index=-1):
   renumber_psflist(psf2.acclist, psf2_new)
   renumber_psflist(psf2.ctrlist, psf2_new)    
     
-  # run through remainder of psf1 atoms, generate dictionary of new atom ids
+  # run through remainder of psf1 atoms, 
+  # generate dictionary of new atom ids
   psf1_new = {0:0}
   for atom in psf1.atomlist:
     if atom.atomid <= insert_index:
-      psf1_new[atom.atomid] = atom.atomid # add to the dictionary
+      # add to the dictionary
+      psf1_new[atom.atomid] = atom.atomid 
     else:
-      psf1_new[atom.atomid] = atom.atomid + num_psf2_atoms # add to the dictionary
-      atom.atomid += num_psf2_atoms # change the value in the Atom object
+      # add to the dictionary
+      psf1_new[atom.atomid] = atom.atomid + num_psf2_atoms 
+      # change the value in the Atom object
+      atom.atomid += num_psf2_atoms 
   # renumber every other section in psf1
   renumber_psflist(psf1.bondlist, psf1_new)
   renumber_psflist(psf1.anglelist, psf1_new)
@@ -145,7 +164,8 @@ def merge_psf_files(psf1_filename, psf2_filename, insert_index=-1):
   renumber_psflist(psf1.ctrlist, psf1_new)    
   
   # now merge the files from the two
-  newatomlist = psf1.atomlist[:insert_index] + psf2.atomlist + psf1.atomlist[insert_index:]
+  newatomlist = psf1.atomlist[
+      :insert_index] + psf2.atomlist + psf1.atomlist[insert_index:]
   newbondlist = psf1.bondlist + psf2.bondlist
   newanglelist = psf1.anglelist + psf2.anglelist
   newdihedrallist = psf1.dihedrallist + psf2.dihedrallist
@@ -155,19 +175,26 @@ def merge_psf_files(psf1_filename, psf2_filename, insert_index=-1):
   newacclist = psf1.acclist + psf2.acclist
   newctrlist = psf1.ctrlist + psf2.ctrlist
   
-  newpsf = PSF(newatomlist, newbondlist, newanglelist, newdihedrallist, newimproperlist, newnblist, newdonorlist, newacclist, newctrlist)
+  newpsf = PSF(newatomlist, newbondlist, newanglelist, newdihedrallist, 
+               newimproperlist, newnblist, newdonorlist, newacclist, 
+               newctrlist)
   return newpsf
 
 def parse_psf(psf_file):
-  '''
+  """
   takes a file-like object as an argument and parses the psf file
-  '''
-  atomlist = []; bondlist = []; anglelist = []; dihedrallist = []; improperlist = []; nblist = []; crtlist = []; donorlist = []; acclist = [] # a series of empty lists
-  section = "" # the section of PSF file we are in
+  """
+  # a series of empty lists
+  atomlist = []; bondlist = []; anglelist = []; dihedrallist = []; 
+  improperlist = []; nblist = []; crtlist = []; donorlist = []; 
+  acclist = [] 
+  # the section of PSF file we are in
+  section = "" 
   bangN = re.compile('!N([A-Z]*)')
   for line in psf_file.xreadlines():
     sectionsearch = re.search(bangN, line)
-    if sectionsearch: # then we are entering a new section
+    # then we are entering a new section
+    if sectionsearch: 
       section = sectionsearch.group(1)
       print "now parsing section:", section
       continue
@@ -175,7 +202,8 @@ def parse_psf(psf_file):
       if section == "TITLE":
         continue # ignore this section
       elif section == "ATOM":
-        if len(line) < 50: continue # skip if its an empty or too-short line
+        # skip if its an empty or too-short line
+        if len(line) < 50: continue
         atomlist.append(Atom(line))
         #print atomlist[-1].write()
       elif section == "BOND":
@@ -214,10 +242,12 @@ def parse_psf(psf_file):
       elif section == "GRP":
         continue
       else:
-        print "Warning: psfmerge.py does not know how to deal with section:", section, ". Therefore it will be ignored..."
+        print "Warning: psfmerge.py does not know how to deal with section:", \
+            section, ". Therefore it will be ignored..."
   
   #print "improperlist[:40]:", improperlist[:40]
-  return PSF(atomlist, bondlist, anglelist, dihedrallist, improperlist, nblist, donorlist, acclist, crtlist)
+  return PSF(atomlist, bondlist, anglelist, dihedrallist, improperlist, nblist,
+             donorlist, acclist, crtlist)
   
 
 if __name__ == "__main__":
