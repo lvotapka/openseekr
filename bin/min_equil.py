@@ -8,11 +8,12 @@ Created on May 10, 2018
 """
 
 import os
+from sys import stdout
 
 from simtk.openmm.app import *
 from simtk.openmm import *
 from simtk.unit import *
-from sys import stdout
+
 
 verbose = True
 
@@ -37,7 +38,7 @@ def run_min_equil(seekrcalc):
       
       reporter_output = os.path.join(seekrcalc.project.rootdir, 
                                      milestone.directory, 
-                                     'md', 'temp_equil', 'temp_equil.dcd')
+                                     "md", "temp_equil", "temp_equil.dcd")
       simulation.reporters.append(DCDReporter(reporter_output, 100))
       
       if verbose: print "Running temperature equilibration."

@@ -19,9 +19,9 @@ print "Parse arguments"
 which = None
 # then assume all
 if len(sys.argv) < 2: 
-  which = 'all'
-elif sys.argv[1] == 'all':
-  which = 'all'
+  which = "all"
+elif sys.argv[1] == "all":
+  which = "all"
 else:
   which = int(sys.argv[1])
 
@@ -39,7 +39,7 @@ print "Loading SEEKR calculation."
 ##################################################################
 
 
-picklename = '/home/lvotapka/tryp_test/seekr_calc.pickle'
+picklename = "/home/lvotapka/tryp_test/seekr_calc.pickle"
 me = seekr.openSeekrCalc(picklename)
 
 lig_selection = [3222, 3223, 3224, 3225, 3226, 3227, 3228, 3229, 3230]
@@ -51,17 +51,17 @@ me.fwd_rev_stage.energy_freq = 1000
 me.fwd_rev_stage.traj_freq = 1000
 me.fwd_rev_stage.launches_per_config = 1
 me.fwd_rev_stage.barostat = False # leave barostat off
-umbrella_glob = 'umbrella*.dcd'
+umbrella_glob = "umbrella*.dcd"
 reversal_frames = (1010, 10010, 1)
 pos_vel_chunk_size = 400
-transition_filename = 'transition_rev.dat'
-me.openmm.properties = {'CudaDeviceIndex':'0', 'CudaPrecision':'mixed'}
+transition_filename = "transition_rev.dat"
+me.openmm.properties = {"CudaDeviceIndex":"0", "CudaPrecision":"mixed"}
 
 ##################################################################
 # DON'T MODIFY THE SECTION BELOW UNLESS YOU KNOW WHAT YOU'RE DOING
 ##################################################################
 
-if which == 'all': # then run all milestones
+if which == "all": # then run all milestones
   all_milestones = me.milestones
 else:
   all_milestones = [me.milestones[which]]
@@ -69,10 +69,10 @@ else:
 for milestone in all_milestones:
   if milestone.md:
     if not milestone.openmm.prmtop_filename: 
-      prmtop_path = os.path.join(me.project.rootdir, milestone.directory, 'md',
-                                 'building', 'holo.parm7')
-      inpcrd_path = os.path.join(me.project.rootdir, milestone.directory, 'md',
-                                 'building', 'holo.rst7')
+      prmtop_path = os.path.join(me.project.rootdir, milestone.directory, "md",
+                                 "building", "holo.parm7")
+      inpcrd_path = os.path.join(me.project.rootdir, milestone.directory, "md",
+                                 "building", "holo.rst7")
       if os.path.exists(prmtop_path) and os.path.exists(inpcrd_path):
         milestone.openmm.prmtop_filename = prmtop_path
         milestone.openmm.inpcrd_filename = inpcrd_path
@@ -88,16 +88,16 @@ for milestone in all_milestones:
     milestone.atom_selection_1 = rec_selection
     milestone.atom_selection_2 = lig_selection
     fwd_rev_path = os.path.join(me.project.rootdir, milestone.directory, 
-                                'md', 'fwd_rev')
+                                "md", "fwd_rev")
     umbrella_traj = os.path.join(me.project.rootdir, milestone.directory, 
-                                 'md', 'umbrella', umbrella_glob)
+                                 "md", "umbrella", umbrella_glob)
     parm_file_name = os.path.join(me.project.rootdir, milestone.directory, 
-                                  'md', 'building', 'holo.parm7')
-    trajout = os.path.join(me.project.rootdir, milestone.directory, 'md', 
-                           'umbrella', 'imaged.dcd')
+                                  "md", "building", "holo.parm7")
+    trajout = os.path.join(me.project.rootdir, milestone.directory, "md", 
+                           "umbrella", "imaged.dcd")
     cpptraj_script_location = os.path.join(
-        me.project.rootdir, milestone.directory, 'md', 
-        'umbrella', 'image_umbrella.cpptraj')
+        me.project.rootdir, milestone.directory, "md", 
+       "umbrella", "image_umbrella.cpptraj")
     box_info = seekr.make_box_info(box_vectors)
     seekr.autoimage_traj(parm_file_name, umbrella_traj, trajout, box_info, 
                          cpptraj_script_location=cpptraj_script_location, 

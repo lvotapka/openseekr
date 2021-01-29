@@ -3,8 +3,8 @@ Created on May 9, 2018
 
 @author: lvotapka
 
-This is a module to test the SEEKR package and to aid in its development and
-introduction of functionality
+This is a module to test the SEEKR package and to aid in its development
+and introduction of functionality
 """
 import sys
 import numpy as np
@@ -18,7 +18,7 @@ import parmed as pmd
 
 
 remove_old_filetree = False
-if 'remove' in sys.argv[1:]:
+if "remove" in sys.argv[1:]:
   remove_old_filetree = True
 
 # Define settings object for all simulations
@@ -28,15 +28,15 @@ me = seekr.SeekrCalculation()
 me.master_temperature = 298. 
 
 # project information
-me.project.name = 'test_tryp'
-me.project.rootdir = '/home/lvotapka/tryp_test'
+me.project.name = "test_tryp"
+me.project.rootdir = "/home/lvotapka/tryp_test"
 me.project.empty_rootdir = remove_old_filetree
 me.md = True
 me.bd = True
 
 # OpenMM information
-me.openmm.platform = Platform.getPlatformByName('CUDA')
-me.openmm.properties = {'CudaDeviceIndex':'0', 'CudaPrecision':'mixed'}
+me.openmm.platform = Platform.getPlatformByName("CUDA")
+me.openmm.properties = {"CudaDeviceIndex":"0", "'CudaPrecision":"mixed"}
 
 # Selection information
 # Make sure this is selected by "index" in VMD
@@ -46,15 +46,15 @@ rec_site_atom_indices = [2478, 2489, 2499, 2535, 2718, 2745, 2769, 2787,
 me.selections.site_com_indices = rec_site_atom_indices
 
 # Building information
-me.building.ff = 'amber'
+me.building.ff = "amber"
 me.building.lig_dry_pqr_filename = \
-  '/home/lvotapka/tryp_files/benzamidine_moved.pqr'
+  "/home/lvotapka/tryp_files/benzamidine_moved.pqr"
 me.building.rec_wet_pdb_filename = \
-  '/home/lvotapka/torq/lvotapka/Documents/trypsin_files/apo_redo/\
-      tryp_wet_1946.pdb'
+  "/home/lvotapka/torq/lvotapka/Documents/trypsin_files/apo_redo/\
+      tryp_wet_1946.pdb"
 me.building.rec_dry_pqr_filename = \
-  '/home/lvotapka/torq/lvotapka/Documents/trypsin_files/apo_redo/\
-      tryp_dry_1946.pqr'
+  "/home/lvotapka/torq/lvotapka/Documents/trypsin_files/apo_redo/\
+      tryp_dry_1946.pqr"
 me.building.reject_clashes = True
 
 # Minimization / Temperature Equilibration info
@@ -66,7 +66,7 @@ me.min_equil.min_reporter_freq = 500
 me.min_equil.temp_equil_integrator = LangevinIntegrator(
     me.master_temperature*kelvin, 5/picosecond, 0.002*picoseconds)
 # SEEKR will automatically change the filename
-me.min_equil.temp_equil_reporters = [PDBReporter('dummy', 100)] 
+me.min_equil.temp_equil_reporters = [PDBReporter("dummy", 100)] 
 # number of simulation steps per temperature
 me.min_equil.temp_equil_steps = 1000 
 # progression of the temperature equilibration
@@ -74,28 +74,28 @@ me.min_equil.temp_equil_temperatures = [300., 310., 320., 330., 340., 350.,
                                         340., 330., 320., 310., 300.] 
 
 # BrownDye information
-me.browndye.browndye_bin_dir = '/home/lvotapka/Downloads/browndye/bin'
+me.browndye.browndye_bin_dir = "/home/lvotapka/Downloads/browndye/bin"
 me.browndye.num_threads = 10
 me.browndye.lig_dry_pqr_filename = \
-    '/home/lvotapka/tryp_files/benzamidine_moved.pqr'
+    "/home/lvotapka/tryp_files/benzamidine_moved.pqr"
 me.browndye.rec_dry_pqr_filename = \
-    '/home/lvotapka/tryp_files/tryp_dry.pqr'
+    "/home/lvotapka/tryp_files/tryp_dry.pqr"
 me.browndye.prods_per_anchor = 1000000
 me.browndye.apbs.executable = \
-    '/home/lvotapka/Downloads/APBS-1.5-linux64/bin/apbs'
+    "/home/lvotapka/Downloads/APBS-1.5-linux64/bin/apbs"
 me.browndye.fhpd_numtraj = 1000
 
-ion1 = seekr.APBS_ion('Cl-', 0.10, -1.0, 1.67)
+ion1 = seekr.APBS_ion("Cl-", 0.10, -1.0, 1.67)
 # define ions in the system
-ion2 = seekr.APBS_ion('Ca2+', 0.02, 2.0, 1.14) 
-ion3 = seekr.APBS_ion('tris', 0.06, 1.0, 4.0)
+ion2 = seekr.APBS_ion("Ca2+", 0.02, 2.0, 1.14) 
+ion3 = seekr.APBS_ion("tris", 0.06, 1.0, 4.0)
 
 
 me.browndye.apbs.ions = [ion1, ion2, ion3]
 me.browndye.apbs.linear_pbe = False
 me.browndye.apbs.inputgen.executable = \
-  '/home/lvotapka/Downloads/APBS-1.5-linux64/share/apbs/tools/\
-      manip/inputgen.py'
+  "/home/lvotapka/Downloads/APBS-1.5-linux64/share/apbs/tools/\
+      manip/inputgen.py"
 
 # Generate Milestones
 origin = np.array([-1.536, 13.859, 16.539])
@@ -120,7 +120,7 @@ ligand_heavy_indices = seekr.find_heavy_atoms(
 print "Ligand heavy indices:", ligand_heavy_indices  
 
 amber_settings = amber.AmberSettings()
-amber_settings.leap_program = 'tleap'
+amber_settings.leap_program = "tleap"
 
 amber_settings.leap_template = """
 source leaprc.protein.ff14SB

@@ -44,7 +44,7 @@ def structures_clash(structure1, structure2, tolerance=0.0):
 
   for atom2 in structure2.atoms: # for every atom in structure2
     # if not included, then retrieve a standard radius for this atom
-    if atom2.radius == '0.0':
+    if atom2.radius == "0.0":
       # if not included, then retrieve a standard radius for this atom
       atom2_radius = pdb.radii[atom2.element]
       if verbose: 
@@ -60,7 +60,7 @@ def structures_clash(structure1, structure2, tolerance=0.0):
       # then we have to check this atom against every struct1 atom
       # for every atom in structure1
       for atom1 in structure1.get_atoms(): 
-        if atom1.radius == '0.0':
+        if atom1.radius == "0.0":
           # if not included, then retrieve 
           # a standard radius for this atom
           atom1_radius = pdb.radii[atom1.element]
@@ -93,7 +93,7 @@ def pickle_or_load(filename, picklename, parser,
       > os.path.getmtime(filename):
     # load the pickle
     if verbose: print "reading pickle:", picklename
-    our_file=open(picklename, 'rb')
+    our_file=open(picklename, "rb")
     our_obj=pickle.load(our_file)
     our_file.close()
   else:
@@ -102,7 +102,7 @@ def pickle_or_load(filename, picklename, parser,
     our_obj=parser.get_structure(struc_name, filename, 
                                  pqr=pqr, conventional=False)
     if verbose: print "writing pickle:", picklename
-    our_file=open(picklename, 'wb')
+    our_file=open(picklename, "wb")
     # protoco=-1 means to use the fastest available protocol method
     pickle.dump(our_obj, our_file, protocol=-1)
     our_file.close()

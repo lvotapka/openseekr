@@ -17,11 +17,11 @@ verbose = True
 class Milestone_System():
   """An object for system information stored for each milestone."""
   def __init__(self):
-    self.wet_holo_pdb_filename = ''
-    self.dry_holo_pdb_filename = ''
-    self.prmtop_filename = ''
-    self.inpcrd_filename = ''
-    self.umbrella_pdb_filename = ''
+    self.wet_holo_pdb_filename = ""
+    self.dry_holo_pdb_filename = ""
+    self.prmtop_filename = ""
+    self.inpcrd_filename = ""
+    self.umbrella_pdb_filename = ""
     self.system = None
     self.simulation = None
 
@@ -57,9 +57,9 @@ class Milestone():
     
 class Concentric_Spherical_Milestone(Milestone):
   """Concentric spherical milestones centered on an atom selection."""
-  def __init__(self, index, siteid, absolute='False', md=True, bd=False):
-    self.fullname = ''
-    self.directory = ''
+  def __init__(self, index, siteid, absolute="False", md=True, bd=False):
+    self.fullname = ""
+    self.directory = ""
     # the location where the ligand was started
     self.anchor = None
     self.neighbors = []
@@ -77,8 +77,8 @@ class Concentric_Spherical_Milestone(Milestone):
     # the x,y,z location of the center of this spherical milestone
     self.center_vec = None 
     self.radius = 0.0
-    self.wet_holo_filename = ''
-    self.dry_holo_filename = ''
+    self.wet_holo_filename = ""
+    self.dry_holo_filename = ""
     self.atom_selection_1 = None
     self.atom_selection_2 = None
     self.openmm = Milestone_System()

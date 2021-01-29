@@ -1,7 +1,7 @@
 """
-This script extracts a successful forward stage trajectory that ends on a lower
-milestone. It extracts the last frame of that trajectory and writes the
-structure to the next milestone down's directory.
+This script extracts a successful forward stage trajectory that ends 
+on a lower milestone. It extracts the last frame of that trajectory 
+and writes the structure to the next milestone down's directory.
 
 Created on June 28, 2018
 
@@ -51,9 +51,9 @@ def get_com_offset(coords0, coords1):
   return offset
 
 def compute_rmsd(coords0, coords1, offset):
-  '''
+  """
   #TODO: add docstring
-  '''
+  """
   assert len(coords0[0]) == len(coords1[0]), "there needs to be an equal \
       number of atoms selected in coords0 and coords1."
   sd = 0.0 # square deviation
@@ -121,16 +121,16 @@ def find_closest_ligand_orientation(prmtop, dcd_list, reference_top,
     last_frame_top = last_frame.topology
     last_frame_site_top = last_frame_site.topology
     
-    last_frame_alpha_carbons = last_frame_top.select('name CA')
+    last_frame_alpha_carbons = last_frame_top.select("name CA")
     last_frame_lig = last_frame_top.select("resname '%s'" % ligname)
     last_frame_coords = last_frame.xyz[:,last_frame_lig]
     #print "last_frame_coords:", last_frame_coords
     assert len(ref_lig) > 0, "no last_frame atoms selected for ligand with \
         ligname %s" % ligname
     assert len(ref_alpha_carbons) == len(last_frame_alpha_carbons), \
-        'The reference and the dcd must have the same number of alpha carbons'
-    assert len(ref_lig) == len(last_frame_lig), 'The reference and the dcd \
-        must have the same number of ligand atoms'
+        "The reference and the dcd must have the same number of alpha carbons"
+    assert len(ref_lig) == len(last_frame_lig), "The reference and the dcd \
+        must have the same number of ligand atoms"
     
     last_frame_site_coords = last_frame_site.xyz[:]
     site_com = get_com(last_frame_site_coords)
@@ -174,7 +174,7 @@ def find_closest_ligand_orientation(prmtop, dcd_list, reference_top,
   return best_last_frame
     
 
-def read_data_file_transitions_down(data_file_name, destination='1', 
+def read_data_file_transitions_down(data_file_name, destination="1", 
                                     last_frame=True):
   """Read transition data file, return the first instance of a 
   transition to a lower milestone. Return the file index of the forward 
@@ -189,7 +189,7 @@ def read_data_file_transitions_down(data_file_name, destination='1',
       lower milestone
   """
   downward_indices = []
-  data_file = open(data_file_name, 'r')
+  data_file = open(data_file_name, "r")
   for i, line in enumerate(data_file.readlines()):
     line = line.split()
     #print "line:", line, "destination:", destination
@@ -224,15 +224,15 @@ method = sys.argv[3]
 ref_pdb = None
 lig_resname = None
 
-if method == 'similar':
+if method == "similar":
   #ref_pdb = sys.argv[4]
   ref_parm7 = sys.argv[4]
   ref_rst7 = sys.argv[5]
   lig_resname = sys.argv[6]
-elif method == 'index':
+elif method == "index":
   index = sys.argv[4]
   
-if sys.argv[-1] == 'up':
+if sys.argv[-1] == "up":
   downward = False
 
 print "Loading SEEKR calculation."
@@ -240,27 +240,28 @@ me = seekr.openSeekrCalc(picklename)
 
 milestone = me.milestones[which]
 if downward:
-  lower_milestone = me.milestones[which-1] # TODO: hacky
+  # TODO: hacky
+  lower_milestone = me.milestones[which-1] 
 else:
   lower_milestone = me.milestones[which+1]
 
 # define all directories and files
 fwd_rev_dir = os.path.join(
-    me.project.rootdir, milestone.directory, 'md', 'fwd_rev')
+    me.project.rootdir, milestone.directory, "md", "fwd_rev")
 lower_temp_equil_dir = os.path.join(
-    me.project.rootdir, lower_milestone.directory, 'md', 'temp_equil')
+    me.project.rootdir, lower_milestone.directory, "md", "temp_equil")
 lower_temp_equil_filename = os.path.join(
-    lower_temp_equil_dir, 'equilibrated.pdb')
+    lower_temp_equil_dir, "equilibrated.pdb")
 lower_milestone_holo = os.path.join(
-    me.project.rootdir, lower_milestone.directory, 'md', 'holo_wet.pdb')
+    me.project.rootdir, lower_milestone.directory, "md", "holo_wet.pdb")
 lower_milestone_building = os.path.join(
-    me.project.rootdir, lower_milestone.directory, 'md', 'building')
+    me.project.rootdir, lower_milestone.directory, "md", "building")
 # find the index of a successful downward trajectory
-data_file_name = os.path.join(fwd_rev_dir, 'transition_fwd.dat')
+data_file_name = os.path.join(fwd_rev_dir, "transition_fwd.dat")
 prmtop = os.path.join(
-    me.project.rootdir, milestone.directory, 'md', 'building', 'holo.parm7')
-new_prmtop = os.path.join(lower_milestone_building, 'holo.parm7')
-new_inpcrd = os.path.join(lower_milestone_building, 'holo.rst7')
+    me.project.rootdir, milestone.directory, "md", "building", "holo.parm7")
+new_prmtop = os.path.join(lower_milestone_building, "holo.parm7")
+new_inpcrd = os.path.join(lower_milestone_building, "holo.rst7")
 
 # NEXT TIME: find the downward forward 
 # dcd filenames for 'similar' method
@@ -273,27 +274,27 @@ if downward:
 else:
   # TODO: hacky
   downward_indices = read_data_file_transitions_down(data_file_name, 
-                                                     destination='3')
+                                                     destination="3")
 
-dcd_list = sorted(glob.glob(os.path.join(fwd_rev_dir, 'forward*.dcd')), 
+dcd_list = sorted(glob.glob(os.path.join(fwd_rev_dir, "forward*.dcd")), 
                   key=seekr.sort_forward_dcd_key)
 
 print "Writing new structures and files needed to run umbrella \
     simulation on the lower milestone (milestone %d)" % lower_milestone.index
 #last_fwd_frame = mdtraj.load(downward_fwd_dcd, top=prmtop)[-1]
-if method=='first':
+if method=="first":
   #downward_fwd_dcd = os.path.join(fwd_rev_dir, 
   # 'forward%i_0.dcd' % downward_indices[0])
   downward_dcd = dcd_list[downward_indices[0]]
   print "Extracting frame from file:", downward_dcd
   last_fwd_frame = seekr.load_last_mdtraj_frame(downward_dcd, prmtop)
-elif method=='last':
+elif method=="last":
   #downward_fwd_dcd = os.path.join(fwd_rev_dir, 
   # 'forward%i_0.dcd' % downward_indices[-1])
   downward_dcd = dcd_list[downward_indices[-1]]
   print "Extracting frame from file:", downward_dcd
   last_fwd_frame = seekr.load_last_mdtraj_frame(downward_dcd, prmtop)
-elif method=='similar':
+elif method=="similar":
   dcd_downward_list = []
   for dcd_index in downward_indices:
     #dcd_list.append(os.path.join(fwd_rev_dir, 
@@ -302,7 +303,7 @@ elif method=='similar':
   last_fwd_frame = find_closest_ligand_orientation(
       prmtop, dcd_downward_list, ref_parm7, ref_rst7, 
       lig_resname, lower_milestone.center_atom_indices)
-elif method=='index':
+elif method=="index":
   downward_dcd = os.path.join(fwd_rev_dir, index)
   print "Extracting frame from file:", downward_dcd
   last_fwd_frame = seekr.load_last_mdtraj_frame(downward_dcd, prmtop)

@@ -38,7 +38,8 @@ class Adv_template():
     self.params = params
     self.template_string = self.fix_vars()
     rawoutput = self.parse_commands()
-    template_string = string.Template(rawoutput) # create the template
+    # create the template
+    template_string = string.Template(rawoutput) 
     self.output = template_string.safe_substitute(params)
     # will substitute every indicated $variable in params. Safely in 
     # case template file contains extraneous ($$$) dollar signs
@@ -51,15 +52,15 @@ class Adv_template():
 
   def save(self, filename):
     """saves the template to a file"""
-    outfile = open(filename, 'w')
+    outfile = open(filename, "w")
     outfile.writelines(self.output)
     outfile.close()
 
   def _statement_eval(self, split_command, var_pat):
     # evaluate whether the condition is true
     # join the rest of the if statement together to be evaluated
-    statement = ' '.join(split_command[1:]) 
-    statement = re.sub(var_pat, r'self.params["\1"]', statement)
+    statement = " ".join(split_command[1:]) 
+    statement = re.sub(var_pat, r"self.params['\1']", statement)
     try: # evaluate the condition
       evaluation = eval(statement)
     # if the value has not been set, then assume that it is false
@@ -70,12 +71,12 @@ class Adv_template():
   def parse_commands(self):
     # first, find the blocks & commands
     # the re pattern for matching to a command
-    cmd_pat = re.compile(r'{%(.+?)%}') 
+    cmd_pat = re.compile(r"{%(.+?)%}") 
     # the re pattern for a block contained by a command
-    block_pat = re.compile(r'(%\}|^)((\n|.)*?)(\{%|$)')
+    block_pat = re.compile(r"(%\}|^)((\n|.)*?)(\{%|$)")
     # the re pattern to match a variable call in the 
     # template (begins with a $)
-    var_pat = re.compile(r'\$([-_a-zA-Z0-9]+)') 
+    var_pat = re.compile(r"\$([-_a-zA-Z0-9]+)") 
     commands = re.findall(cmd_pat, self.template_string)
     # returns a 2-d tuple containing 
     # all matchings to the 3 regexp groups
@@ -216,16 +217,16 @@ class Adv_template():
         raise "Unknown Template Command: %s" % (split_command[0],)
       
       command_count += 1
-    return ''.join(includeblock)
+    return "".join(includeblock)
 
   def fix_vars(self):
     """converts all {{ varname }} to $varname in case users prefer that 
     syntax.
     """
     # pattern that finds {{ varname }}
-    var_pat = re.compile(r'\{\{\ *(.+)\ *\}\}')
+    var_pat = re.compile(r"\{\{\ *(.+)\ *\}\}")
     # converts to $varname
-    newstring = re.sub(var_pat, r'$\1', self.template_string) 
+    newstring = re.sub(var_pat, r"$\1", self.template_string) 
     return newstring
 
 class File_template(Adv_template):
@@ -235,11 +236,12 @@ class File_template(Adv_template):
   def __init__(self, template_filename, params):
     # first load the template file 
     # and make it a string separated by newlines
-    self.template_string = ''.join(open(template_filename, 'r').readlines())
+    self.template_string = "".join(open(template_filename, "r").readlines())
     self.params = params
     self.template_string = self.fix_vars()
     rawoutput = self.parse_commands()
-    template_string = string.Template(rawoutput) # create the template
+    # create the template
+    template_string = string.Template(rawoutput) 
     # will substitute every indicated $variable in params. Safely 
     # in case template file contains extraneous ($$$) dollar signs
     self.output = template_string.safe_substitute(params) 
@@ -248,7 +250,7 @@ class File_template(Adv_template):
     """generates input file called (filename) and 
     fills the parameters from the dictionary params
     """
-    out_file = open(filename, 'w') # open output file
+    out_file = open(filename, "w") # open output file
     out_file.write(self.output)
     out_file.close()
 
@@ -262,7 +264,7 @@ class Test_adv_template(unittest.TestCase):
   def test_Adv_template(self):
     # first test the string templating system
     template = "Hi, my name is $NAME and I am $AGE years old."
-    params = {'NAME':'Johnny', 'AGE':'thirty'}
+    params = {"NAME":"Johnny", "AGE":"thirty"}
     test = Adv_template(template, params)
     self.assertEqual(test.get_output(), 
                      "Hi, my name is Johnny and I am thirty years old."
@@ -278,16 +280,16 @@ class Test_adv_template(unittest.TestCase):
     return
 
   def test_File_template(self):
-    testfilename = '/tmp/testfile.txt'
-    testfile = open(testfilename, 'w')
+    testfilename = "/tmp/testfile.txt"
+    testfile = open(testfilename, "w")
     template = "{% if $NAME=='Johnny' %}Hi Johnny{% else %} \
                 Hi someone else\n{% endif %}"
-    params = {'NAME':'Johnny', 'AGE':'thirty'}
+    params = {"NAME":"Johnny", "AGE":"thirty"}
     testfile.write(template)
     testfile.close()
     test = File_template(testfilename, params)
     self.assertEqual(test.output, "Hi Johnny")
-    params = {"NAME":'Todd'}
+    params = {"NAME":"Todd"}
     test = File_template(testfilename, params)
     self.assertEqual(test.output, "Hi someone else\n")
     return
@@ -301,47 +303,47 @@ class Test_adv_template(unittest.TestCase):
     {% if $arg2_1 == '1' %}result2_1{% elif $arg2_2 %}result2_2\
     {% else %}result2_3{% endif %} between4{% endif %} after"
     params = {
-        'arg1':'1', 'arg1_1':'1', 'arg1_2':'', 'arg1_3':'',
-        'arg2':'', 'arg2_1':'', 'arg2_2':'', 'arg2_3':''
+        "arg1":"1", "arg1_1":"1", "arg1_2":"", "arg1_3":"",
+        "arg2":"", "arg2_1":"", "arg2_2":"", "arg2_3":""
         }
     test = Adv_template(template, params)
     self.assertEqual(test.get_output(), 
     "before between1 result1_1 between2 after")
     params = {
-        'arg1':'1', 'arg1_1':'2', 'arg1_2':'something', 'arg1_3':'', 
-        'arg2':'', 'arg2_1':'', 'arg2_2':'', 'arg2_3':''
+        "arg1":"1", "arg1_1":"2", "arg1_2":"something", "arg1_3":"", 
+        "arg2":"", "arg2_1":"", "arg2_2":"", "arg2_3":""
         }
     test = Adv_template(template, params)
     self.assertEqual(test.get_output(), 
                      "before between1 result1_2 between2 after"
                      )
     params = {
-        'arg1':'1', 'arg1_1':'2', 'arg1_2':'', 'arg1_3':'', 
-        'arg2':'', 'arg2_1':'', 'arg2_2':'', 'arg2_3':''
+        "arg1":"1", "arg1_1":"2", "arg1_2":"", "arg1_3":"", 
+        "arg2":"", "arg2_1":"", "arg2_2":"", "arg2_3":""
         }
     test = Adv_template(template, params)
     self.assertEqual(test.get_output(), 
                      "before between1 result1_3 between2 after"
                      )
     params = {
-        'arg1':'0', 'arg1_1':'2', 'arg1_2':'something', 'arg1_3':'', 
-        'arg2':'1', 'arg2_1':'1', 'arg2_2':'', 'arg2_3':''
+        "arg1":"0", "arg1_1":"2", "arg1_2":"something", "arg1_3":"", 
+        "arg2":"1", "arg2_1":"1", "arg2_2":"", "arg2_3":""
         }
     test = Adv_template(template, params)
     self.assertEqual(test.get_output(), 
                      "before between3 result2_1 between4 after"
                      )
     params = {
-        'arg1':'0', 'arg1_1':'2', 'arg1_2':'something', 'arg1_3':'', 
-        'arg2':'1', 'arg2_1':'0', 'arg2_2':'something', 'arg2_3':''
+        "arg1":"0", "arg1_1":"2", "arg1_2":"something", "arg1_3":"", 
+        "arg2":"1", "arg2_1":"0", "arg2_2":"something", "arg2_3":""
         }
     test = Adv_template(template, params)
     self.assertEqual(test.get_output(), 
                      "before between3 result2_2 between4 after"
                      )
     params = {
-        'arg1':'0', 'arg1_1':'2', 'arg1_2':'something', 'arg1_3':'', 
-        'arg2':'1', 'arg2_1':'0', 'arg2_2':'', 'arg2_3':''
+        "arg1":"0", "arg1_1":"2", "arg1_2":"something", "arg1_3":"", 
+        "arg2":"1", "arg2_1":"0", "arg2_2":"", "arg2_3":""
         }
     test = Adv_template(template, params)
     self.assertEqual(test.get_output(), 

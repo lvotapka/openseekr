@@ -12,9 +12,9 @@ import os
 class _Project():
   """An object for generic project-level information of a SEEKR run"""
   def __init__(self):
-    self.name = ''
+    self.name = ""
     # a directory to write all the MD and BD files
-    self.rootdir = ''
+    self.rootdir = ""
     # reduces the calculation time by restricting input size. 
     # Use only for debugging SEEKR
     self.test_mode = False
@@ -60,7 +60,7 @@ class _Inputgen():
   """Inputgen is a program for generating APBS input files."""
   def __init__(self):
     # the location of the Inputgen executable
-    self.executable = 'inputgen'
+    self.executable = "inputgen"
     # how many angstroms around the molecule to add as a buffer before 
     # reaching the boundary in the fine grid
     self.fadd = 150
@@ -84,7 +84,7 @@ class _APBS():
   Browndye.
   """
   def __init__(self):
-    self.executable = 'apbs' # the location of the APBS executable
+    self.executable = "apbs" # the location of the APBS executable
     self.inputgen = _Inputgen()
     # a list of APBS_ion objects representing 
     # all ions in the APBS calculation
@@ -98,12 +98,12 @@ class _Browndye():
   molecule objects and settings.
   """
   def __init__(self):
-    self.rec_dry_pqr_filename = ''
-    self.lig_dry_pqr_filename = ''
+    self.rec_dry_pqr_filename = ""
+    self.lig_dry_pqr_filename = ""
     # BrownDye parameters
-    self.b_surface_path = ''
+    self.b_surface_path = ""
     self.starting_lig_config = None
-    self.browndye_bin = ''
+    self.browndye_bin = ""
     self.num_threads = 1
     # how many trajectories to relaunch per anchor
     self.prods_per_anchor = 1
@@ -126,10 +126,10 @@ class _Selections():
 class _Building():
   """An object to represent the building process."""
   def __init__(self):
-    self.ff = ''
-    self.lig_dry_pqr_filename = ''
-    self.rec_wet_pdb_filename = ''
-    self.rec_dry_pqr_filename = ''
+    self.ff = ""
+    self.lig_dry_pqr_filename = ""
+    self.rec_wet_pdb_filename = ""
+    self.rec_dry_pqr_filename = ""
     self.md_file_paths = []
     self.bd_file_paths = []
     self.config_dirlist = []
@@ -137,10 +137,10 @@ class _Building():
     self.ligand = None
     self.receptor_wet = None
     self.receptor_dry = None
-    self.lig_resname = ''
+    self.lig_resname = ""
     #self.prmtop = None
     #self.inpcrd = None
-    # self.watermodel = '' ?
+    # self.watermodel = "" ?
     # the rest needs to be filled out by the AmberPrepare script
   
 class _Min_Equil():
@@ -153,12 +153,16 @@ class _Min_Equil():
     # the OpenMM 'reporter' that outputs minimization structures
     self.min_reporter_freq = 0
     # Temperature step equilibration variables
-    self.temp_equil = True # whether to run a temperature equilibration
-    self.constrained = [] # list of atom indices
-    self.temp_equil_temperatures = [] # a list of temperatures
+    # whether to run a temperature equilibration
+    self.temp_equil = True 
+    # list of atom indices
+    self.constrained = []
+    # a list of temperatures
+    self.temp_equil_temperatures = [] 
     self.temp_equil_steps = 0
     self.temp_equil_reporters = []
-    self.temp_equil_integrator = None # the OpenMM integrator object
+    # the OpenMM integrator object
+    self.temp_equil_integrator = None 
     
 class _Umbrella():
   """An object for containing all settings 
@@ -186,10 +190,10 @@ class _Fwd_rev():
     # For each umbrella conformation, this represents the number of 
     # times to reinitialize the velocities and relaunch
     self.launches_per_config = 1
-    self.reversal_coords_pickle = ''
-    self.reversal_vels_pickle = ''
-    self.success_coords_pickle = ''
-    self.success_vels_pickle = ''
+    self.reversal_coords_pickle = ""
+    self.reversal_vels_pickle = ""
+    self.success_coords_pickle = ""
+    self.success_vels_pickle = ""
     
     
 class SeekrCalculation():
@@ -209,7 +213,7 @@ class SeekrCalculation():
     self.umbrella_stage = _Umbrella()
     self.fwd_rev_stage = _Fwd_rev()
     
-  def save(self, picklename=''):
+  def save(self, picklename=""):
     """Save a copy of this SEEKR calculation 
     and all its milestone information.
     """
@@ -226,10 +230,10 @@ class SeekrCalculation():
       milestone.openmm.simulation = None
     
     if not picklename:
-      picklename = os.path.join(self.project.rootdir, 'seekr_calc.pickle')
+      picklename = os.path.join(self.project.rootdir, "seekr_calc.pickle")
     #dill.detect.trace(True)  
     #dill.detect.errors(self)
-    our_file=open(picklename, 'wb')
+    our_file=open(picklename, "wb")
     pickle.dump(self, our_file, protocol=-1)
     # protocol=-1 means to use the fastest available protocol method
     our_file.close()
@@ -243,7 +247,7 @@ class SeekrCalculation():
   """
     
 def openSeekrCalc(picklename):
-  our_file=open(picklename, 'rb')
+  our_file=open(picklename, "rb")
   seekr_obj=pickle.load(our_file)
   our_file.close()
   return seekr_obj

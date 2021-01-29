@@ -13,17 +13,18 @@ import math
 import shutil 
 import subprocess 
 import glob #, make_fxd
-import numpy as np
-
-import pdb2 as pdb
+import copy
+import random
 # needed to keep track of separate structure objects
 from copy import deepcopy
 import unittest
 import re
+
+import numpy as np
+
+import pdb2 as pdb
 import apbs
 from xml.dom.minidom import Document
-import copy
-import random
 import xml.etree.cElementTree as ET # for writing xml files
 from xml.dom import minidom
 from adv_template import Adv_template, File_template
@@ -34,9 +35,9 @@ verbose = True
 parser = pdb.Big_PDBParser()
 
 
-#browndye_bin = '/soft/browndye/latest/bin/'
-RXN_FILENAME = 'rxns.xml'
-INPUT_FILENAME = 'input.xml'
+#browndye_bin = "/soft/browndye/latest/bin/"
+RXN_FILENAME = "rxns.xml"
+INPUT_FILENAME = "input.xml"
 DEFAULT_TEMP = 298.0
 empty_pqrxml = "./empty.pqrxml"
 #FHPD_NUMTRAJ = 1000 # should be set within the settings file
@@ -61,7 +62,9 @@ Given a series of trajectories, will extract out a pqr file for each
 encounter event to get a First Hitting Point Distribution.
 \"\"\"
 
-import os, sys, re
+import os
+import sys
+import re
 
 # CONSTANTS -- anything in this section can be 
 # safely modified by automation or manually
@@ -69,8 +72,10 @@ import os, sys, re
 # the directory that contains all the FHPD BD trajectories
 trajdir = "$TRAJDIR"
 workdir = "$WORKDIR"
-pqrxml0 = os.path.join(trajdir,"$PQRXML0") # pqrxml file of the receptor
-pqrxml1 = os.path.join(trajdir,"$PQRXML1") # pqrxml file of the ligand
+# pqrxml file of the receptor
+pqrxml0 = os.path.join(trajdir,"$PQRXML0") 
+# pqrxml file of the ligand
+pqrxml1 = os.path.join(trajdir,"$PQRXML1") 
 empty = "$EMPTY"
 # the name of the site in the b_surface BD rxns file
 sitename = "$SITENAME"
@@ -81,7 +86,9 @@ counter = 0
 # SCRIPT -- Nothing beyond this point should 
 # need to be modified (unless there's a bug)
 def modify_pqr(pqr_filename):
-  '''edits the pqr file by removing any line except lines that begin with ATOM because BrownDye has weird pqr output'''
+  '''edits the pqr file by removing any line except lines that begin 
+  with ATOM because BrownDye has weird pqr output
+  '''
   pqrread = open(pqr_filename, 'r')
   raw_pqr = pqrread.readlines()
   pqrread.close
@@ -470,9 +477,9 @@ def create_ghost_atom_in_pqr(pqr,x,y,z):
   resid = int(pqr.atoms[-1].resid) + 1
   print "GHOST atom being added: numbered:", atomid
   ghostatom = pdb.Atom(
-      record='ATOM', index=atomid, name="GHO", altloc="", resname="GHO", 
-      chain="", resid=resid, icode='', x=x, y=y, z=z, charge='0.0', 
-      radius='0.0', occupancy='0.0', beta='0.0', element='')
+      record="ATOM", index=atomid, name="GHO", altloc="", resname="GHO", 
+      chain="", resid=resid, icode="", x=x, y=y, z=z, charge="0.0", 
+      radius="0.0", occupancy="0.0", beta="0.0", element="")
   pqr.atoms.append(ghostatom)
   pqr.num_atoms += 1
   pqr.num_resids += 1
@@ -480,7 +487,7 @@ def create_ghost_atom_in_pqr(pqr,x,y,z):
 
 def prettify(elem):
   """return a pretty-printed xml string for the Element"""
-  rough_string = ET.tostring(elem, 'utf-8')
+  rough_string = ET.tostring(elem, "utf-8")
   reparsed = minidom.parseString(rough_string)
   return reparsed.toprettyxml(indent="  ")
 
@@ -508,45 +515,45 @@ def make_rxn_criteria(criteria, pqrs):
   for i in range(len(criteria)):
     #coord0 = criteria[i][0]
     #coord1 = criteria[i][1]
-    radius = criteria[i]['radius']
+    radius = criteria[i]["radius"]
     # We don't have any duplicate ghost atoms
     # check if there is already a ghost atom in the molecule
-    if (criteria[i]['centerx'], criteria[i]['centery'], 
-        criteria[i]['centerz']) in ghost0_coords_already_used:
-      ghost0_id = ghost0_ids[(criteria[i]['centerx'], criteria[i]['centery'],
-                              criteria[i]['centerz'])]
+    if (criteria[i]["centerx"], criteria[i]["centery"], 
+        criteria[i]["centerz"]) in ghost0_coords_already_used:
+      ghost0_id = ghost0_ids[(criteria[i]["centerx"], criteria[i]["centery"],
+                              criteria[i]["centerz"])]
     else: # then the ghost atom doesn't already exist
       # the star spreads the coords out into individual arguments
       ghost0_id = create_ghost_atom_in_pqr(
-          pqrs[0], criteria[i]['centerx'], criteria[i]['centery'], 
-          criteria[i]['centerz']) 
+          pqrs[0], criteria[i]["centerx"], criteria[i]["centery"], 
+          criteria[i]["centerz"]) 
       ghost0_coords_already_used.append((
-          criteria[i]['centerx'], criteria[i]['centery'], 
-          criteria[i]['centerz']))
+          criteria[i]["centerx"], criteria[i]["centery"], 
+          criteria[i]["centerz"]))
       ghost0_ids[(
           criteria[i]['centerx'], criteria[i]['centery'], 
           criteria[i]['centerz'])] = ghost0_id
 
     # check the ligand for already existing ghost atoms
     # check if there is already a ghost atom in the molecule
-    if (criteria[i]['ligx'], criteria[i]['ligy'], criteria[i]['ligz']) \
+    if (criteria[i]["ligx"], criteria[i]["ligy"], criteria[i]["ligz"]) \
         in ghost1_coords_already_used:
-      ghost1_id = ghost1_ids[(criteria[i]['ligx'], criteria[i]['ligy'], 
-                              criteria[i]['ligz'])]
+      ghost1_id = ghost1_ids[(criteria[i]["ligx"], criteria[i]["ligy"], 
+                              criteria[i]["ligz"])]
     else: # then the ghost atom doesn't already exist
       ghost1_id = create_ghost_atom_in_pqr(
-          pqrs[1], criteria[i]['ligx'], 
-          criteria[i]['ligy'], criteria[i]['ligz'])
+          pqrs[1], criteria[i]["ligx"], 
+          criteria[i]["ligy"], criteria[i]["ligz"])
       ghost1_coords_already_used.append((
-          criteria[i]['ligx'], criteria[i]['ligy'], 
-          criteria[i]['ligz']))
+          criteria[i]["ligx"], criteria[i]["ligy"], 
+          criteria[i]["ligz"]))
       ghost1_ids[(
-          criteria[i]['ligx'], criteria[i]['ligy'], 
-          criteria[i]['ligz'])] = ghost1_id
+          criteria[i]["ligx"], criteria[i]["ligy"], 
+          criteria[i]["ligz"])] = ghost1_id
 
 
-    siteid = criteria[i]['siteid']
-    index = criteria[i]['index']
+    siteid = criteria[i]["siteid"]
+    index = criteria[i]["index"]
     # now add to the xml file
     reaction_list.append(ET.SubElement(reactions, "reaction"))
     name=ET.SubElement(reaction_list[-1],"name")
@@ -567,21 +574,22 @@ def make_rxn_criteria(criteria, pqrs):
   criteria_xml = prettify(roottag)
   return criteria_xml
 
-def pqr2xml(pqrfile, pqr2xml_program='pqr2xml'):
+def pqr2xml(pqrfile, pqr2xml_program="pqr2xml"):
   """simply runs the pqr2xml program that comes with Browndye."""
   #print "pqr2xml_program:", pqr2xml_program
   # get everything but the extension
   no_ext = os.path.splitext(pqrfile)[0]
-  xmlfile = no_ext + '.pqrxml'
-  command = '%s < %s > %s' % (pqr2xml_program, pqrfile, xmlfile)
+  xmlfile = no_ext + ".pqrxml"
+  command = "%s < %s > %s" % (pqr2xml_program, pqrfile, xmlfile)
   if verbose: print "now running command:", command
-  result = os.system(command) # run the pqr2xml program
+  # run the pqr2xml program
+  result = os.system(command) 
   if result != 0: raise Exception, "There was a problem running pqr2xml"
   return xmlfile
 
 
-def write_browndye_input(pqrs,seekrcalc,criteria,work_dir='.',browndye_bin='', 
-                         start_at_site='true',fhpd_mode=False):
+def write_browndye_input(pqrs,seekrcalc,criteria,work_dir=".",browndye_bin="", 
+                         start_at_site="true",fhpd_mode=False):
   """generates a Browndye input file"""
 
   counter = 0
@@ -597,7 +605,7 @@ def write_browndye_input(pqrs,seekrcalc,criteria,work_dir='.',browndye_bin='',
   for pqr in pqrs: # for each molecule in pqr format
     prefix = pqr.struct_id # name of the molecule
     #print "PREFIX", prefix
-    pqrfile = os.path.join(work_dir, prefix+'.pqr')
+    pqrfile = os.path.join(work_dir, prefix+".pqr")
     pqr.save(pqrfile,pqr=True,endmdl=False)
     #print "pqrfile:", pqrfile
     # get the electrostatic grid and debye length for the molecule
@@ -605,55 +613,56 @@ def write_browndye_input(pqrs,seekrcalc,criteria,work_dir='.',browndye_bin='',
     debyes.append(debye)
     # call the pqrxml program using the Browndye software suite
     pqrxmlfile = pqr2xml(pqrfile, pqr2xml_program=os.path.join(browndye_bin, 
-                                                               'pqr2xml'))
+                                                               "pqr2xml"))
     pqrxmls.append(pqrxmlfile)
     # create a copy of the molecule block, 
     # keep the default solute dielectric
     molecule_xml = deepcopy(default_browndye_molecule_block)
-    molecule_xml['apbs-grids']['grid']=os.path.basename(dxfile)
-    molecule_xml['prefix'] = prefix
-    molecule_xml['atoms'] = os.path.basename(pqrxmlfile)
-    molecule_xml['solute-dielectric'] = '2.0'
+    molecule_xml["apbs-grids"]["grid"]=os.path.basename(dxfile)
+    molecule_xml["prefix"] = prefix
+    molecule_xml["atoms"] = os.path.basename(pqrxmlfile)
+    molecule_xml["solute-dielectric"] = "2.0"
     # copy the molecule tree over to the input xml
-    input_xml['root']['molecule%d'%counter] = molecule_xml
+    input_xml["root"]["molecule%d"%counter] = molecule_xml
 
     counter += 1
 
   #for pqr in pqrs:
     #pqr.save() # save the pqr files containing the ghost molecules
-  rxn_file = open(os.path.join(work_dir,RXN_FILENAME), 'w')
+  rxn_file = open(os.path.join(work_dir,RXN_FILENAME), "w")
   rxn_file.write(rxn_criteria)
   rxn_file.close()
   # give each one a random seed to make the simulation rounds different
-  input_xml['root']['seed'] = int(random.random() * 10000)
-  input_xml['root']['protein'] = seekrcalc.browndye.ligand_is_protein
+  input_xml["root"]["seed"] = int(random.random() * 10000)
+  input_xml["root"]["protein"] = seekrcalc.browndye.ligand_is_protein
   # set the debye length
-  input_xml['root']['solvent']['debye-length'] = str(max(map(int,map(float,
+  input_xml["root"]["solvent"]["debye-length"] = str(max(map(int,map(float,
                                                                      debyes))))
-  input_xml['root']['reactions'] = RXN_FILENAME
+  input_xml["root"]["reactions"] = RXN_FILENAME
   #float(settings['temperature']) / DEFAULT_TEMP
-  input_xml['root']['solvent']['kT'] = seekrcalc.master_temperature 
-  input_xml['root']['n-threads'] = seekrcalc.browndye.num_threads
-  input_xml['root']['n-trajectories'] = seekrcalc.browndye.prods_per_anchor
-  input_xml['root']['start-at-site'] = start_at_site
+  input_xml["root"]["solvent"]["kT"] = seekrcalc.master_temperature 
+  input_xml["root"]["n-threads"] = seekrcalc.browndye.num_threads
+  input_xml["root"]["n-trajectories"] = seekrcalc.browndye.prods_per_anchor
+  input_xml["root"]["start-at-site"] = start_at_site
   if fhpd_mode:
-    input_xml['root']['seed'] = "$RANDOM"
-    input_xml['root']['include-desolvation-forces'] = "true"
+    input_xml["root"]["seed"] = "$RANDOM"
+    input_xml["root"]["include-desolvation-forces"] = "true"
     # remove the apbs-grid because we have no desolvation forces
-    del input_xml['root']['molecule1']['apbs-grids']
-    input_xml['root']['molecule0']['prefix'] = "$REC"
-    input_xml['root']['molecule0']['atoms'] = "$REC.pqrxml"
-    input_xml['root']['molecule0']['apbs-grids']['grid'] = "$RECDX"
-    input_xml['root']['molecule1']['prefix'] = "$LIG"
-    input_xml['root']['molecule1']['atoms'] = "$LIG.pqrxml"
-    input_xml['root']['reactions'] = "$RXN"
-    input_xml['root']['n-trajectories'] = "$NTRAJ"
+    del input_xml["root"]["molecule1"]["apbs-grids"]
+    input_xml["root"]["molecule0"]["prefix"] = "$REC"
+    input_xml["root"]["molecule0"]["atoms"] = "$REC.pqrxml"
+    input_xml["root"]["molecule0"]["apbs-grids"]["grid"] = "$RECDX"
+    input_xml["root"]["molecule1"]["prefix"] = "$LIG"
+    input_xml["root"]["molecule1"]["atoms"] = "$LIG.pqrxml"
+    input_xml["root"]["reactions"] = "$RXN"
+    input_xml["root"]["n-trajectories"] = "$NTRAJ"
   
   # generate xml text for the file
   input_text = dict2xml(input_xml).text()
   input_xml = {}
-  input_file = open(os.path.join(work_dir,INPUT_FILENAME), 'w')
-  input_file.write(input_text) # write an xml file for the input to bd
+  input_file = open(os.path.join(work_dir,INPUT_FILENAME), "w")
+  # write an xml file for the input to bd
+  input_file.write(input_text) 
   input_file.close()
 
   return pqrxmls
@@ -674,8 +683,8 @@ def shape_intersects_sphere_stupid(sphere, shape):
     within = True
     # see if the distance between the point and sphere center is greater
     # than the sphere radius
-    if math.sqrt((sphere['x'] - point[0])**2 + (sphere['y'] - point[1])**2 
-                  + (sphere['z'] - point[2])**2) > sphere['radius']:
+    if math.sqrt((sphere["x"] - point[0])**2 + (sphere["y"] - point[1])**2 
+                  + (sphere["z"] - point[2])**2) > sphere["radius"]:
       within = False
 
     if consensus not in [within, None]:
@@ -688,7 +697,7 @@ def shape_intersects_sphere_stupid(sphere, shape):
 
 def make_empty_pqrxml(filename):
   """Create the empty.pqrxml file."""
-  emptyxml = open(filename, 'w')
+  emptyxml = open(filename, "w")
   emptyxml.write(empty_pqrxml_template)
   emptyxml.close()
 
@@ -699,11 +708,11 @@ def build_bd(seekrcalc):
   """
 
   if verbose: 
-    print '\n', '#'*40, "\n \Now creating BD files using bd.py\n", '#'*40
+    print "\n", "#"*40, "\n \Now creating BD files using bd.py\n", "#"*40
 
   parser = pdb.Big_PDBParser()
   rec_struct = parser.get_structure(
-      'bd_receptor_dry_pqr', seekrcalc.browndye.rec_dry_pqr_filename, pqr=True)
+      "bd_receptor_dry_pqr", seekrcalc.browndye.rec_dry_pqr_filename, pqr=True)
 
   #milestone_pos_rot_list = settings['milestone_pos_rot_list'] 
   # # NOTE: may want to clean up code referring to this variable
@@ -732,7 +741,7 @@ def build_bd(seekrcalc):
   lig_config = seekrcalc.browndye.starting_lig_config
   lig_center = pdb.center_of_mass(lig_config)
   pqrs = [copy.deepcopy(rec_struct), copy.deepcopy(lig_config)]
-  pqrs[1].struct_id='bd_ligand'
+  pqrs[1].struct_id="bd_ligand"
   
 
   #for site in settings['b_surface_ending_surfaces']:
@@ -742,14 +751,14 @@ def build_bd(seekrcalc):
     if milestone.end:
       # add every site to the criteria list
       b_surface_criteria.append({
-          'centerx':milestone.center_vec[0], 'centery':milestone.center_vec[1],
-          'centerz':milestone.center_vec[2], 'ligx':lig_center[0], 
-          'ligy':lig_center[1],'ligz':lig_center[2], 'radius':milestone.radius, 
-          'index':milestone.index, 'siteid':milestone.siteid})
+          "centerx":milestone.center_vec[0], "centery":milestone.center_vec[1],
+          "centerz":milestone.center_vec[2], "ligx":lig_center[0], 
+          "ligy":lig_center[1],"ligz":lig_center[2], "radius":milestone.radius, 
+          "index":milestone.index, "siteid":milestone.siteid})
     if milestone.bd:
       starting_surfaces.append({
-          'site':milestone.siteid, 'radius':milestone.radius, 
-          'index':milestone.index})
+          "site":milestone.siteid, "radius":milestone.radius, 
+          "index":milestone.index})
   
   print "bsurface_criteria:", b_surface_criteria
   # write input for this part
@@ -757,7 +766,7 @@ def build_bd(seekrcalc):
       pqrs, seekrcalc, b_surface_criteria, 
       work_dir=seekrcalc.browndye.b_surface_path, 
       browndye_bin=seekrcalc.browndye.browndye_bin, 
-      start_at_site='false', fhpd_mode = False)
+      start_at_site="false", fhpd_mode = False)
   
   """
   for bd_file_path in bd_file_paths:
@@ -773,17 +782,18 @@ def build_bd(seekrcalc):
     folder_index = anchor_folder_name.split('_')[1]
     bd_configs.append(int(folder_index))
   """
-  counter = 0 # the index of the loop itself
+  # the index of the loop itself
+  counter = 0 
   
     
   for milestone in seekrcalc.milestones:
     if milestone.bd:
       lig_config = milestone.config
       bd_file_path = os.path.join(seekrcalc.project.rootdir, 
-                                  milestone.directory, 'bd')
+                                  milestone.directory, "bd")
       print "bd_file_path:", bd_file_path
       pqrs = [copy.deepcopy(rec_struct), copy.deepcopy(lig_config)]
-      pqrs[1].struct_id='bd_ligand'
+      pqrs[1].struct_id="bd_ligand"
       bd_needed = True
       
       """
@@ -795,19 +805,19 @@ def build_bd(seekrcalc):
       """
       criteria = []
       for surface in starting_surfaces:
-        if surface['site'] == milestone.siteid:
+        if surface["site"] == milestone.siteid:
           proper_radius = milestone.bd_adjacent.radius
           proper_index = milestone.bd_adjacent.index
         else:
-          proper_radius = surface['radius']
-          proper_index = surface['index']
+          proper_radius = surface["radius"]
+          proper_index = surface["index"]
         criteria.append({
-            'centerx':milestone.center_vec[0], 
-            'centery':milestone.center_vec[1], 
-            'centerz':milestone.center_vec[2], 
-            'ligx':lig_center[0], 'ligy':lig_center[1], 
-            'ligz':lig_center[2], 'radius':proper_radius, 
-            'index':proper_index, 'siteid':milestone.siteid})
+            "centerx":milestone.center_vec[0], 
+            "centery":milestone.center_vec[1], 
+            "centerz":milestone.center_vec[2], 
+            "ligx":lig_center[0], "ligy":lig_center[1], 
+            "ligz":lig_center[2], "radius":proper_radius, 
+            "index":proper_index, "siteid":milestone.siteid})
       """
       #[[(31.121, 37.153, 35.253), (38.742, 51.710, 68.137), 9.0],] 
       # a list of all reaction criteria
@@ -845,44 +855,44 @@ def build_bd(seekrcalc):
       # successful b_surface bd trajectories
     
       extract_bd_frames_dict = {
-          'TRAJDIR':"../../b_surface", 'WORKDIR':"./trajs", 
-          'PQRXML0':os.path.basename(b_surface_pqrxmls[0]), 
-          'PQRXML1':os.path.basename(b_surface_pqrxmls[1]), 
-          'EMPTY':empty_pqrxml, 
-          'SITENAME':'%s_%s' % (milestone.siteid, milestone.index), 
-          'NUMBER_OF_TRAJS':seekrcalc.browndye.num_threads}
+          "TRAJDIR":"../../b_surface", 'WORKDIR':"./trajs", 
+          "PQRXML0":os.path.basename(b_surface_pqrxmls[0]), 
+          "PQRXML1":os.path.basename(b_surface_pqrxmls[1]), 
+          "EMPTY":empty_pqrxml, 
+          "SITENAME":"%s_%s" % (milestone.siteid, milestone.index), 
+          "NUMBER_OF_TRAJS":seekrcalc.browndye.num_threads}
       extract_bd_frames = Adv_template(extract_bd_frames_template, 
                                        extract_bd_frames_dict)
       extract_file = open(os.path.join(bd_file_path,
-                                      "extract_bd_frames.py"), 'w')
+                                      "extract_bd_frames.py"), "w")
       # write an xml file for the input to bd
       extract_file.write(extract_bd_frames.get_output())
       extract_file.close()
       # construct the FHPD distribution prep scripts
       make_fhpd_dict = {
-          'INPUT_TEMPLATE_FILENAME':'input.xml', 
-          'RECEPTOR_PQRXML':os.path.basename(b_surface_pqrxmls[0]), 
-          'RXNS':'rxns.xml', 'NTRAJ':seekrcalc.browndye.fhpd_numtraj, 
-          'ARGS':"glob.glob(os.path.join('./trajs','lig*.pqr'))"}
+          "INPUT_TEMPLATE_FILENAME":"input.xml", 
+          "RECEPTOR_PQRXML":os.path.basename(b_surface_pqrxmls[0]), 
+          "RXNS":"rxns.xml", "NTRAJ":seekrcalc.browndye.fhpd_numtraj, 
+          "ARGS":"glob.glob(os.path.join('./trajs','lig*.pqr'))"}
       # NOTE: should change NTRAJ to be consistent with the number of 
       # reaction events in the b_surface phase
       make_fhpd = Adv_template(make_fhpd_template,make_fhpd_dict)
-      make_fhpd_file = open(os.path.join(bd_file_path,"make_fhpd.py"), 'w')
+      make_fhpd_file = open(os.path.join(bd_file_path,"make_fhpd.py"), "w")
       # write an xml file for the input to bd
       make_fhpd_file.write(make_fhpd.get_output()) 
       make_fhpd_file.close()
       # Consolidate all result files from the FHPD simulations into 
       # one large results.xml file
-      fhpd_consolidate_dict = {'FHPD_DIR':"fhpd", 'LIG_DIR_GLOB':"lig*/", 
-                               'RESULTS_NAME':'results.xml'}
+      fhpd_consolidate_dict = {"FHPD_DIR":"fhpd", "LIG_DIR_GLOB":"lig*/", 
+                               "RESULTS_NAME":'results.xml'}
       fhpd_consolidate = Adv_template(fhpd_consolidate_template,
                                       fhpd_consolidate_dict)
       fhpd_consolidate_file = open(os.path.join(bd_file_path,
-                                   "fhpd_consolidate.py"), 'w')
+                                   "fhpd_consolidate.py"), "w")
       # write an xml file for the input to bd                             
       fhpd_consolidate_file.write(fhpd_consolidate.get_output()) 
       fhpd_consolidate_file.close()
-      make_empty_pqrxml(os.path.join(bd_file_path, 'empty.pqrxml'))
+      make_empty_pqrxml(os.path.join(bd_file_path, "empty.pqrxml"))
 
     counter += 1
 
@@ -904,18 +914,18 @@ class Test_bd_functions(unittest.TestCase):
 
   def test_dict_to_xml(self):
     test_dict = {
-        'root':{'layer1a':{'layer2a':'setting1',},
-        'layer1b':'setting2','layer1c':'setting3'}}
-    test_xml = '<?xml version="1.0" ?>\n<root>\n  \
+        "root":{"layer1a":{"layer2a":"setting1",},
+        "layer1b":"setting2","layer1c":"setting3"}}
+    test_xml = "<?xml version="1.0" ?>\n<root>\n  \
         <layer1c>setting3</layer1c>\n  <layer1b>setting2</layer1b>\n  \
-        <layer1a>\n    <layer2a>setting1</layer2a>\n  </layer1a>\n</root>\n'
+        <layer1a>\n    <layer2a>setting1</layer2a>\n  </layer1a>\n</root>\n"
     self.assertEqual(dict2xml(test_dict).text(),test_xml)
 
   def test_pqr2xml(self):
     
-    browndye_bin = os.environ['BROWNDYE_BIN']
+    browndye_bin = os.environ["BROWNDYE_BIN"]
     self.XML = pqr2xml(test_pqr_filename, 
-                       pqr2xml_program=os.path.join(browndye_bin, 'pqr2xml'))
+                       pqr2xml_program=os.path.join(browndye_bin, "pqr2xml"))
     fileexists = os.path.exists(self.XML)
     self.assertTrue(fileexists)
 
@@ -938,7 +948,7 @@ class Test_bd_functions(unittest.TestCase):
 
 
   def test_shape_intersects_sphere_stupid(self):
-    sphere = {'x':0.0,'y':0.0,'z':0.0,'radius':10.0}
+    sphere = {"x":0.0,"y":0.0,"z":0.0,"radius":10.0}
     shape_in = [(1.0,1.0,1.0),(-1.0,1.0,1.0),(1.0,-1.0,1.0),(1.0,1.0,-1.0)]
     shape_out = [(101.0,101.0,101.0),(99.0,101.0,101.0),
                  (101.0,99.0,101.0),(101.0,101.0,99.0)]
@@ -952,21 +962,21 @@ class Test_bd_functions(unittest.TestCase):
                      shape_intersects_sphere_stupid(sphere,shape_intersect))
 
 
-if __name__=='__main__':
+if __name__=="__main__":
   if __name__ == "__main__" and 'INPUTGEN' not in os.environ:
     print "In order to run unit tests in bd.py, please set the BROWNDYE_BIN \
           environmental variable to the directory containing the BrownDye \
           programs"
     exit()
   print "Running unit tests for bd.py"
-  test_holo = parser.get_structure('small','../test/test_tiny.pdb')
-  test_inputgen_filename = os.environ['INPUTGEN']
+  test_holo = parser.get_structure("small","../test/test_tiny.pdb")
+  test_inputgen_filename = os.environ["INPUTGEN"]
   test_pqr_filename = "../test/1cbj.pqr"
   #old_test_rxns = [[(1.0, 2.0, 3.0), (4.0, 5.0, 6.0), 7.0],]
-  test_rxns = [{'centerx':1.0, 'centery':2.0, 'centerz':3.0, 
-                'ligx':4.0, 'ligy':5.0, 'ligz':6.0, 
-                'radius':7.0, 'index':0, 'siteid':0}]
-  test_pqr = parser.get_structure('pqr', test_pqr_filename, pqr=True)
+  test_rxns = [{"centerx":1.0, "centery":2.0, "centerz":3.0, 
+                "ligx":4.0, "ligy":5.0, "ligz":6.0, 
+                "radius":7.0, "index":0, "siteid":0}]
+  test_pqr = parser.get_structure("pqr", test_pqr_filename, pqr=True)
   unittest.main() # run tests of all functions
 
 

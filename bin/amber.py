@@ -20,8 +20,8 @@ verbose = True
 
 class AmberSettings():
   def __init__(self):
-    self.leap_template = ''
-    self.leap_program = 'tleap'
+    self.leap_template = ""
+    self.leap_program = "tleap"
 
 def amber_building(seekrcalc, milestone, amber_settings):
   """the pre-minimization procedure for amber ff simulations
@@ -36,30 +36,30 @@ def amber_building(seekrcalc, milestone, amber_settings):
   """
   i = milestone.index
   building = os.path.join(seekrcalc.project.rootdir, 
-                          milestone.directory, 'md', 
-                          'building')
-  working_pdb_base = 'holo' #settings['working_pdb_base']
+                          milestone.directory, "md", 
+                          "building")
+  working_pdb_base = "holo" #settings['working_pdb_base']
   pdbfile = os.path.join(seekrcalc.project.rootdir, 
-                         milestone.directory, 'md', 
-                         'holo_wet.pdb')
+                         milestone.directory, "md", 
+                         "holo_wet.pdb")
   leap_program = amber_settings.leap_program
   if not os.path.exists(pdbfile):
     print "Skipping milestone %d: no holo structure 'detected at %s." \
         % (i, pdbfile)
     return
-  prmtop = os.path.join(building,working_pdb_base+'.parm7')
-  inpcrd = os.path.join(building,working_pdb_base+'.rst7')
-  newpdb = os.path.join(building,working_pdb_base+'_leap.pdb')
+  prmtop = os.path.join(building,working_pdb_base+".parm7")
+  inpcrd = os.path.join(building,working_pdb_base+".rst7")
+  newpdb = os.path.join(building,working_pdb_base+"_leap.pdb")
   
-  leap_params = { 'HOLO_WET_PDB':pdbfile,
-                  'PRMTOP':prmtop,
-                  'INPCRD':inpcrd,
-                  'LEAP_OUTPUT_PDB':newpdb,
+  leap_params = { "HOLO_WET_PDB":pdbfile,
+                  "PRMTOP":prmtop,
+                  "INPCRD":inpcrd,
+                  "LEAP_OUTPUT_PDB":newpdb,
     }
   leap_template = string.Template(amber_settings.leap_template)
   leap_string = leap_template.substitute(leap_params)
 
-  leapfilename = os.path.join(building,'anchor.leap')
+  leapfilename = os.path.join(building,"anchor.leap')
   
   if os.path.exists(prmtop) and os.path.exists(inpcrd):
     if verbose: print "Amber Parm files already exist. \
@@ -72,8 +72,8 @@ def amber_building(seekrcalc, milestone, amber_settings):
   leapfile.write(leap_string)
   leapfile.close()
   
-  leapcmd = leap_program+' -f '+leapfilename+' > '+os.path.join(building,
-                                                                'leap.out')
+  leapcmd = leap_program+" -f "+leapfilename+" > "+os.path.join(building,
+                                                                "leap.out")
   if verbose: print "running leap using following command:", leapcmd
   
   errcode = os.system(leapcmd)
@@ -175,7 +175,7 @@ def save_restart(seekrcalc, milestone, pdb_save_filename=None):
   if not pdb_save_filename:
     pdb_save_filename = os.path.join(seekrcalc.project.rootdir, 
                                      milestone.directory, 
-                                     'md', 'temp_equil', 'equilibrated.pdb')
+                                     "md", "temp_equil", "equilibrated.pdb")
   amber_parm.save(pdb_save_filename, overwrite=True)
   return pdb_save_filename
   

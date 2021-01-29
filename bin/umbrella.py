@@ -56,12 +56,12 @@ def create_forces(seekrcalc, milestone, system):
    - None
   """
   #new_force = CustomCentroidBondForce(2, '0.5*k*(z2-z1-length)^2')
-  new_force = CustomCentroidBondForce(2, '0.5*k*(distance(g1,g2)-radius)^2')
+  new_force = CustomCentroidBondForce(2, "0.5*k*(distance(g1,g2)-radius)^2")
   k = new_force.addGlobalParameter(
-      'k', seekrcalc.umbrella_stage.force_constant)
+      "k", seekrcalc.umbrella_stage.force_constant)
   #r0 = new_force.addGlobalParameter('length', 
   #                                  milestone.radius*angstrom)
-  r0 = new_force.addGlobalParameter('radius', milestone.radius*angstrom)
+  r0 = new_force.addGlobalParameter("radius", milestone.radius*angstrom)
   g1 = new_force.addGroup(milestone.atom_selection_1)
   g2 = new_force.addGroup(milestone.atom_selection_2)
   if verbose: print "k:", seekrcalc.umbrella_stage.force_constant, "radius:", \
@@ -75,8 +75,8 @@ def create_forces(seekrcalc, milestone, system):
   return new_force
 
 def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None, 
-                          traj_name='umbrella1.dcd'):
-  """launch an umbrella sampling job.
+                          traj_name="umbrella1.dcd"):
+  """launch an umbrella sampling job."
   Input:
    - seekrcalc: The SeekrCalculation object that contains all the 
         settings for the SEEKR calculation.
@@ -96,7 +96,7 @@ def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None,
     basename = os.path.basename(pdb_filename)
     no_ext = os.path.splitext(basename)[0] 
     dcd_filename = os.path.join(seekrcalc.project.rootdir, milestone.directory
-                                'md', 'umbrella', '%s.dcd' % no_ext)
+                                "md", "umbrella", "%s.dcd" % no_ext)
     assert os.path.exists(dcd_filename), "Cannot load DCD or PDB file for \
         umbrella stage, none exist:" + dcd_filename
     print "Restarting failed umbrella stage from last frame of DCD file: ", \
@@ -119,7 +119,7 @@ def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None,
   #LangevinIntegrator(300*kelvin, 1/picosecond, 0.002*picoseconds)
   integrator = LangevinIntegrator(seekrcalc.master_temperature*kelvin, 
                                   1/picosecond, 0.002*picoseconds) 
-  platform = Platform.getPlatformByName('CUDA')
+  platform = Platform.getPlatformByName("CUDA")
   
   # TODO: change this back
   properties = seekrcalc.openmm.properties
@@ -150,7 +150,7 @@ def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None,
   simulation.minimizeEnergy()
   
   umbrella_traj = os.path.join(seekrcalc.project.rootdir, milestone.directory, 
-                               'md', 'umbrella', traj_name)
+                               "md", "umbrella", traj_name)
   simulation.reporters.append(StateDataReporter(
       stdout, seekrcalc.umbrella_stage.energy_freq, step=True, 
       potentialEnergy=True, temperature=True, volume=True))
@@ -159,7 +159,7 @@ def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None,
   starttime = time.time()
   
   state_filename = os.path.join(seekrcalc.project.rootdir, milestone.directory, 
-                                'md', 'umbrella', 'backup.state')
+                                "md", "umbrella", "backup.state")
   current_step = 0
   print "running %d steps" % seekrcalc.umbrella_stage.steps
   while current_step < seekrcalc.umbrella_stage.steps:
@@ -182,15 +182,15 @@ def launch_umbrella_stage(seekrcalc, milestone, box_vectors=None,
 def generate_umbrella_filenames(seekr_calc, milestone):
   umbrella_file_glob = os.path.join(
       seekr_calc.project.rootdir, milestone.directory, 
-      'md', 'umbrella', 'umbrella*.dcd')
+      "md", "umbrella", "umbrella*.dcd")
   existing_umbrella_files = glob.glob(umbrella_file_glob)
   # then the directory is empty, we are starting over
   if not existing_umbrella_files: 
     milestone.openmm.umbrella_pdb_filename = os.path.join(
         seekr_calc.project.rootdir, milestone.directory, 
-        'md', 'temp_equil', 'equilibrated.pdb')
-    new_dcd_filename = 'umbrella1.dcd'
-    new_pdb_filename = 'umbrella1.pdb'
+        "md", "temp_equil", "equilibrated.pdb")
+    new_dcd_filename = "umbrella1.dcd"
+    new_pdb_filename = "umbrella1.pdb"
     milestone.box_vectors = None
   else: # then some already exist
     number_list = []
@@ -198,11 +198,11 @@ def generate_umbrella_filenames(seekr_calc, milestone):
       number_list.append(int(re.findall(r".+(\d+).dcd", existing_file)[0]))
     current_num = max(number_list)
     milestone.openmm.umbrella_pdb_filename = os.path.join(
-        seekr_calc.project.rootdir, milestone.directory, 'md', 'umbrella', 
-        'umbrella%d.pdb' % current_num)
+        seekr_calc.project.rootdir, milestone.directory, "md", "umbrella", 
+        "umbrella%d.pdb" % current_num)
     next_num = current_num + 1
-    new_dcd_filename = 'umbrella%d.dcd' % next_num
-    new_pdb_filename = 'umbrella%d.pdb' % next_num
+    new_dcd_filename = "umbrella%d.dcd" % next_num
+    new_pdb_filename = "umbrella%d.pdb" % next_num
   
   return new_dcd_filename, new_pdb_filename
     

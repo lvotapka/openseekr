@@ -13,8 +13,8 @@ from sys import stdout
 from copy import deepcopy
 import cPickle as pickle
 
-import parmed
 
+import parmed
 from simtk.openmm.app import *
 from simtk.openmm import *
 from simtk.unit import *
@@ -40,12 +40,12 @@ def make_box_info(box_vectors):
 
   # extract the number without units
   box_length = box_vectors[0][0].value_in_unit(angstroms) 
-  box_info_string = 'x %f y %f z %f alpha 109.4712190 beta 109.4712190  \
-      gamma 109.4712190' % (box_length, box_length, box_length)
+  box_info_string = "x %f y %f z %f alpha 109.4712190 beta 109.4712190  \
+      gamma 109.4712190" % (box_length, box_length, box_length)
   return box_info_string
 
 def autoimage_traj(parm_name, trajin_name, trajout_name, box_info, 
-                   cpptraj_script_location, cpptraj_exe='cpptraj', 
+                   cpptraj_script_location, cpptraj_exe="cpptraj", 
                    writing_frames=()):
   """Runs the CPPTRAJ autoimage command for a triclinic box simulation.
   Input:
@@ -69,28 +69,28 @@ trajout $TRAJOUT $FRAME_STR
 go
 quit
 """
-  assert len(writing_frames) < 4, 'When writing the autoimaged trajectory, the\
-      format of the writing_frames variable must be: (start, stop, offset)'
+  assert len(writing_frames) < 4, "When writing the autoimaged trajectory, the\
+      format of the writing_frames variable must be: (start, stop, offset)"
   if len(writing_frames) == 0:
     # then write all frames
-    frame_str = ''
+    frame_str = ""
   elif len(writing_frames) == 1:
     # only include the start
-    frame_str = 'start %d' % writing_frames[0]
+    frame_str = "start %d" % writing_frames[0]
   elif len(writing_frames) == 2:
-    frame_str = 'start %d stop %d' % (writing_frames[0], writing_frames[1])
+    frame_str = "start %d stop %d" % (writing_frames[0], writing_frames[1])
   else: # the length is 3
-    frame_str = 'start %d stop %d offset %d' % (writing_frames[0], 
+    frame_str = "start %d stop %d offset %d" % (writing_frames[0], 
                                                 writing_frames[1], 
                                                 writing_frames[2])
   # define template dictionary
-  cpptraj_dict = {'PARMFILE':parm_name, 'TRAJIN':trajin_name, 
-                  'TRAJOUT':trajout_name, 'BOX_INFO':box_info, 
-                  'FRAME_STR':frame_str}
+  cpptraj_dict = {"PARMFILE":parm_name, "TRAJIN":trajin_name, 
+                  "TRAJOUT":trajout_name, "BOX_INFO":box_info, 
+                  "FRAME_STR":frame_str}
   # fill in the values into the template from the dictionary
   cpptraj_script = Adv_template(cpptraj_template, cpptraj_dict)
   # open the script for writing
-  extract_file = open(cpptraj_script_location, 'w')
+  extract_file = open(cpptraj_script_location, "w")
   # write a cpptraj script
   extract_file.write(cpptraj_script.get_output())
   extract_file.close()
@@ -100,7 +100,7 @@ quit
 
 def create_spherical_seekr_force(seekrcalc, milestone, system, 
                                  end_on_middle_crossing, 
-                                 transition_filename='transition.dat'):
+                                 transition_filename="transition.dat"):
   """create the SEEKR 'force' even though it's more of a monitor than a 
   force.
   Input:
@@ -142,7 +142,7 @@ def create_spherical_seekr_force(seekrcalc, milestone, system,
   # define the file to write transition information
   data_file_name = os.path.join(seekrcalc.project.rootdir, 
                                 milestone.directory,
-                                'md', 'fwd_rev', transition_filename) 
+                                "md", "fwd_rev", transition_filename) 
   # Define all settings and parameters for the SEEKR force object
   force.addSphericalMilestone(len(milestone.atom_selection_1), 
                               len(milestone.atom_selection_2), 
@@ -166,7 +166,7 @@ def get_data_file_length(data_file_name):
   if not os.path.exists(data_file_name):
     return 0
   # open the file for reading
-  data_file = open(data_file_name, 'r')
+  data_file = open(data_file_name, "r")
   # get the number of lines
   file_length = len(data_file.readlines())
   data_file.close()
@@ -190,7 +190,7 @@ def read_data_file_transitions(data_file_name, seekrcalc, milestone):
   transition_dict = {}
   incubation_time_list = []
   num_failed = 0
-  data_file = open(data_file_name, 'r')
+  data_file = open(data_file_name, "r")
   if len(milestone.neighbors) == 2:
     # find the neighbor milestones
     neighbor1 = seekrcalc.milestones[milestone.neighbors[0]]
@@ -202,19 +202,19 @@ def read_data_file_transitions(data_file_name, seekrcalc, milestone):
     dest2 = neighbor2.index
     dest1 = -1
   src = milestone.index
-  key_string1 = '%d_%d' % (src, dest1)
-  key_string2 = '%d_%d' % (src, dest2)
+  key_string1 = "%d_%d" % (src, dest1)
+  key_string2 = "%d_%d" % (src, dest2)
   transition_dict[key_string1] = 0
   transition_dict[key_string2] = 0
   for i, line in enumerate(data_file.readlines()):
     line = line.split()
     trans = line[0]
     time = float(line[1])
-    if trans == '1': 
+    if trans == "1": 
       transition_dict[key_string1] += 1
-    elif trans == '3':
+    elif trans == "3":
       transition_dict[key_string2] += 1
-    elif trans == '3*' or trans == '1*':
+    elif trans == "3*" or trans == "1*":
       num_failed += 1
     else:
       raise AssertionError, "An unexpected value was found in the transition \
@@ -236,10 +236,10 @@ def read_data_file_successes(data_file_name):
    - success_list: Dictionary that contains transition information.
   """
   success_list = []
-  data_file = open(data_file_name, 'r')
+  data_file = open(data_file_name, "r")
   for i, line in enumerate(data_file.readlines()):
     line = line.split()
-    if line[0] != '2':
+    if line[0] != "2":
       success_list.append(i)
   data_file.close()
   return success_list
@@ -254,10 +254,10 @@ def read_reversal_data_file_last(data_file_name):
    - success: A boolean about whether the latest trajectory was 
        successful
   """
-  data_file = open(data_file_name, 'r')
+  data_file = open(data_file_name, "r")
   line = data_file.readlines()[-1]
   data_file.close()
-  if line[0] != '2':
+  if line[0] != "2":
     return True
   else:
     return False
@@ -266,7 +266,7 @@ def sort_pickle_key(pickle_filename):
   """A function used by the 'key' argument of the sorted() function to 
   sort the forward dcd files."""
   # TODO: this is hacky..
-  basenum = os.path.basename(pickle_filename).split('.')[0][14:] .
+  basenum = os.path.basename(pickle_filename).split(".")[0][14:] .
   sorting_number = int(basenum)
   return sorting_number
 
@@ -275,8 +275,8 @@ def sort_forward_dcd_key(forward_dcd):
   to sort the forward dcd files.
   """
   # TODO: this is hacky...
-  basename = os.path.basename(forward_dcd).split('.')[0][7:]
-  index_list = basename.split('_')
+  basename = os.path.basename(forward_dcd).split(".")[0][7:]
+  index_list = basename.split("_")
   if len(index_list) == 3:
     sorting_list = [int(index_list[2]), int(index_list[0]), int(index_list[1])]
   elif len(index_list) == 2: # backwards compatibility
@@ -287,7 +287,7 @@ def launch_fwd_rev_stage(seekrcalc, milestone, traj_base,
                          end_on_middle_crossing, dcd_iterator, 
                          dcd_iterator_chunk=9e9, input_vels=None, 
                          box_vectors=None, 
-                         transition_filename='transition.dat', suffix='', 
+                         transition_filename="transition.dat", suffix="", 
                          save_fwd_rev=False, save_last_frame=True):
   # TODO: update the docstring to current inputs
   """launch a reversal stage SEEKR calculation.
@@ -325,7 +325,7 @@ def launch_fwd_rev_stage(seekrcalc, milestone, traj_base,
                                nonbondedCutoff=1*nanometer, 
                                constraints=HBonds)
   integrator = VerletIntegrator(0.002*picoseconds)
-  platform = Platform.getPlatformByName('CUDA')
+  platform = Platform.getPlatformByName("CUDA")
   properties = seekrcalc.openmm.properties
   
   # create and prepare the SEEKR milestones
@@ -336,7 +336,7 @@ def launch_fwd_rev_stage(seekrcalc, milestone, traj_base,
   if save_fwd_rev == False:
     print "Deleting transition file:", data_file_name
     # delete the existing transition data file if it exists
-    os.system('rm %s' % data_file_name)
+    os.system("rm %s" % data_file_name)
   
   # create the system object
   simulation = Simulation(prmtop.topology, system, 
@@ -354,7 +354,7 @@ def launch_fwd_rev_stage(seekrcalc, milestone, traj_base,
     # for however many times the
     for j in range(seekrcalc.fwd_rev_stage.launches_per_config): 
       had_error = False
-      if hasattr(dcd_frame, 'xyz'):
+      if hasattr(dcd_frame, "xyz"):
         simulation.context.setPositions(dcd_frame.xyz[0])
       else:
         simulation.context.setPositions(dcd_frame)
@@ -380,8 +380,8 @@ def launch_fwd_rev_stage(seekrcalc, milestone, traj_base,
       #"fwd_rev%d_%d.dcd" % (i, j)
       traj_name = traj_base+"%d_%d%s.dcd" % (i, j, suffix)
       fwd_rev_traj = os.path.join(seekrcalc.project.rootdir, 
-                                  milestone.directory, 'md', 
-                                  'fwd_rev', traj_name)
+                                  milestone.directory, "md", 
+                                  "fwd_rev", traj_name)
       simulation.reporters = [StateDataReporter(
           stdout, seekrcalc.fwd_rev_stage.energy_freq, step=True, 
           potentialEnergy=True, temperature=True, volume=True)]
@@ -418,15 +418,15 @@ def launch_fwd_rev_stage(seekrcalc, milestone, traj_base,
           pdb_last_frame_base_name = traj_base+"%d_%d%s.pdb" % (i, j, suffix)
           pdb_last_frame_name = os.path.join(seekrcalc.project.rootdir, 
                                              milestone.directory, 
-                                             'md', 'fwd_rev', 
+                                             "md", "fwd_rev", 
                                              pdb_last_frame_base_name)
-          if seekrcalc.building.ff == 'amber':
+          if seekrcalc.building.ff == "amber":
             amber_parm = parmed.amber.AmberParm(
                 milestone.openmm.prmtop_filename, 
                 milestone.openmm.inpcrd_filename)
             amber_parm.positions = positions
             amber_parm.save(pdb_last_frame_name, overwrite=True)
-          elif seekrcalc.building.ff == 'charmm':
+          elif seekrcalc.building.ff == "charmm":
             raise Exception, "charmm ff not yet implemented."
           else:
             raise Exception, "ff not yet implemented: %s" \
@@ -491,22 +491,22 @@ def pickle_coords_vels(seekrcalc, milestone,
    - success_vels_pickle: success_vels pickled
   """
   if index == None:
-    suffix = ''
+    suffix = ""
   else:
     suffix = str(index)
   success_coords_pickle = os.path.join(seekrcalc.project.rootdir, 
-                                       milestone.directory, 'md', 'fwd_rev', 
-                                       'success_coords%s.pickle' % suffix)
+                                       milestone.directory, "md", "fwd_rev", 
+                                       "success_coords%s.pickle" % suffix)
   success_vels_pickle = os.path.join(seekrcalc.project.rootdir, 
-                                     milestone.directory, 'md', 'fwd_rev', 
-                                     'success_vels%s.pickle' % suffix)
+                                     milestone.directory, "md", "fwd_rev", 
+                                     "success_vels%s.pickle" % suffix)
   
-  success_coords_pickle_file=open(success_coords_pickle, 'wb')
+  success_coords_pickle_file=open(success_coords_pickle, "wb")
   pickle.dump(success_coords, success_coords_pickle_file, protocol=-1)
   success_coords_pickle_file.close()
   seekrcalc.fwd_rev_stage.success_coords_pickle = success_coords_pickle
   
-  success_vels_pickle_file=open(success_vels_pickle, 'wb')
+  success_vels_pickle_file=open(success_vels_pickle, "wb")
   pickle.dump(success_vels, success_vels_pickle_file, protocol=-1)
   success_vels_pickle_file.close()
   seekrcalc.fwd_rev_stage.success_vels_pickle = success_vels_pickle
@@ -530,10 +530,10 @@ def pickle_transition_info(seekrcalc, milestone,
    - None
   """
   transition_info_pickle = os.path.join(seekrcalc.project.rootdir, 
-                                        milestone.directory, 'md', 
-                                        'fwd_rev', 'transition_info.pickle')
+                                        milestone.directory, "md", 
+                                        "fwd_rev", "transition_info.pickle")
   
-  transition_info_pickle_file=open(transition_info_pickle, 'wb')
+  transition_info_pickle_file=open(transition_info_pickle,"wb")
   # NOTE: This will require two load calls to remove both 
   # objects from this pickle
   pickle.dump(transition_dict, transition_info_pickle_file, protocol=-1)

@@ -10,7 +10,6 @@ import sys
 import os
 import glob
 import re
-
 import cPickle as pickle
 from pprint import pprint
 import numpy as np
@@ -25,9 +24,9 @@ print "Parse arguments"
 which = None
 # then assume all
 if len(sys.argv) < 2: 
-  which = 'all'
-elif sys.argv[1] == 'all':
-  which = 'all'
+  which = "all"
+elif sys.argv[1] == "all":
+  which = "all"
 else:
   which = int(sys.argv[1])
 
@@ -38,7 +37,7 @@ print "Loading SEEKR calculation."
 ##################################################################
 
 
-picklename = '/home/lvotapka/tryp_test/seekr_calc.pickle'
+picklename = "/home/lvotapka/tryp_test/seekr_calc.pickle"
 me = seekr.openSeekrCalc(picklename)
 
 lig_selection = [3222, 3223, 3224, 3225, 3226, 3227, 3228, 3229, 3230]
@@ -52,8 +51,8 @@ me.fwd_rev_stage.traj_freq = 1000
 me.fwd_rev_stage.launches_per_config = 1
 # leave barostat off
 me.fwd_rev_stage.barostat = False 
-transition_filename = 'transition_fwd.dat'
-me.openmm.properties = {'CudaDeviceIndex':'0', 'CudaPrecision':'mixed'}
+transition_filename = "transition_fwd.dat"
+me.openmm.properties = {"CudaDeviceIndex":"0", "CudaPrecision":"mixed"}
 
 ##################################################################
 # DON'T MODIFY THE SECTION BELOW UNLESS YOU KNOW WHAT YOU'RE DOING
@@ -74,7 +73,7 @@ def add_dictionaries(dict1, dict2):
   return dict1
 
 # then run all milestones
-if which == 'all': 
+if which == "all": 
   all_milestones = me.milestones
 else:
   all_milestones = [me.milestones[which]]
@@ -86,10 +85,10 @@ for milestone in all_milestones:
     #      % milestone.index
     #  continue
     if not milestone.openmm.prmtop_filename: 
-      prmtop_path = os.path.join(me.project.rootdir, milestone.directory, 'md',
-                                 'building', 'holo.parm7')
-      inpcrd_path = os.path.join(me.project.rootdir, milestone.directory, 'md',
-                                 'building', 'holo.rst7')
+      prmtop_path = os.path.join(me.project.rootdir, milestone.directory, "md",
+                                 "building", "holo.parm7")
+      inpcrd_path = os.path.join(me.project.rootdir, milestone.directory, "md",
+                                 "building", "holo.rst7")
       if os.path.exists(prmtop_path) and os.path.exists(inpcrd_path):
         milestone.openmm.prmtop_filename = prmtop_path
         milestone.openmm.inpcrd_filename = inpcrd_path
@@ -106,7 +105,7 @@ for milestone in all_milestones:
     milestone.atom_selection_1 = rec_selection
     milestone.atom_selection_2 = lig_selection
     fwd_rev_path = os.path.join(me.project.rootdir, milestone.directory, 
-                                'md', 'fwd_rev')
+                                "md", "fwd_rev")
     
     traj_base = "forward"
     transition_dict_total = {}
@@ -114,21 +113,21 @@ for milestone in all_milestones:
     save_fwd_rev = False
     
     glob_list = sorted(glob.glob(os.path.join(me.project.rootdir, 
-                                 milestone.directory, 'md', 'fwd_rev', 
-                                 'success_coords*.pickle')), 
+                                 milestone.directory, "md", "fwd_rev", 
+                                 "success_coords*.pickle")), 
                                  key=seekr.sort_pickle_key)
     
     for coords_pickle in glob_list:
-      i = int(re.search('\d+', os.path.basename(coords_pickle)).group(0))
-      vels_pickle = os.path.join(me.project.rootdir, milestone.directory, 'md',
-                                 'fwd_rev', 'success_vels%d.pickle' % i)
-      assert os.path.exists(vels_pickle), coords_pickle+' file exists, but \
-          corresponding velocity file: '+vels_pickle+' does not.'
+      i = int(re.search("\d+", os.path.basename(coords_pickle)).group(0))
+      vels_pickle = os.path.join(me.project.rootdir, milestone.directory, "md",
+                                 "fwd_rev", "success_vels%d.pickle' % i)
+      assert os.path.exists(vels_pickle), coords_pickle+" file exists, but \
+          corresponding velocity file: '+vels_pickle+' does not."
       #me.fwd_rev_stage.success_coords_pickle = os.path.join(
       #   me.project.rootdir, milestone.directory, 'md', 'fwd_rev', 
       #   'success_coords.pickle') # TODO: remove line
       print "Opening pickles:", coords_pickle, vels_pickle
-      success_coords_pickle =  open(coords_pickle, 'rb') 
+      success_coords_pickle =  open(coords_pickle, "rb") 
       #success_coords_pickle_file = open(success_coords_pickle, 'rb')
       positions = pickle.load(success_coords_pickle)
       success_coords_pickle.close()
@@ -136,7 +135,7 @@ for milestone in all_milestones:
       #me.fwd_rev_stage.success_vels_pickle = os.path.join(
       #   me.project.rootdir, milestone.directory, 'md', 'fwd_rev', 
       #   'success_vels.pickle') # TODO: remove line
-      success_vels_pickle =  open(vels_pickle, 'rb') 
+      success_vels_pickle =  open(vels_pickle, "rb") 
       #success_vels_pickle_file = open(success_vels_pickle, 'rb')
       velocities = pickle.load(success_vels_pickle)
       success_vels_pickle.close()

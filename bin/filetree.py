@@ -19,8 +19,8 @@ import numpy as np
 import pdb2 as pdb
 
 verbose = True
-mdtree = {'building':{},'min':{},'temp_equil':{}, 'umbrella':{}, 'fwd_rev':{}} 
-bdtree = {'ens':{}}
+mdtree = {"building":{},"min":{},"temp_equil":{}, "umbrella":{}, "fwd_rev":{}} 
+bdtree = {"ens":{}}
 
 
 class Filetree():
@@ -104,13 +104,13 @@ def generate_filetree(seekrcalc):
     md_file_path={}
     # then prep this anchor for an MD simulation
     if seekrcalc.project.md == True and milestone.md == True:
-      md_dir=os.path.join(anchor_dir,'md') # directory for MD
-      md_filetree=Filetree({'md':mdtree})
+      md_dir=os.path.join(anchor_dir,"md") # directory for MD
+      md_filetree=Filetree({"md":mdtree})
       # make the MD filetree
       md_filetree.make_tree(anchor_dir)
       for key in mdtree.keys():
         md_file_path[key] = os.path.join(md_dir,key)
-      wet_holo_filename=os.path.join(md_dir,'holo_wet.pdb')
+      wet_holo_filename=os.path.join(md_dir,"holo_wet.pdb")
       # write the holo structure into the md directory
       #wet_config.save(wet_holo_filename, amber=True, standard=False)
       #md_file_path['wet_holo'] = wet_holo_filename
@@ -123,13 +123,13 @@ def generate_filetree(seekrcalc):
     if seekrcalc.project.bd == True and milestone.bd == True:
       # since we didn't iterate through this list, we must use the index
       #dry_config= wet_config #pdb.dry(wet_config)
-      bd_dir=os.path.join(anchor_dir,'bd') # directory for MD
-      bd_filetree=Filetree({'bd':bdtree})
+      bd_dir=os.path.join(anchor_dir,"bd") # directory for MD
+      bd_filetree=Filetree({"bd":bdtree})
       # make the MD filetree
       bd_filetree.make_tree(anchor_dir) 
       for key in bdtree.keys():
         bd_file_path[key] = os.path.join(bd_dir,key)
-      dry_holo_filename=os.path.join(bd_dir,'holo_dry.pdb')
+      dry_holo_filename=os.path.join(bd_dir,"holo_dry.pdb")
       # write the holo structure into the md directory
       #dry_config.save(dry_holo_filename, amber=True, standard=False)
       #md_file_path['dry_holo'] = dry_holo_filename
@@ -142,7 +142,7 @@ def generate_filetree(seekrcalc):
 
   # make the BD b-surface directory
   if seekrcalc.project.bd:
-    b_surface_path = os.path.join(rootdir, 'b_surface')
+    b_surface_path = os.path.join(rootdir, "b_surface")
     if not os.path.exists(b_surface_path):
       os.mkdir(b_surface_path)
     seekrcalc.browndye.b_surface_path = b_surface_path
@@ -162,20 +162,20 @@ class Test_filetree_functions(unittest.TestCase):
   # test the Filetree class
   def test_Filetree(self):
     # test init
-    empty_filetree = {'mytest':{}}
+    empty_filetree = {"mytest":{}}
     test = Filetree(empty_filetree)
     self.assertEqual(test.tree, empty_filetree)
     # test make_tree
-    test.make_tree('/tmp')
-    test_filetree = {'test1':{}, 'test2':{'test3':{}}}
-    test_rootdir = '/tmp/mytest'
+    test.make_tree("/tmp")
+    test_filetree = {"test1":{}, "test2":{"test3":{}}}
+    test_rootdir = "/tmp/mytest"
     tree=Filetree(test_filetree)
     # make the test filetree
     tree.make_tree(test_rootdir)
     # test to see whether these directories have been properly created
-    self.assertTrue(os.path.exists('/tmp/mytest/test1'))
-    self.assertTrue(os.path.exists('/tmp/mytest/test2'))
-    self.assertTrue(os.path.exists('/tmp/mytest/test2/test3'))
+    self.assertTrue(os.path.exists("/tmp/mytest/test1"))
+    self.assertTrue(os.path.exists("/tmp/mytest/test2"))
+    self.assertTrue(os.path.exists("/tmp/mytest/test2/test3"))
 
 
 if __name__ == "__main__":
