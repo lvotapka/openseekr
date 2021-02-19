@@ -5,6 +5,7 @@ for Amber simulations.
 Created on May 10, 2018
 
 @author: lvotapka
+@contributor Ilker Deveci
 '''
 
 import os, string
@@ -18,7 +19,7 @@ verbose = True
 
 class AmberSettings():
     def __init__(self):
-        self.leap_template = ''
+        self.leap_template = ""
         self.leap_program = 'tleap'
 
 def amber_building(seekrcalc, milestone, amber_settings):

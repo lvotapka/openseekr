@@ -8,6 +8,7 @@ Created on May 8, 2018
 
 import pickle
 import os
+import re
 import unittest, warnings
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
@@ -29,6 +30,37 @@ def strBool(bool_str):
         raise Exception(
             "argument for strBool must be string either 'True' or 'False'.")
     return
+
+def order_files_numerically(file_list):
+    '''
+    If there is a list of files, order them numerically, not
+    alphabetically and return the sorted list of files.
+    
+    Parameters
+    ----------
+    file_list : list
+        A list of strings that contain one or more numerical values. 
+        The strings will be sorted by only the numerical values within
+        them.
+        
+    Returns
+    -------
+    sorted_file_list : list
+        A new list of strings sorted numerically
+    '''
+    sorted_file_list = []
+    numerical_dict = {}
+    for i, file_name in enumerate(file_list):
+        numbers = re.findall(r"\d+", file_name)
+        numbers = tuple([int(j) for j in numbers])
+        numerical_dict[numbers] = i
+        
+    numerical_list = sorted(numerical_dict.keys())
+    for number in numerical_list:
+        index = numerical_dict[number]
+        sorted_file_list.append(file_list[index])
+        
+    return sorted_file_list
 
 def serialize_box_vectors(box_vectors, xmlRoot, tagName='box_vectors'):
     '''
