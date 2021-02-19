@@ -43,7 +43,7 @@ def make_browndye_input_xml(model, rootdir, receptor_xml_filename,
     if bd_directory is None:
         # B-surface
         bd_directory = os.path.join(
-            rootdir, model.k_on_info.b_surface_directory)
+            rootdir, model.browndye.b_surface_path)
         root.system.start_at_site = "False"
     else:
         # BD Milestone
