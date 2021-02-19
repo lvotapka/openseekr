@@ -678,7 +678,7 @@ if __name__ == "__main__":
         debye_length, reaction_filename = make_browndye_input_xml(
             me, me.project.rootdir, receptor_xml_filename, 
             ligand_xml_filename, me.browndye.prods_per_anchor, 
-            bd_directory=bd_milestone_directory, make_apbs_mode=True)
+            bd_directory=None, make_apbs_mode=True)
         
     for bd_directory in bd_directory_list:
         print("bd_directory:", bd_directory)
