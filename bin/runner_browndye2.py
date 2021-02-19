@@ -19,6 +19,7 @@ import seekr
 #import openmmvt.base as base
 import sim_browndye2
 #import openmmvt.sim_browndye2 as sim_browndye2
+REACTION_FILENAME = "rxns.xml"
 
 def make_empty_pqrxml(directory, filename="empty.pqrxml"):
     """
@@ -667,17 +668,17 @@ if __name__ == "__main__":
         shutil.copyfile(me.browndye.rec_dry_pqr_filename, rec_filename)
         shutil.copyfile(me.browndye.lig_dry_pqr_filename, lig_filename)
         
+        abs_reaction_path = os.path.join(bd_milestone_directory, 
+                                         REACTION_FILENAME)
+        make_browndye_reaction_xml(me, abs_reaction_path, rec_filename, 
+                                   lig_filename, bd_milestone=None, )
+        receptor_xml_filename_dummy = sim_browndye2.make_pqrxml(rec_filename)
+        ligand_xml_filename_dummy = sim_browndye2.make_pqrxml(lig_filename)
+        
         debye_length, reaction_filename = make_browndye_input_xml(
             me, me.project.rootdir, receptor_xml_filename, 
             ligand_xml_filename, me.browndye.prods_per_anchor, 
             bd_directory=bd_milestone_directory, make_apbs_mode=True)
-        abs_reaction_path = os.path.join(bd_milestone_directory, 
-                                         reaction_filename)
-        make_browndye_reaction_xml(me, abs_reaction_path, rec_filename, 
-                                   lig_filename, bd_milestone=None, )
-        
-        receptor_xml_filename_dummy = sim_browndye2.make_pqrxml(rec_filename)
-        ligand_xml_filename_dummy = sim_browndye2.make_pqrxml(lig_filename)
         
     for bd_directory in bd_directory_list:
         print("bd_directory:", bd_directory)
