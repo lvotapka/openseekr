@@ -87,6 +87,10 @@ def pretty_string_value_error(value, error, error_digits=2, use_unicode=True):
         else:
             new_string = "{:.6E} +/- UNKNOWN ERROR".format(value)
     else:
+        if not np.isfinite(value):
+            return str(value)
+        assert "e" in "{:e}".format(value), "Cannot convert into scientific "\
+            "notation: {1}".format(value)
         value_mantissa_str, value_exponent_str = \
             "{:e}".format(value).strip().split('e')
         value_mantissa = float(value_mantissa_str)
@@ -369,6 +373,7 @@ def make_matrices(me):
     K_hat = np.zeros((n-1,n-1), dtype=np.double)
     avg_t = np.zeros((n-1,1), dtype=np.double)
     R_i = np.zeros((n,1), dtype=np.double)
+    bd_milestone_prob = 0.0
     
     for milestone in me.milestones:
         if milestone.md:
