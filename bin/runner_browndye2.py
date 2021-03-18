@@ -475,6 +475,11 @@ def make_fhpd_directories(model, bd_milestone, lig_pqr_filenames,
         lig_pqr_filename = os.path.join(directory_name, "ligand.pqr")
         shutil.copyfile(lig_pqr_orig_filename, lig_pqr_filename)
         
+        abs_reaction_path = os.path.join(directory_name, 
+                                         REACTION_FILENAME)
+        make_browndye_reaction_xml(model, abs_reaction_path, rec_pqr_filename, 
+                                   lig_pqr_filename, bd_milestone=None)
+        
         sim_browndye2.make_pqrxml(rec_pqr_filename, 
             browndye2_bin="", output_xml_filename=receptor_xml_filename)
         
@@ -485,10 +490,6 @@ def make_fhpd_directories(model, bd_milestone, lig_pqr_filenames,
             model, model.project.rootdir, receptor_xml_filename, 
             ligand_xml_filename, model.browndye.fhpd_numtraj, 
             bd_directory=directory_name, make_apbs_mode=True)
-        abs_reaction_path = os.path.join(directory_name, 
-                                         reaction_filename)
-        make_browndye_reaction_xml(model, abs_reaction_path, rec_pqr_filename, 
-                                   lig_pqr_filename, bd_milestone=None)
         
         
         local_receptor_xml_filename = os.path.join(
