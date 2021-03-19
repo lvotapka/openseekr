@@ -362,6 +362,61 @@ def browndye_parse_bd_milestone_results(results_filename,
     transition_probabilities["escaped"] = 1.0 - completed_prob
     return transition_probabilities
 
+def combine_fhpd_results(model, bd_milestone, fhpd_directories):
+    """
+    
+    """
+    reaction_dict = defaultdict(float)
+    number_escaped = 0
+    number_stuck = 0
+    number_total = 0
+    number_total_check = 0
+    results_filename_list = []
+    for fhpd_directory in fhpd_directories:
+        results_glob = os.path.join(fhpd_directory, 
+                                    "results.xml")
+        results_filename_list += glob.glob(results_glob)
+    
+    assert len(results_filename_list) > 0, "No BD output files found."
+    for results_filename in results_filename_list:
+        tree = ET.parse(results_filename)
+        root = tree.getroot()
+        reactions_XML = root.find("reactions")
+        number_total += int(reactions_XML.find("n_trajectories").text.strip())
+        number_stuck += int(reactions_XML.find("stuck").text.strip())
+        number_escaped += int(reactions_XML.find("escaped").text.strip())
+        for completed_XML in reactions_XML.iter("completed"):
+            name = completed_XML.find("name").text.strip()
+            n = int(completed_XML.find("n").text.strip())
+            reaction_dict[name] += n
+            number_total_check += n
+        
+    assert number_total == number_total_check + number_stuck + number_escaped
+    for completed_XML in reactions_XML.iter("completed"):
+        reactions_XML.remove(completed_XML)
+    
+    reactions_XML.find("n_trajectories").text = str(number_total)
+    reactions_XML.find("stuck").text = str(number_stuck)
+    reactions_XML.find("escaped").text = str(number_escaped)
+    for key in reaction_dict:
+        completed_XML = ET.SubElement(reactions_XML, "completed")
+        completed_XML.text = "\n      "
+        completed_XML.tail = "\n  "
+        name_XML = ET.SubElement(completed_XML, "name")
+        name_XML.text = key
+        name_XML.tail = "\n      "
+        n_XML = ET.SubElement(completed_XML, "n")
+        n_XML.text = str(int(reaction_dict[key]))
+        n_XML.tail = "\n    "
+    
+    xmlstr = ET.tostring(root).decode("utf-8")
+    bd_milestone_directory = os.path.join(model.project.rootdir, 
+                                          bd_milestone.directory)
+    dest_filename = os.path.join(bd_milestone_directory, "results.xml")
+    with open(dest_filename, 'w') as f:
+        f.write(xmlstr)
+        
+    return
 
 def make_matrices(me):
     """
@@ -405,6 +460,14 @@ def make_matrices(me):
         elif milestone.bd:
             bd_results_file = os.path.join(
                 me.project.rootdir, milestone.directory, "results.xml")
+            
+            if not os.path.exists(bd_results_file):
+                bd_directory_list_glob = os.path.join(
+                    me.project.rootdir, milestone.directory, 
+                    "first_hitting_point_distribution", "lig*/")
+                bd_directory_list = glob.glob(bd_directory_list_glob)
+                combine_fhpd_results(me, milestone, bd_directory_list)
+            
             if os.path.exists(bd_results_file):
                 transition_probabilities = \
                     browndye_parse_bd_milestone_results(bd_results_file)
