@@ -377,9 +377,7 @@ def extract_bd_surface(model, bd_milestone, max_b_surface_trajs_to_extract,
                     subtraj_list.append(int(line.strip().split()[1]))
                     
         number_list.sort()
-        assert len(number_list) > 0, "No trajectories found in b_surface "\
-            "simulations. Consider using larger outermost milestone or "\
-            "simulating more b-surface trajectories."
+        
         for j, rxn_number in enumerate(number_list):
             print("max_b_surface_trajs_to_extract:", max_b_surface_trajs_to_extract)
             if counter > max_b_surface_trajs_to_extract:
@@ -436,6 +434,10 @@ def extract_bd_surface(model, bd_milestone, max_b_surface_trajs_to_extract,
             os.remove(xml_traj_filename)
             counter += 1
     
+    assert len(pqr_lig_filenames) > 0, "No trajectories found in b_surface "\
+            "simulations. Consider using larger outermost milestone or "\
+            "simulating more b-surface trajectories."
+    assert len(pqr_lig_filenames) == len(pqr_rec_filenames)
     return pqr_lig_filenames, pqr_rec_filenames
     
 def make_fhpd_directories(model, bd_milestone, lig_pqr_filenames, 
