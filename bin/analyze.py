@@ -377,7 +377,10 @@ def combine_fhpd_results(model, bd_milestone, fhpd_directories):
                                     "results.xml")
         results_filename_list += glob.glob(results_glob)
     
-    assert len(results_filename_list) > 0, "No BD output files found."
+    if len(results_filename_list) > 0:
+        print("No BD output files found.")
+        return
+    
     for results_filename in results_filename_list:
         tree = ET.parse(results_filename)
         root = tree.getroot()
