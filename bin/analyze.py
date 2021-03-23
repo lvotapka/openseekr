@@ -377,7 +377,7 @@ def combine_fhpd_results(model, bd_milestone, fhpd_directories):
                                     "results.xml")
         results_filename_list += glob.glob(results_glob)
     
-    if len(results_filename_list) > 0:
+    if len(results_filename_list) == 0:
         print("No BD output files found.")
         return
     
