@@ -438,7 +438,7 @@ def pickle_coords_vels(seekrcalc, milestone, success_coords, success_vels, index
     return success_coords_pickle, success_vels_pickle
 
 def serialize_transition_info(seekrcalc, milestone, transition_dict, 
-                           avg_incubation_time):
+                           avg_incubation_time, filename='transition_info.xml'):
     '''Save the transition information, including milestone index, radius,
     incubation time for the transitions, source milestone, destination
     milestone, and count of transitions into an XML file.
@@ -464,7 +464,7 @@ def serialize_transition_info(seekrcalc, milestone, transition_dict,
     pickle.dump(avg_incubation_time, transition_info_pickle_file, protocol=-1) # NOTE: This will require two load calls to remove both objects from this pickle
     transition_info_pickle_file.close()
     '''
-    transition_info_pickle = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'fwd_rev', 'transition_info.xml')
+    transition_info_pickle = os.path.join(seekrcalc.project.rootdir, milestone.directory, 'md', 'fwd_rev', filename)
     root = ET.Element('fwd_transitions')
     xmlIndex = ET.SubElement(root, 'milestone_index')
     xmlIndex.text = str(milestone.index)
