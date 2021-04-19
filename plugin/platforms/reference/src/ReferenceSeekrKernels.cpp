@@ -131,6 +131,12 @@ void ReferenceCalcSeekrForceKernel::initialize(const System& system, const Seekr
       sphericalAtomParamsEnd2.push_back(currentAtomIndex2);
       crossed.push_back(0);
     }
+    saveStateFileName = force.getSaveStateFileName();
+    if (saveStateFileName.empty()) {
+        saveStateBool = false;
+    } else {
+        saveStateBool = true;
+    }
 }
 
 double ReferenceCalcSeekrForceKernel::execute(ContextImpl& context, bool includeForces, bool includeEnergy) {
@@ -177,17 +183,22 @@ double ReferenceCalcSeekrForceKernel::execute(ContextImpl& context, bool include
         //RealOpenMM old_r2 = old_delta.dot(old_delta);
         RealOpenMM old_r2 = delta.dot(delta); // TODO: change this to old coordinates
         
+        bool crossingThisStep = false;
         if (r2 < sphericalRadii1[i]*sphericalRadii1[i]) {
             crossed[i] = 1;
+            crossingThisStep = true;
         } 
         else if ((r2 - sphericalRadii2[i]*sphericalRadii2[i])*(old_r2 - sphericalRadii2[i]*sphericalRadii2[i]) < 0.0) { // this will return true if the middle milestone is crossed
             crossed[i] = 2;
+            crossingThisStep = true;
         }
         else if (r2 > sphericalRadii3[i]*sphericalRadii3[i]) {
             crossed[i] = 3;
+            crossingThisStep = true;
         }
         
         // TODO: what to do with this calculation? 'crossed' is not put anywhere
+        // Output file not written. State file not written...
     }
 }
 

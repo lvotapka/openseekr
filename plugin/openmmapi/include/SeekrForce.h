@@ -68,6 +68,18 @@ public:
     
     std::string getDataFileName(int forceIndex) const;
     
+    /**
+     * Get the file name that the integrator writes positions/velocities to
+     */
+    const std::string& getSaveStateFileName() const;
+    
+    /**
+     * Set the file name that the integrator would write positions/velocities to
+     *
+     * @param fileName    the string of the state file name upon crossing
+     */
+    void setSaveStateFileName(const std::string& fileName);
+    
     void addSphericalMilestone(int numIndices1, int numIndices2, float radius1, 
                               float radius2, float radius3, std::vector<int> atomIndices1,
                               std::vector<int> atomIndices2, bool endOnMiddleCrossingArg,
@@ -126,6 +138,7 @@ private:
     
     std::vector<SphericalMilestoneInfo> sphericalMilestones;
     bool endOnMiddleCrossing;
+    std::string saveStateFileName;
     
 };
 

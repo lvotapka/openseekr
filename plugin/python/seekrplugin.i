@@ -58,6 +58,14 @@ import simtk.unit as unit
 
 %}
 
+%pythonappend SeekrPlugin::MmvtLangevinIntegrator::getSaveStateFileName() const %{
+
+%}
+
+%pythonappend SeekrPlugin::MmvtLangevinIntegrator::setSaveStateFileName(std::string fileName) const %{
+
+%}
+
 namespace SeekrPlugin {
 
 class SeekrForce : public OpenMM::Force {
@@ -74,6 +82,10 @@ public:
     
     std::string getDataFileName(int foceIndex) const;
     //void getDataFileName(int forceIndex) const;
+    
+    std::string getSaveStateFileName() const;
+    
+    void setSaveStateFileName(std::string fileName);
     
     void updateParametersInContext(OpenMM::Context& context);
     

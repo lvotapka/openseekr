@@ -38,6 +38,7 @@
 #include "openmm/internal/ContextImpl.h"
 #include "openmm/cuda/CudaBondedUtilities.h"
 #include "openmm/cuda/CudaForceInfo.h"
+#include "openmm/serialization/XmlSerializer.h"
 #include <cmath>
 #include <iostream>
 #include <fstream>
@@ -261,10 +262,15 @@ void CudaCalcSeekrForceKernel::setupSphericalMilestones(const SeekrForce& force)
     cout << "]\n";*/
     dataFileNames.push_back(force.getDataFileName(i));
   }
+  saveStateFileName = force.getSaveStateFileName();
+  if (saveStateFileName.empty()) {
+      saveStateBool = false;
+  } else {
+      saveStateBool = true;
+  }
 }
 
 void CudaCalcSeekrForceKernel::validateAndUpload() {
-  cout << "Attempting to upload host arrays to device.\n";
   sphericalNumIndices1->upload(h_sphericalNumIndices1);
   sphericalNumIndices2->upload(h_sphericalNumIndices2);
   sphericalRadii1->upload(h_sphericalRadii1);
@@ -276,7 +282,6 @@ void CudaCalcSeekrForceKernel::validateAndUpload() {
   sphericalAtomBounds2->upload(h_sphericalAtomBounds2);
   sphericalOldCom1->upload(h_sphericalOldCom1);
   sphericalOldCom2->upload(h_sphericalOldCom2);
-  cout << "Uploaded all host arrays to device.\n";
 }
 
 void CudaCalcSeekrForceKernel::initialize(const System& system, const SeekrForce& force) {
@@ -323,11 +328,11 @@ double CudaCalcSeekrForceKernel::execute(ContextImpl& context, bool includeForce
     
     //cout << "step:" << context.getTime() << "\n";
     
-    
+    bool crossingThisStep = false;
     for (int i=0; i<numSphericalMilestones; i++) {
       if (h_collectionReturnCode[0] == 1) {
         if (endSimulation == false) { // if we haven't already crossed an ending milestone
-          cout<<"Inner milestone crossed. Time:" << context.getTime() << " ps\n"; // output info to user
+          //cout<<"Inner milestone crossed. Time:" << context.getTime() << " ps\n"; // output info to user
           endSimulation = true; // make sure we end after this point
           ofstream datafile; // open datafile for writing
           datafile.open(dataFileNames[i], std::ios_base::app); // append to file
@@ -338,16 +343,18 @@ double CudaCalcSeekrForceKernel::execute(ContextImpl& context, bool includeForce
           }
           crossedStartingMilestone = false; // reset whether we've crossed the starting milestone for the next simulation
           datafile.close(); // close data file
+          crossingThisStep = true;
         }
       } else if (h_collectionReturnCode[0] == 2) {
         if (endSimulation == false) { // if we haven't already crossed an ending milestone
           if (endOnMiddleCrossing == true) { // then it's a reversal stage
-            cout<<"Middle milestone crossed. Time:" << context.getTime() << " ps\n";
+            //cout<<"Middle milestone crossed. Time:" << context.getTime() << " ps\n";
             endSimulation = true;
             ofstream datafile;
             datafile.open(dataFileNames[i], std::ios_base::app);
             datafile << "2 " << context.getTime() << "\n";
             datafile.close();
+            crossingThisStep = true;
           } else { // Then its the forward stage, so assert that this milestone is crossed
             if (crossedStartingMilestone == false) { // as long as we haven't crossed once already
               crossedStartingMilestone = true; // we've crossed it once
@@ -357,7 +364,7 @@ double CudaCalcSeekrForceKernel::execute(ContextImpl& context, bool includeForce
         }
       } else if (h_collectionReturnCode[0] == 3) { // This should be a fairly identical procedure to inner milestone crossing above
         if (endSimulation == false) {
-          cout<<"Outer milestone crossed. Time:" << context.getTime() << " ps\n";
+          //cout<<"Outer milestone crossed. Time:" << context.getTime() << " ps\n";
           endSimulation = true;
           ofstream datafile;
           datafile.open(dataFileNames[i], std::ios_base::app);
@@ -368,10 +375,23 @@ double CudaCalcSeekrForceKernel::execute(ContextImpl& context, bool includeForce
           }
           crossedStartingMilestone = false;
           datafile.close();
+          crossingThisStep = true;
         }
       } else if (h_collectionReturnCode[0] == 5) { // this is an error code
         cout << "Error in CUDA kernel: Nan detected in atom group distance\n";
         throw OpenMMException("Error in CUDA kernel: Nan detected in atom group distance");
+      }
+      if (saveStateBool == true && crossingThisStep == true) {
+        State myState = context.getOwner().getState(State::Positions | State::Velocities);
+        stringstream buffer;
+        stringstream number_str;
+        number_str << "_" << h_collectionReturnCode[0];
+        string trueFileName = saveStateFileName + number_str.str();
+        XmlSerializer::serialize<State>(&myState, "State", buffer);
+        ofstream statefile; // open datafile for writing
+        statefile.open(trueFileName, std::ios_base::trunc); // append to file
+        statefile << buffer.rdbuf();
+        statefile.close(); // close data file
       }
     }
     return 0.0;

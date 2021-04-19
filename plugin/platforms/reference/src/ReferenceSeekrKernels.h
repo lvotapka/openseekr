@@ -86,6 +86,8 @@ private:
     std::vector<int> sphericalAtomParamsBegin2;
     std::vector<int> sphericalAtomParamsEnd1;
     std::vector<int> sphericalAtomParamsEnd2;
+    bool saveStateBool = false;
+    std::string saveStateFileName;
     std::vector<int> crossed;
     
 };

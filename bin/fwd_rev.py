@@ -190,6 +190,7 @@ def read_data_file_transitions(data_file_name, seekrcalc, milestone):
             transition_dict[key_string2] += 1
         elif trans == '3*' or trans == '1*':
             num_failed += 1
+            continue
         else:
             raise AssertionError("An unexpected value was found in the transition data file: "+str(trans))
         incubation_time_list.append(time)

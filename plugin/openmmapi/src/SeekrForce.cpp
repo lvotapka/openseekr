@@ -100,6 +100,14 @@ std::string SeekrForce::getDataFileName(int forceIndex) const {
   return sphericalMilestones[forceIndex].dataFileName;
 }
 
+const string& SeekrForce::getSaveStateFileName() const {
+    return saveStateFileName;
+}
+
+void SeekrForce::setSaveStateFileName(const string& fileName) {
+    saveStateFileName = fileName;
+}
+
 void SeekrForce::addSphericalMilestone(int numIndices1, int numIndices2, float radius1, 
                               float radius2, float radius3, std::vector<int> atomIndices1,
                               std::vector<int> atomIndices2, bool endOnMiddleCrossingArg,

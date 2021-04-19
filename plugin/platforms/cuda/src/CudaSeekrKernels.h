@@ -126,6 +126,8 @@ private:
     bool endOnMiddleCrossing;
     bool crossedStartingMilestone;
     std::vector<std::string> dataFileNames;
+    bool saveStateBool = false;
+    std::string saveStateFileName;
     
     bool hasInitializedKernel;
     OpenMM::CudaContext& cu;
