@@ -1,27 +1,32 @@
-'''
+"""
 A sample script for running the forward and reverse stages
 
 Created on May 15, 2018
 
 @author: lvotapka
-'''
+"""
 
-import seekr
-from seekr import amber
-import sys, os, glob, re
-from simtk.unit import *
-import mdtraj
+import sys
+import os
+import glob
+import re
 import cPickle as pickle
 from pprint import pprint
 import numpy as np
+
+import seekr
+from seekr import amber
+from simtk.unit import *
+import mdtraj
 from simtk.openmm.app import AmberInpcrdFile
 
 print "Parse arguments"
 which = None
-if len(sys.argv) < 2: # then assume all
-  which = 'all'
-elif sys.argv[1] == 'all':
-  which = 'all'
+# then assume all
+if len(sys.argv) < 2: 
+  which = "all"
+elif sys.argv[1] == "all":
+  which = "all"
 else:
   which = int(sys.argv[1])
 
@@ -32,30 +37,32 @@ print "Loading SEEKR calculation."
 ##################################################################
 
 
-picklename = '/home/lvotapka/tryp_test/seekr_calc.pickle'
+picklename = "/home/lvotapka/tryp_test/seekr_calc.pickle"
 me = seekr.openSeekrCalc(picklename)
 
 lig_selection = [3222, 3223, 3224, 3225, 3226, 3227, 3228, 3229, 3230]
 rec_selection = [2466, 2478, 2489, 2535, 2745, 2769, 2787]
 
 step_chunk_size = 1000
-me.fwd_rev_stage.steps = step_chunk_size # in 2*fs
+# in 2*fs
+me.fwd_rev_stage.steps = step_chunk_size 
 me.fwd_rev_stage.energy_freq = 1000
 me.fwd_rev_stage.traj_freq = 1000
 me.fwd_rev_stage.launches_per_config = 1
-me.fwd_rev_stage.barostat = False # leave barostat off
-transition_filename = 'transition_fwd.dat'
-me.openmm.properties = {'CudaDeviceIndex':'0', 'CudaPrecision':'mixed'}
+# leave barostat off
+me.fwd_rev_stage.barostat = False 
+transition_filename = "transition_fwd.dat"
+me.openmm.properties = {"CudaDeviceIndex":"0", "CudaPrecision":"mixed"}
 
 ##################################################################
 # DON'T MODIFY THE SECTION BELOW UNLESS YOU KNOW WHAT YOU'RE DOING
 ##################################################################
 
 def add_dictionaries(dict1, dict2):
-  '''
+  """
   adds the values numerically within each dictionary
   NOTE: dict1 is updated and returned BY REFERENCE
-  '''
+  """
   new_dict = dict1
   for key in dict2.keys():
     if key in dict1.keys():
@@ -65,7 +72,8 @@ def add_dictionaries(dict1, dict2):
 
   return dict1
 
-if which == 'all': # then run all milestones
+# then run all milestones
+if which == "all": 
   all_milestones = me.milestones
 else:
   all_milestones = [me.milestones[which]]
@@ -73,11 +81,14 @@ else:
 for milestone in all_milestones:
   if milestone.md:
     #if not milestone.openmm.prmtop_filename: 
-    #  print "prmtop file not found for milestone %d. Skipping..." % milestone.index
+    #  print "prmtop file not found for milestone %d. Skipping..."\
+    #      % milestone.index
     #  continue
     if not milestone.openmm.prmtop_filename: 
-      prmtop_path = os.path.join(me.project.rootdir, milestone.directory, 'md', 'building', 'holo.parm7')
-      inpcrd_path = os.path.join(me.project.rootdir, milestone.directory, 'md', 'building', 'holo.rst7')
+      prmtop_path = os.path.join(me.project.rootdir, milestone.directory, "md",
+                                 "building", "holo.parm7")
+      inpcrd_path = os.path.join(me.project.rootdir, milestone.directory, "md",
+                                 "building", "holo.rst7")
       if os.path.exists(prmtop_path) and os.path.exists(inpcrd_path):
         milestone.openmm.prmtop_filename = prmtop_path
         milestone.openmm.inpcrd_filename = inpcrd_path
@@ -85,14 +96,16 @@ for milestone in all_milestones:
         milestone.box_vectors = inpcrd.boxVectors
         print "box_vectors:", milestone.box_vectors
       else:
-        print "prmtop or inpcrd file not found for milestone %d. Skipping..." % milestone.index
+        print "prmtop or inpcrd file not found for milestone %d. Skipping..." \
+            % milestone.index
         continue
       
     print "launching constant energy forward stage for milestone:", which
     box_vectors = milestone.box_vectors
     milestone.atom_selection_1 = rec_selection
     milestone.atom_selection_2 = lig_selection
-    fwd_rev_path = os.path.join(me.project.rootdir, milestone.directory, 'md', 'fwd_rev')
+    fwd_rev_path = os.path.join(me.project.rootdir, milestone.directory, 
+                                "md", "fwd_rev")
     
     traj_base = "forward"
     transition_dict_total = {}
@@ -100,22 +113,29 @@ for milestone in all_milestones:
     save_fwd_rev = False
     
     glob_list = sorted(glob.glob(os.path.join(me.project.rootdir, 
-              milestone.directory, 'md', 'fwd_rev', 'success_coords*.pickle')), 
-              key=seekr.sort_pickle_key)
+                                 milestone.directory, "md", "fwd_rev", 
+                                 "success_coords*.pickle")), 
+                                 key=seekr.sort_pickle_key)
     
     for coords_pickle in glob_list:
-      i = int(re.search('\d+', os.path.basename(coords_pickle)).group(0))
-      vels_pickle = os.path.join(me.project.rootdir, milestone.directory, 'md', 'fwd_rev', 'success_vels%d.pickle' % i)
-      assert os.path.exists(vels_pickle), coords_pickle+' file exists, but corresponding velocity file: '+vels_pickle+' does not.'
-      #me.fwd_rev_stage.success_coords_pickle = os.path.join(me.project.rootdir, milestone.directory, 'md', 'fwd_rev', 'success_coords.pickle') # TODO: remove line
+      i = int(re.search("\d+", os.path.basename(coords_pickle)).group(0))
+      vels_pickle = os.path.join(me.project.rootdir, milestone.directory, "md",
+                                 "fwd_rev", "success_vels%d.pickle' % i)
+      assert os.path.exists(vels_pickle), coords_pickle+" file exists, but \
+          corresponding velocity file: '+vels_pickle+' does not."
+      #me.fwd_rev_stage.success_coords_pickle = os.path.join(
+      #   me.project.rootdir, milestone.directory, 'md', 'fwd_rev', 
+      #   'success_coords.pickle') # TODO: remove line
       print "Opening pickles:", coords_pickle, vels_pickle
-      success_coords_pickle =  open(coords_pickle, 'rb') 
+      success_coords_pickle =  open(coords_pickle, "rb") 
       #success_coords_pickle_file = open(success_coords_pickle, 'rb')
       positions = pickle.load(success_coords_pickle)
       success_coords_pickle.close()
     
-      #me.fwd_rev_stage.success_vels_pickle = os.path.join(me.project.rootdir, milestone.directory, 'md', 'fwd_rev', 'success_vels.pickle') # TODO: remove line
-      success_vels_pickle =  open(vels_pickle, 'rb') 
+      #me.fwd_rev_stage.success_vels_pickle = os.path.join(
+      #   me.project.rootdir, milestone.directory, 'md', 'fwd_rev', 
+      #   'success_vels.pickle') # TODO: remove line
+      success_vels_pickle =  open(vels_pickle, "rb") 
       #success_vels_pickle_file = open(success_vels_pickle, 'rb')
       velocities = pickle.load(success_vels_pickle)
       success_vels_pickle.close()
@@ -125,7 +145,8 @@ for milestone in all_milestones:
       for vel in velocities:
         reversed_vels.append(-1.0 * vel)
     
-      assert len(positions) == len(velocities), "The length of provided velocities and positions must be equal."
+      assert len(positions) == len(velocities), "The length of provided \
+          velocities and positions must be equal."
       positions = iter(positions)
     
       print "Running Forwards"
@@ -134,9 +155,12 @@ for milestone in all_milestones:
       while not complete:
         print "Running chunk %d" % i
       
-        success_positions, success_velocities, data_file_name, indices_list, complete = seekr.launch_fwd_rev_stage(me, milestone, 
-                      traj_base, False, positions, input_vels=reversed_vels, box_vectors=box_vectors, 
-                      transition_filename=transition_filename, suffix='_%d' % i, save_fwd_rev=save_fwd_rev)
+        success_positions, success_velocities, data_file_name, indices_list, \
+            complete = seekr.launch_fwd_rev_stage(me, milestone, 
+                traj_base, False, positions, input_vels=reversed_vels, 
+                box_vectors=box_vectors, 
+                transition_filename=transition_filename, 
+                suffix='_%d' % i, save_fwd_rev=save_fwd_rev)
         save_fwd_rev = True
         del success_positions
         del success_velocities
@@ -144,9 +168,12 @@ for milestone in all_milestones:
         del velocities
     
         # TODO: parse transition file information
-        transition_dict, avg_incubation_time, incubation_time_list = seekr.read_data_file_transitions(data_file_name, me, milestone)
+        transition_dict, avg_incubation_time, incubation_time_list = \
+            seekr.read_data_file_transitions(data_file_name, 
+                                             me, milestone)
         incubation_time_list_total += incubation_time_list
-        transition_dict_total = add_dictionaries(transition_dict_total, transition_dict)
+        transition_dict_total = add_dictionaries(transition_dict_total, 
+                                                 transition_dict)
         print "TRANSITION DICT:"
         pprint(transition_dict)
     
@@ -157,5 +184,6 @@ for milestone in all_milestones:
     avg_incubation_time = np.mean(incubation_time_list_total)
     pprint(avg_incubation_time)
     
-    seekr.pickle_transition_info(me, milestone, transition_dict, avg_incubation_time)
+    seekr.pickle_transition_info(me, milestone, transition_dict, 
+                                 avg_incubation_time)
     
